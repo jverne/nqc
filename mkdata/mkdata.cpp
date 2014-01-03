@@ -6,7 +6,7 @@ using std::fopen;
 using std::strcmp;
 
 //static char *sTestArgs[]={"mkdata", "rcx.nqh", "rcx_data.h", "rcxData" };
-static char *sTestArgs[] = {"mkdata", "-s", "fastdl.srec", "RCX_nub.h", "rcxNub" };
+static const char *sTestArgs[] = {"mkdata", "-s", "fastdl.srec", "RCX_nub.h", "rcxNub" };
 
 
 int main(int argc, char **argv)
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 	if (argc == 0)
 	{
 		// special case for debugging under the Metrowerks console
-		argv = sTestArgs;
+		argv = (char **)sTestArgs;
 		argc = sizeof(sTestArgs) / sizeof(char *);
 	}
 

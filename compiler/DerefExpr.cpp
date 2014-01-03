@@ -97,7 +97,7 @@ Expr* DerefExpr::Clone(Mapping *m) const
                   if (!e->Evaluate(val))
                    {
                        val = e->GetLValue();
-                       if ((val == kIllegalVar) /* || !(val & kPointerFlag) */)
+                       if (val == kIllegalVar)
                        {
                            Error(kErr_ParamType, "pointer").Raise(&e->GetLoc());
                            return e->Clone(0);

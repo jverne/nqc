@@ -24,39 +24,39 @@
 static const class RCX_Target sTargets[] = {
 	{
 		kRCX_RCXTarget, "RCX", "__RCX", "1",
-		{ 0, 10, 0, 8, 0, 0, 0, 0 },
+		{ {0, 10}, {0, 8}, {0, 0}, {0, 0} },
 		32, 0, false, false, false, true, false, false
 	},
 
 	{
 		kRCX_CMTarget, "CyberMaster", "__CM", "1",
-		{ 0, 4,	0, 4, 0, 0, 0, 0 },
+		{ {0, 4}, {0, 4}, {0, 0}, {0, 0} },
 		32, 0, false, false, false, true, false, false
 	},
 
 	{
 		kRCX_ScoutTarget, "Scout", "__SCOUT", "1",
-		{ 0, 6,	0, 3, 0, 0, 0, 0 },
+		{ {0, 6}, {0, 3}, {0, 0}, {0, 0} },
 		10, 8, true, true, false, true, false, false
 	},
 
 	{
 		kRCX_RCX2Target, "RCX2", "__RCX", "2",
-		{ 0, 10, 0, 8, 0, 0, 0, 0 },
+		{ {0, 10}, {0, 8}, {0, 0}, {0, 0} },
 		32, 16, true, true, true, false, false, false
 	},
 
-        {
-                kRCX_SpyboticsTarget, "Spybotics", "__SPY", "1",
-                { 8, 8, 128, 32, 64, 16, 8, 8 },
-                32, 4, true, true, true, false, true, false
-        },
+    {
+        kRCX_SpyboticsTarget, "Spybotics", "__SPY", "1",
+        { {8, 8}, {128, 32}, {64, 16}, {8, 8} },
+        32, 4, true, true, true, false, true, false
+    },
 
-        {
-                kRCX_SwanTarget, "Swan", "__SWAN", "1",
-                { 0, 10, 0, 8, 0, 0, 0, 0 },
-                256, 0, true, true, true, false, true, true
-        },
+    {
+        kRCX_SwanTarget, "Swan", "__SWAN", "1",
+        { {0, 10}, {0, 8}, {0, 0}, {0, 0} },
+        256, 0, true, true, true, false, true, true
+    },
 };
 
 const RCX_Target *getTarget(RCX_TargetType type)
