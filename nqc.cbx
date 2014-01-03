@@ -1,0 +1,945 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--C++BuilderX Project-->
+<project>
+  <property category="build.config" name="active" value="1"/>
+  <property category="build.config" name="count" value="1"/>
+  <property category="build.config" name="excludedefaultforzero" value="0"/>
+  <property category="build.config.0" name="builddir" value="Debug"/>
+  <property category="build.config.0" name="key" value="Debug_Build"/>
+  <property category="build.config.0" name="name" value="Debug Build"/>
+  <property category="build.config.0" name="settings.MinGW" value="default;debug"/>
+  <property category="build.config.0" name="settings.gnuc++" value="default;debug"/>
+  <property category="build.config.0" name="settings.intelwinia32" value="default;debug"/>
+  <property category="build.config.0" name="settings.mswin32" value="default;debug"/>
+  <property category="build.config.0" name="type" value="Toolset"/>
+  <property category="build.config.0" name="win32.builddir" value="windows/Debug_Build"/>
+  <property category="build.config.1" name="key" value="Release_Build"/>
+  <property category="build.config.1" name="name" value="Release Build"/>
+  <property category="build.config.1" name="settings.MinGW" value="default;release"/>
+  <property category="build.config.1" name="settings.gnuc++" value="default;release"/>
+  <property category="build.config.1" name="settings.intelwinia32" value="default;release"/>
+  <property category="build.config.1" name="settings.mswin32" value="default;release"/>
+  <property category="build.config.1" name="type" value="Toolset"/>
+  <property category="build.config.1" name="win32.builddir" value="windows/Release_Build"/>
+  <property category="build.node" name="name" value="nqc"/>
+  <property category="build.node" name="type" value="exeproject"/>
+  <property category="build.platform" name="active" value="win32"/>
+  <property category="build.platform" name="linux.default" value="gnuc++"/>
+  <property category="build.platform" name="linux.enabled" value="0"/>
+  <property category="build.platform" name="solaris.default" value="gnuc++"/>
+  <property category="build.platform" name="solaris.enabled" value="0"/>
+  <property category="build.platform" name="win32.Debug_Build.toolset" value="win32b"/>
+  <property category="build.platform" name="win32.MinGW.enabled" value="1"/>
+  <property category="build.platform" name="win32.Release_Build.toolset" value="win32b"/>
+  <property category="build.platform" name="win32.default" value="win32b"/>
+  <property category="build.platform" name="win32.gnuc++.enabled" value="0"/>
+  <property category="build.platform" name="win32.mswin32.enabled" value="0"/>
+  <property category="build.platform" name="win32.win32b.enabled" value="1"/>
+  <property category="cbproject" name="lastnodeid" value="452"/>
+  <property category="cbproject" name="version" value="X.1.0"/>
+  <property category="classbrowser" name="enable" value="1"/>
+  <property category="classbrowser" name="parser.cpp.enums_as_classes" value="0"/>
+  <property category="classbrowser" name="parser.cpp.skip_standard_directories" value="1"/>
+  <property category="cppFormatting" name="keep-array-initialization" value="1"/>
+  <property category="cppFormatting" name="keep-user-spaces" value="1"/>
+  <property category="cppFormatting" name="space-around-parent" value="0"/>
+  <property category="editor.general" name="line_ending.style" value="3"/>
+  <property category="generalFormatting" name="lineEndingStyle" value="3"/>
+  <property category="runtime" name="ConfigurationCount" value="16"/>
+  <property category="runtime.0" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.0" name="ConfigurationName" value="nqc"/>
+  <property category="runtime.0" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.0" name="native.exec.args" value="-TSpy -L\winapps\projects\list.txt ..\..\jch.nqc"/>
+  <property category="runtime.0" name="native.target.override" value="0"/>
+  <property category="runtime.1" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.1" name="ConfigurationName" value="firmware"/>
+  <property category="runtime.1" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.1" name="native.exec.args" value="-Susb -q -firmware \winapps\projects\bricxcc\firm0328.lgo"/>
+  <property category="runtime.1" name="native.target.override" value="0"/>
+  <property category="runtime.10" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.10" name="ConfigurationName" value="hanoi swan"/>
+  <property category="runtime.10" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.10" name="native.exec.args" value="-q -TSwan -L ..\..\hanoi.nqc"/>
+  <property category="runtime.10" name="native.target.override" value="0"/>
+  <property category="runtime.11" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.11" name="ConfigurationName" value="hanoi rcx2"/>
+  <property category="runtime.11" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.11" name="native.exec.args" value="-q -TRCX2 -L ..\..\hanoi.nqc"/>
+  <property category="runtime.11" name="native.target.override" value="0"/>
+  <property category="runtime.12" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.12" name="ConfigurationName" value="clear memory"/>
+  <property category="runtime.12" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.12" name="native.exec.args" value="-v -x -Susb -clear"/>
+  <property category="runtime.12" name="native.target.override" value="0"/>
+  <property category="runtime.13" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.13" name="ConfigurationName" value="firmfast 1000"/>
+  <property category="runtime.13" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.13" name="native.exec.args" value="-Susb -q -f1000 -v -firmfast c:\winapps\projects\bricxcc\firm0328.lgo"/>
+  <property category="runtime.13" name="native.target.override" value="0"/>
+  <property category="runtime.14" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.14" name="ConfigurationName" value="jch3 Spy Compile"/>
+  <property category="runtime.14" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.14" name="native.exec.args" value="-q -TSpy -n -L ..\..\jch3.nqc"/>
+  <property category="runtime.14" name="native.target.override" value="0"/>
+  <property category="runtime.15" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.15" name="ConfigurationName" value="test_find spy compile"/>
+  <property category="runtime.15" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.15" name="native.exec.args" value="-q -TSpy -L ..\..\..\bricxcc\examples\test_find.nqc"/>
+  <property category="runtime.15" name="native.target.override" value="0"/>
+  <property category="runtime.16" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.16" name="ConfigurationName" value="philo3 NXT Compile"/>
+  <property category="runtime.16" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.16" name="native.exec.args" value="-q -TNXT -N ..\..\philo3.nqc"/>
+  <property category="runtime.16" name="native.target.override" value="0"/>
+  <property category="runtime.2" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.2" name="ConfigurationName" value="raw"/>
+  <property category="runtime.2" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.2" name="native.exec.args" value="-Susb -TSpy -raw 120000"/>
+  <property category="runtime.2" name="native.target.override" value="0"/>
+  <property category="runtime.3" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.3" name="ConfigurationName" value="firmfast usb"/>
+  <property category="runtime.3" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.3" name="native.exec.args" value="-Susb -q -v -w0 -firmfast c:\winapps\projects\bricxcc\firm0328.lgo"/>
+  <property category="runtime.3" name="native.target.override" value="0"/>
+  <property category="runtime.4" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.4" name="ConfigurationName" value="firmfast serial"/>
+  <property category="runtime.4" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.4" name="native.exec.args" value="-Scom1 -q -firmfast c:\winapps\projects\bricxcc\firm0328.lgo"/>
+  <property category="runtime.4" name="native.target.override" value="0"/>
+  <property category="runtime.5" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.5" name="ConfigurationName" value="firmware serial"/>
+  <property category="runtime.5" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.5" name="native.exec.args" value="-Scom1 -q -firmware \winapps\projects\bricxcc\firm0328.lgo"/>
+  <property category="runtime.5" name="native.target.override" value="0"/>
+  <property category="runtime.6" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.6" name="ConfigurationName" value="test download rcx2"/>
+  <property category="runtime.6" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.6" name="native.exec.args" value="-q -d -Susb -TRCX2 ..\..\test.nqc"/>
+  <property category="runtime.6" name="native.target.override" value="0"/>
+  <property category="runtime.7" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.7" name="ConfigurationName" value="test2 RCX2 Compile"/>
+  <property category="runtime.7" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.7" name="native.exec.args" value="-q -TRCX2 -L ..\..\test2.nqc"/>
+  <property category="runtime.7" name="native.target.override" value="0"/>
+  <property category="runtime.8" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.8" name="ConfigurationName" value="test2 Swan Compile"/>
+  <property category="runtime.8" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.8" name="native.exec.args" value="-q -TSwan -L ..\..\test2.nqc"/>
+  <property category="runtime.8" name="native.target.override" value="0"/>
+  <property category="runtime.9" name="BuildTargetOnRun" value="com.borland.cbuilder.build.CBProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.9" name="ConfigurationName" value="swan1"/>
+  <property category="runtime.9" name="RunnableType" value="com.borland.cbuilder.runtime.ExecutableRunner"/>
+  <property category="runtime.9" name="native.exec.args" value="-q -TSwan -L ..\..\test2.nqc"/>
+  <property category="runtime.9" name="native.target.override" value="0"/>
+  <property category="team" name="ignorePath.0" value="bak"/>
+  <property category="team" name="ignorePath.1" value="bin"/>
+  <property category="team" name="ignorePath.10" value="jch.rcx"/>
+  <property category="team" name="ignorePath.11" value="jch2.nqc"/>
+  <property category="team" name="ignorePath.12" value="Copy of nqc.cbx"/>
+  <property category="team" name="ignorePath.13" value="File1.cpp"/>
+  <property category="team" name="ignorePath.14" value="jch3.bak"/>
+  <property category="team" name="ignorePath.15" value="jch3.nqc"/>
+  <property category="team" name="ignorePath.16" value="nqc-2.5.r1-linuxusb.patch"/>
+  <property category="team" name="ignorePath.17" value="nqc-3.0.a.2.1.diff"/>
+  <property category="team" name="ignorePath.18" value="nqc-3.0.a2-linux.patch"/>
+  <property category="team" name="ignorePath.19" value="nqc-3.0.a2.diff"/>
+  <property category="team" name="ignorePath.2" value="windows"/>
+  <property category="team" name="ignorePath.20" value="nqc.cbx.bad"/>
+  <property category="team" name="ignorePath.21" value="parse.cpp"/>
+  <property category="team" name="ignorePath.22" value="test.txt"/>
+  <property category="team" name="ignorePath.23" value="y_tab.c"/>
+  <property category="team" name="ignorePath.24" value="y_tab.h"/>
+  <property category="team" name="ignorePath.25" value="nqc.cbx.bad"/>
+  <property category="team" name="ignorePath.26" value="parse.cpp"/>
+  <property category="team" name="ignorePath.27" value="philo3.nqc"/>
+  <property category="team" name="ignorePath.3" value="test2.bak"/>
+  <property category="team" name="ignorePath.4" value="test2.nqc"/>
+  <property category="team" name="ignorePath.5" value="test2.rcx"/>
+  <property category="team" name="ignorePath.6" value="File1.c"/>
+  <property category="team" name="ignorePath.7" value="hanoi.nqc"/>
+  <property category="team" name="ignorePath.8" value="jch.bak"/>
+  <property category="team" name="ignorePath.9" value="jch.nqc"/>
+  <property category="unique" name="id" value="452"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.1" value="_DEBUG"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.2" value="WIN32"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.3" value="DEBUG"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.I.arg.1" value="compiler"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.I.arg.2" value="rcxlib"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.I.arg.3" value="platform"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.I.arg.4" value="$(BCBX)\include"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.I.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.Od.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.V.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.a8.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.batchfilecompile.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.c.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.g.arg" value="100"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.g.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.i.arg" value="250"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.i.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.j.arg" value="25"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.j.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.k.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.o.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.r.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.responsefile.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.v.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.vi.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.bcc32" name="option.y.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.brcc32" name="option.F.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.brcc32" name="option.INCLUDEPATH.arg.1" value="compiler"/>
+  <property category="win32.Debug_Build.win32b.brcc32" name="option.INCLUDEPATH.arg.merge" value="0"/>
+  <property category="win32.Debug_Build.win32b.brcc32" name="option.INCLUDEPATH.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.D.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Enn.arg" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Enn.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Gn.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.H:xxxx.arg" value="0x00100000"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.H:xxxx.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Hc:xxxx.arg" value="0x00001000"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Hc:xxxx.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.L.arg.1" value="$(BCBX)\lib"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.L.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.S:xxxx.arg" value="0x00100000"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.S:xxxx.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Sc:xxxx.arg" value="0x00002000"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Sc:xxxx.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Tpe.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Ud.d.arg" value="1.0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Ud.d.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Vd.d.arg" value="0.0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.Vd.d.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.b:xxxx.arg" value="0x00400000"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.b:xxxx.enabled" value="0"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.responsefile.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.v.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="option.x.enabled" value="1"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="param.libfiles.1" value="cw32.lib"/>
+  <property category="win32.Debug_Build.win32b.ilink32" name="param.libfiles.2" value="import32.lib"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.1" value="WIN32"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.merge" value="0"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.I.arg.1" value="compiler"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.I.arg.2" value="rcxlib"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.I.arg.3" value="platform"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.I.arg.4" value="$(BCBX)\include"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.I.arg.merge" value="0"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.I.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.O2.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.V.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.a8.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.batchfilecompile.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.c.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.g.arg" value="100"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.g.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.i.arg" value="250"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.i.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.j.arg" value="25"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.j.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.k.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.o.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.r.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.responsefile.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.tWC.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.bcc32" name="option.vi.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.brcc32" name="option.F.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.brcc32" name="option.INCLUDEPATH.arg.1" value="compiler"/>
+  <property category="win32.Release_Build.win32b.brcc32" name="option.INCLUDEPATH.arg.merge" value="0"/>
+  <property category="win32.Release_Build.win32b.brcc32" name="option.INCLUDEPATH.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Enn.arg" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Enn.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Gn.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.H:xxxx.arg" value="0x00100000"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.H:xxxx.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Hc:xxxx.arg" value="0x00001000"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Hc:xxxx.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.L.arg.1" value="$(BCBX)\lib"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.L.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.S:xxxx.arg" value="0x00100000"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.S:xxxx.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Sc:xxxx.arg" value="0x00002000"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Sc:xxxx.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Tpd.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Tpe.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Ud.d.arg" value="1.0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Ud.d.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Vd.d.arg" value="0.0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.Vd.d.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.aa.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.ap.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.b:xxxx.arg" value="0x00400000"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.b:xxxx.enabled" value="0"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.responsefile.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="option.x.enabled" value="1"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="param.libfiles.1" value="cw32.lib"/>
+  <property category="win32.Release_Build.win32b.ilink32" name="param.libfiles.2" value="import32.lib"/>
+  <property category="win32.win32b.Debug_Build" name="saved" value="1"/>
+  <property category="win32.win32b.Release_Build" name="saved" value="1"/>
+  <property category="win32b.bcc32" name="option.tWC.enabled" value="1"/>
+  <property category="win32b.ilink32" name="option.Tpd.enabled" value="0"/>
+  <property category="win32b.ilink32" name="option.Tpe.enabled" value="1"/>
+  <property category="win32b.ilink32" name="option.aa.enabled" value="0"/>
+  <property category="win32b.ilink32" name="option.ap.enabled" value="1"/>
+  <property category="win32b.ilink32" name="param.objfiles.1" value="c0x32.obj"/>
+  <file path="compiler/AcquireStmt.cpp">
+    <property category="unique" name="id" value="117"/>
+  </file>
+  <file path="compiler/AcquireStmt.h">
+    <property category="unique" name="id" value="119"/>
+  </file>
+  <file path="compiler/AddrOfExpr.cpp">
+    <property category="unique" name="id" value="409"/>
+  </file>
+  <file path="compiler/AddrOfExpr.h">
+    <property category="unique" name="id" value="407"/>
+  </file>
+  <file path="compiler/ArrayExpr.cpp">
+    <property category="unique" name="id" value="121"/>
+  </file>
+  <file path="compiler/ArrayExpr.h">
+    <property category="unique" name="id" value="123"/>
+  </file>
+  <file path="compiler/AsmStmt.cpp">
+    <property category="unique" name="id" value="125"/>
+  </file>
+  <file path="compiler/AsmStmt.h">
+    <property category="unique" name="id" value="127"/>
+  </file>
+  <file path="compiler/AssignMathStmt.cpp">
+    <property category="unique" name="id" value="129"/>
+  </file>
+  <file path="compiler/AssignMathStmt.h">
+    <property category="unique" name="id" value="131"/>
+  </file>
+  <file path="compiler/AssignStmt.cpp">
+    <property category="unique" name="id" value="133"/>
+  </file>
+  <file path="compiler/AssignStmt.h">
+    <property category="unique" name="id" value="135"/>
+  </file>
+  <file path="compiler/AtomExpr.cpp">
+    <property category="unique" name="id" value="137"/>
+  </file>
+  <file path="compiler/AtomExpr.h">
+    <property category="unique" name="id" value="139"/>
+  </file>
+  <file path="compiler/AutoFree.cpp">
+    <property category="unique" name="id" value="141"/>
+  </file>
+  <file path="compiler/AutoFree.h">
+    <property category="unique" name="id" value="143"/>
+  </file>
+  <file path="compiler/BinaryExpr.cpp">
+    <property category="unique" name="id" value="145"/>
+  </file>
+  <file path="compiler/BinaryExpr.h">
+    <property category="unique" name="id" value="147"/>
+  </file>
+  <file path="compiler/BlockStmt.cpp">
+    <property category="unique" name="id" value="149"/>
+  </file>
+  <file path="compiler/BlockStmt.h">
+    <property category="unique" name="id" value="151"/>
+  </file>
+  <file path="compiler/Buffer.cpp">
+    <property category="unique" name="id" value="153"/>
+  </file>
+  <file path="compiler/Buffer.h">
+    <property category="unique" name="id" value="187"/>
+  </file>
+  <file path="compiler/Bytecode.cpp">
+    <property category="unique" name="id" value="279"/>
+  </file>
+  <file path="compiler/Bytecode.h">
+    <property category="unique" name="id" value="183"/>
+  </file>
+  <file path="compiler/CallStmt.cpp">
+    <property category="unique" name="id" value="283"/>
+  </file>
+  <file path="compiler/CallStmt.h">
+    <property category="unique" name="id" value="271"/>
+  </file>
+  <file path="compiler/CaseStmt.cpp">
+    <property category="unique" name="id" value="275"/>
+  </file>
+  <file path="compiler/CaseStmt.h">
+    <property category="unique" name="id" value="171"/>
+  </file>
+  <file path="compiler/CatchStmt.cpp">
+    <property category="unique" name="id" value="159"/>
+  </file>
+  <file path="compiler/CatchStmt.h">
+    <property category="unique" name="id" value="163"/>
+  </file>
+  <file path="nqc/CmdLine.cpp">
+    <property category="unique" name="id" value="1"/>
+  </file>
+  <file path="nqc/CmdLine.h">
+    <property category="unique" name="id" value="3"/>
+  </file>
+  <file path="compiler/Compiler.cpp">
+    <property category="unique" name="id" value="293"/>
+  </file>
+  <file path="compiler/Compiler.h">
+    <property category="unique" name="id" value="249"/>
+  </file>
+  <file path="compiler/Conditional.cpp">
+    <property category="unique" name="id" value="285"/>
+  </file>
+  <file path="compiler/Conditional.h">
+    <property category="unique" name="id" value="211"/>
+  </file>
+  <file path="compiler/CondParser.cpp">
+    <property category="unique" name="id" value="261"/>
+  </file>
+  <file path="compiler/CondParser.h">
+    <property category="unique" name="id" value="203"/>
+  </file>
+  <file path="compiler/DeclareStmt.cpp">
+    <property category="unique" name="id" value="185"/>
+  </file>
+  <file path="compiler/DeclareStmt.h">
+    <property category="unique" name="id" value="189"/>
+  </file>
+  <file path="compiler/DerefExpr.cpp">
+    <property category="unique" name="id" value="413"/>
+  </file>
+  <file path="compiler/DerefExpr.h">
+    <property category="unique" name="id" value="411"/>
+  </file>
+  <file path="nqc/DirList.cpp">
+    <property category="unique" name="id" value="9"/>
+  </file>
+  <file path="nqc/DirList.h">
+    <property category="unique" name="id" value="11"/>
+  </file>
+  <file path="compiler/DoStmt.cpp">
+    <property category="unique" name="id" value="297"/>
+  </file>
+  <file path="compiler/DoStmt.h">
+    <property category="unique" name="id" value="207"/>
+  </file>
+  <file path="compiler/Error.cpp">
+    <property category="unique" name="id" value="169"/>
+  </file>
+  <file path="compiler/Error.h">
+    <property category="unique" name="id" value="155"/>
+  </file>
+  <file path="compiler/EventSrcExpr.cpp">
+    <property category="unique" name="id" value="329"/>
+  </file>
+  <file path="compiler/EventSrcExpr.h">
+    <property category="unique" name="id" value="245"/>
+  </file>
+  <file path="compiler/Expansion.cpp">
+    <property category="unique" name="id" value="251"/>
+  </file>
+  <file path="compiler/Expansion.h">
+    <property category="unique" name="id" value="335"/>
+  </file>
+  <file path="compiler/Expr.cpp">
+    <property category="unique" name="id" value="201"/>
+  </file>
+  <file path="compiler/Expr.h">
+    <property category="unique" name="id" value="323"/>
+  </file>
+  <file path="compiler/ExprStmt.cpp">
+    <property category="unique" name="id" value="235"/>
+  </file>
+  <file path="compiler/ExprStmt.h">
+    <property category="unique" name="id" value="237"/>
+  </file>
+  <file path="compiler/ForStmt.cpp">
+    <property category="unique" name="id" value="239"/>
+  </file>
+  <file path="compiler/ForStmt.h">
+    <property category="unique" name="id" value="223"/>
+  </file>
+  <file path="compiler/Fragment.cpp">
+    <property category="unique" name="id" value="195"/>
+  </file>
+  <file path="compiler/Fragment.h">
+    <property category="unique" name="id" value="179"/>
+  </file>
+  <file path="compiler/FunctionDef.cpp">
+    <property category="unique" name="id" value="331"/>
+  </file>
+  <file path="compiler/FunctionDef.h">
+    <property category="unique" name="id" value="325"/>
+  </file>
+  <file path="compiler/GosubParamStmt.cpp">
+    <property category="unique" name="id" value="415"/>
+  </file>
+  <file path="compiler/GosubParamStmt.h">
+    <property category="unique" name="id" value="417"/>
+  </file>
+  <file path="compiler/GosubStmt.cpp">
+    <property category="unique" name="id" value="221"/>
+  </file>
+  <file path="compiler/GosubStmt.h">
+    <property category="unique" name="id" value="327"/>
+  </file>
+  <file path="compiler/GotoStmt.cpp">
+    <property category="unique" name="id" value="219"/>
+  </file>
+  <file path="compiler/GotoStmt.h">
+    <property category="unique" name="id" value="309"/>
+  </file>
+  <file path="compiler/IfStmt.cpp">
+    <property category="unique" name="id" value="199"/>
+  </file>
+  <file path="compiler/IfStmt.h">
+    <property category="unique" name="id" value="287"/>
+  </file>
+  <file path="compiler/IncDecExpr.cpp">
+    <property category="unique" name="id" value="177"/>
+  </file>
+  <file path="compiler/IncDecExpr.h">
+    <property category="unique" name="id" value="257"/>
+  </file>
+  <file path="compiler/IndirectExpr.cpp">
+    <property category="unique" name="id" value="265"/>
+  </file>
+  <file path="compiler/IndirectExpr.h">
+    <property category="unique" name="id" value="303"/>
+  </file>
+  <file path="compiler/InlineStmt.cpp">
+    <property category="unique" name="id" value="227"/>
+  </file>
+  <file path="compiler/InlineStmt.h">
+    <property category="unique" name="id" value="311"/>
+  </file>
+  <file path="compiler/JumpStmt.cpp">
+    <property category="unique" name="id" value="197"/>
+  </file>
+  <file path="compiler/JumpStmt.h">
+    <property category="unique" name="id" value="289"/>
+  </file>
+  <file path="compiler/LabelStmt.cpp">
+    <property category="unique" name="id" value="175"/>
+  </file>
+  <file path="compiler/LabelStmt.h">
+    <property category="unique" name="id" value="291"/>
+  </file>
+  <file path="platform/LEGOUSBTowerioctl.h">
+    <property category="unique" name="id" value="403"/>
+  </file>
+  <file path="compiler/lex.l">
+    <property category="unique" name="id" value="397"/>
+  </file>
+  <file path="compiler/lexer.cpp">
+    <property category="unique" name="id" value="191"/>
+  </file>
+  <file path="compiler/LexLocation.h">
+    <property category="unique" name="id" value="209"/>
+  </file>
+  <file path="compiler/LocationNode.h">
+    <property category="unique" name="id" value="167"/>
+  </file>
+  <file path="compiler/LogicalExpr.cpp">
+    <property category="unique" name="id" value="215"/>
+  </file>
+  <file path="compiler/LogicalExpr.h">
+    <property category="unique" name="id" value="255"/>
+  </file>
+  <file path="compiler/Macro.cpp">
+    <property category="unique" name="id" value="157"/>
+  </file>
+  <file path="compiler/Macro.h">
+    <property category="unique" name="id" value="161"/>
+  </file>
+  <file path="Makefile">
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="423"/>
+  </file>
+  <file path="compiler/Mapping.cpp">
+    <property category="unique" name="id" value="205"/>
+  </file>
+  <file path="compiler/Mapping.h">
+    <property category="unique" name="id" value="295"/>
+  </file>
+  <file path="compiler/ModExpr.cpp">
+    <property category="unique" name="id" value="225"/>
+  </file>
+  <file path="compiler/ModExpr.h">
+    <property category="unique" name="id" value="263"/>
+  </file>
+  <file path="compiler/MonitorStmt.cpp">
+    <property category="unique" name="id" value="173"/>
+  </file>
+  <file path="compiler/MonitorStmt.h">
+    <property category="unique" name="id" value="281"/>
+  </file>
+  <file path="compiler/NegateExpr.cpp">
+    <property category="unique" name="id" value="313"/>
+  </file>
+  <file path="compiler/NegateExpr.h">
+    <property category="unique" name="id" value="231"/>
+  </file>
+  <file path="compiler/NodeExpr.cpp">
+    <property category="unique" name="id" value="267"/>
+  </file>
+  <file path="compiler/NodeExpr.h">
+    <property category="unique" name="id" value="273"/>
+  </file>
+  <file path="nqc/nqc.cpp">
+    <property category="unique" name="id" value="13"/>
+    <property category="win32b.Preprocess" name="enabled" value="1"/>
+  </file>
+  <file path="compiler/parse.cpp">
+    <property category="unique" name="id" value="213"/>
+  </file>
+  <file path="compiler/parse.tab.h">
+    <property category="unique" name="id" value="243"/>
+  </file>
+  <file path="compiler/parse.y">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="399"/>
+  </file>
+  <file path="compiler/parse_util.cpp">
+    <property category="unique" name="id" value="253"/>
+  </file>
+  <file path="compiler/parse_util.h">
+    <property category="unique" name="id" value="217"/>
+  </file>
+  <file path="compiler/parser.h">
+    <property category="unique" name="id" value="319"/>
+  </file>
+  <file path="platform/PDebug.cpp">
+    <property category="unique" name="id" value="41"/>
+  </file>
+  <file path="platform/PDebug.h">
+    <property category="unique" name="id" value="47"/>
+  </file>
+  <file path="platform/PHashTable.cpp">
+    <property category="unique" name="id" value="27"/>
+  </file>
+  <file path="platform/PHashTable.h">
+    <property category="unique" name="id" value="33"/>
+  </file>
+  <file path="platform/PListS.cpp">
+    <property category="unique" name="id" value="31"/>
+  </file>
+  <file path="platform/PListS.h">
+    <property category="unique" name="id" value="45"/>
+  </file>
+  <file path="compiler/PreProc.cpp">
+    <property category="unique" name="id" value="315"/>
+  </file>
+  <file path="compiler/PreProc.h">
+    <property category="unique" name="id" value="317"/>
+  </file>
+  <file path="compiler/Program.cpp">
+    <property category="unique" name="id" value="259"/>
+  </file>
+  <file path="compiler/Program.h">
+    <property category="unique" name="id" value="301"/>
+  </file>
+  <file path="platform/PSerial.h">
+    <property category="unique" name="id" value="29"/>
+  </file>
+  <file path="platform/PSerial_mac.cpp">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="447"/>
+  </file>
+  <file path="platform/PSerial_none.cpp">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="449"/>
+  </file>
+  <file path="platform/PSerial_unix.cpp">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="451"/>
+  </file>
+  <file path="platform/PSerial_win.cpp">
+    <property category="unique" name="id" value="37"/>
+  </file>
+  <file path="platform/PStream.cpp">
+    <property category="unique" name="id" value="35"/>
+  </file>
+  <file path="platform/PStream.h">
+    <property category="unique" name="id" value="23"/>
+  </file>
+  <file path="platform/PTypes.h">
+    <property category="unique" name="id" value="25"/>
+  </file>
+  <file path="compiler/rcx1.nqh">
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="419"/>
+  </file>
+  <file path="compiler/rcx1_nqh.h">
+    <property category="unique" name="id" value="193"/>
+  </file>
+  <file path="compiler/rcx2.nqh">
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="421"/>
+  </file>
+  <file path="compiler/rcx2_nqh.h">
+    <property category="unique" name="id" value="181"/>
+  </file>
+  <file path="rcxlib/RCX_Cmd.cpp">
+    <property category="unique" name="id" value="93"/>
+  </file>
+  <file path="rcxlib/RCX_Cmd.h">
+    <property category="unique" name="id" value="59"/>
+  </file>
+  <file path="rcxlib/RCX_Constants.h">
+    <property category="unique" name="id" value="77"/>
+  </file>
+  <file path="rcxlib/RCX_Disasm.cpp">
+    <property category="unique" name="id" value="95"/>
+  </file>
+  <file path="rcxlib/RCX_Disasm.h">
+    <property category="unique" name="id" value="83"/>
+  </file>
+  <file path="rcxlib/RCX_GhostTransport.cpp">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="435"/>
+  </file>
+  <file path="rcxlib/RCX_GhostTransport.h">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="437"/>
+  </file>
+  <file path="rcxlib/RCX_Image.cpp">
+    <property category="unique" name="id" value="55"/>
+  </file>
+  <file path="rcxlib/RCX_Image.h">
+    <property category="unique" name="id" value="87"/>
+  </file>
+  <file path="rcxlib/RCX_Link.cpp">
+    <property category="unique" name="id" value="79"/>
+  </file>
+  <file path="rcxlib/RCX_Link.h">
+    <property category="unique" name="id" value="51"/>
+  </file>
+  <file path="rcxlib/RCX_Log.cpp">
+    <property category="unique" name="id" value="105"/>
+  </file>
+  <file path="rcxlib/RCX_Log.h">
+    <property category="unique" name="id" value="107"/>
+  </file>
+  <file path="rcxlib/RCX_Pipe.cpp">
+    <property category="unique" name="id" value="433"/>
+  </file>
+  <file path="rcxlib/RCX_Pipe.h">
+    <property category="unique" name="id" value="63"/>
+  </file>
+  <file path="rcxlib/RCX_PipeTransport.cpp">
+    <property category="unique" name="id" value="97"/>
+  </file>
+  <file path="rcxlib/RCX_PipeTransport.h">
+    <property category="unique" name="id" value="81"/>
+  </file>
+  <file path="rcxlib/RCX_Result.h">
+    <property category="unique" name="id" value="99"/>
+  </file>
+  <file path="rcxlib/RCX_SerialPipe.cpp">
+    <property category="unique" name="id" value="75"/>
+  </file>
+  <file path="rcxlib/RCX_SerialPipe.h">
+    <property category="unique" name="id" value="53"/>
+  </file>
+  <file path="rcxlib/RCX_SourceTag.h">
+    <property category="unique" name="id" value="71"/>
+  </file>
+  <file path="rcxlib/RCX_SpyboticsLinker.cpp">
+    <property category="unique" name="id" value="85"/>
+  </file>
+  <file path="rcxlib/RCX_SpyboticsLinker.h">
+    <property category="unique" name="id" value="101"/>
+  </file>
+  <file path="rcxlib/RCX_Target.cpp">
+    <property category="unique" name="id" value="103"/>
+  </file>
+  <file path="rcxlib/RCX_Target.h">
+    <property category="unique" name="id" value="61"/>
+  </file>
+  <file path="rcxlib/RCX_Transport.cpp">
+    <property category="unique" name="id" value="57"/>
+  </file>
+  <file path="rcxlib/RCX_Transport.h">
+    <property category="unique" name="id" value="65"/>
+  </file>
+  <file path="rcxlib/RCX_USBTowerPipe_fbsd.cpp">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="441"/>
+  </file>
+  <file path="rcxlib/RCX_USBTowerPipe_linux.cpp">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="439"/>
+  </file>
+  <file path="rcxlib/RCX_USBTowerPipe_none.cpp">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="443"/>
+  </file>
+  <file path="rcxlib/RCX_USBTowerPipe_osx.cpp">
+    <property category="build.win32.Debug_Build.win32b" name="exclude" value="1"/>
+    <property category="build.win32.Release_Build.win32b" name="exclude" value="1"/>
+    <property category="unique" name="id" value="445"/>
+  </file>
+  <file path="rcxlib/RCX_USBTowerPipe_win.cpp">
+    <property category="unique" name="id" value="73"/>
+  </file>
+  <file path="rcxlib/rcxifile.h">
+    <property category="unique" name="id" value="91"/>
+  </file>
+  <file path="rcxlib/rcxnub.h">
+    <property category="unique" name="id" value="89"/>
+  </file>
+  <file path="rcxlib/rcxnub_linuxusb.h">
+    <property category="unique" name="id" value="109"/>
+  </file>
+  <file path="rcxlib/rcxnub_odd.h">
+    <property category="unique" name="id" value="69"/>
+  </file>
+  <file path="compiler/RelExpr.cpp">
+    <property category="unique" name="id" value="277"/>
+  </file>
+  <file path="compiler/RelExpr.h">
+    <property category="unique" name="id" value="333"/>
+  </file>
+  <file path="compiler/RepeatStmt.cpp">
+    <property category="unique" name="id" value="307"/>
+  </file>
+  <file path="compiler/RepeatStmt.h">
+    <property category="unique" name="id" value="241"/>
+  </file>
+  <file path="compiler/Resource.cpp">
+    <property category="unique" name="id" value="305"/>
+  </file>
+  <file path="compiler/Resource.h">
+    <property category="unique" name="id" value="321"/>
+  </file>
+  <file path="compiler/Scope.cpp">
+    <property category="unique" name="id" value="233"/>
+  </file>
+  <file path="compiler/Scope.h">
+    <property category="unique" name="id" value="247"/>
+  </file>
+  <file path="compiler/ScopeStmt.cpp">
+    <property category="unique" name="id" value="165"/>
+  </file>
+  <file path="compiler/ScopeStmt.h">
+    <property category="unique" name="id" value="229"/>
+  </file>
+  <file path="compiler/SensorExpr.cpp">
+    <property category="unique" name="id" value="299"/>
+  </file>
+  <file path="compiler/SensorExpr.h">
+    <property category="unique" name="id" value="269"/>
+  </file>
+  <file path="compiler/ShiftExpr.cpp">
+    <property category="unique" name="id" value="337"/>
+  </file>
+  <file path="compiler/ShiftExpr.h">
+    <property category="unique" name="id" value="339"/>
+  </file>
+  <file path="nqc/SRecord.cpp">
+    <property category="unique" name="id" value="15"/>
+  </file>
+  <file path="nqc/SRecord.h">
+    <property category="unique" name="id" value="17"/>
+  </file>
+  <file path="compiler/Stmt.cpp">
+    <property category="unique" name="id" value="341"/>
+  </file>
+  <file path="compiler/Stmt.h">
+    <property category="unique" name="id" value="343"/>
+  </file>
+  <file path="compiler/SwitchStmt.cpp">
+    <property category="unique" name="id" value="345"/>
+  </file>
+  <file path="compiler/SwitchStmt.h">
+    <property category="unique" name="id" value="347"/>
+  </file>
+  <file path="compiler/Symbol.cpp">
+    <property category="unique" name="id" value="349"/>
+  </file>
+  <file path="compiler/Symbol.h">
+    <property category="unique" name="id" value="351"/>
+  </file>
+  <file path="compiler/TaskIdExpr.cpp">
+    <property category="unique" name="id" value="355"/>
+  </file>
+  <file path="compiler/TaskIdExpr.h">
+    <property category="unique" name="id" value="353"/>
+  </file>
+  <file path="compiler/TaskStmt.cpp">
+    <property category="unique" name="id" value="357"/>
+  </file>
+  <file path="compiler/TaskStmt.h">
+    <property category="unique" name="id" value="359"/>
+  </file>
+  <file path="compiler/TernaryExpr.cpp">
+    <property category="unique" name="id" value="361"/>
+  </file>
+  <file path="compiler/TernaryExpr.h">
+    <property category="unique" name="id" value="363"/>
+  </file>
+  <file path="compiler/Token.h">
+    <property category="unique" name="id" value="365"/>
+  </file>
+  <file path="platform/TowerApi.h">
+    <property category="unique" name="id" value="401"/>
+  </file>
+  <file path="compiler/TypeExpr.cpp">
+    <property category="unique" name="id" value="367"/>
+  </file>
+  <file path="compiler/TypeExpr.h">
+    <property category="unique" name="id" value="369"/>
+  </file>
+  <file path="compiler/UnaryExpr.cpp">
+    <property category="unique" name="id" value="371"/>
+  </file>
+  <file path="compiler/UnaryExpr.h">
+    <property category="unique" name="id" value="373"/>
+  </file>
+  <file path="rcxlib/USBTowerWin.cpp">
+    <property category="unique" name="id" value="425"/>
+  </file>
+  <file path="rcxlib/USBTowerWin.h">
+    <property category="unique" name="id" value="427"/>
+  </file>
+  <file path="compiler/ValueExpr.cpp">
+    <property category="unique" name="id" value="375"/>
+  </file>
+  <file path="compiler/ValueExpr.h">
+    <property category="unique" name="id" value="377"/>
+  </file>
+  <file path="compiler/VarAllocator.cpp">
+    <property category="unique" name="id" value="379"/>
+  </file>
+  <file path="compiler/VarAllocator.h">
+    <property category="unique" name="id" value="381"/>
+  </file>
+  <file path="compiler/Variable.h">
+    <property category="unique" name="id" value="383"/>
+  </file>
+  <file path="compiler/VarTranslator.cpp">
+    <property category="unique" name="id" value="385"/>
+  </file>
+  <file path="compiler/VarTranslator.h">
+    <property category="unique" name="id" value="387"/>
+  </file>
+  <file path="compiler/version.h">
+    <property category="unique" name="id" value="389"/>
+  </file>
+  <file path="nqc/version.rc">
+    <property category="unique" name="id" value="19"/>
+  </file>
+  <file path="compiler/WhileStmt.cpp">
+    <property category="unique" name="id" value="391"/>
+  </file>
+  <file path="compiler/WhileStmt.h">
+    <property category="unique" name="id" value="393"/>
+  </file>
+</project>

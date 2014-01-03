@@ -1,0 +1,1896 @@
+/*
+ * rcx.nqh - version 3.1r5
+ * Copyright (C) 1998-2005 Dave Baum, John Hansen
+ *
+ * CyberMaster definitions by Laurentino Martins
+ * Spybot definitions by John Hansen
+ * Swan definitions by John Hansen
+ *
+ * This file is part of nqc, the Not Quite C compiler for the RCX
+ *
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * The Initial Developer of this code is David Baum.
+ * Portions created by David Baum are Copyright (C) 1998 David Baum.
+ * All Rights Reserved.
+ *
+ * Portions created by John Hansen are Copyright (C) 2005 John Hansen.
+ * All Rights Reserved.
+ *
+ */
+
+/*
+ *  This file defines various system constants and macros to be used
+ *  with the RCX.  Most of the real functionality of the RCX is
+ *  defined here rather than within nqcc itself.
+ *
+ */
+
+
+
+// internal constants for asm statements
+#define	__ASM_SMALL_VALUE	0x01000000
+#define __ASM_NO_TYPE		0x02000000
+#define __ASM_NO_LOCAL		0x04000000
+
+
+// commonly used restrictors
+#if __RCX==2 || defined(__SPY) || defined(__SWAN)
+	// no restriction
+	#define __ASM_SRC_BASIC	0
+	#define __ASM_SRC_EXT	0
+#else
+	#define	__ASM_SRC_BASIC	0x000005	// constant or variable
+	#define __ASM_SRC_EXT	0x000015	// constant, variable, or random
+#endif
+
+
+
+/**************************
+ * sensors
+ **************************/
+
+#define S1	0
+#define S2	1
+#define S3	2
+
+// reading a sensor's value and type
+#define SensorValue(n)		@(0x90000 + (__sensor(n)))
+
+
+#ifndef __SPY
+	#define SensorType(n)	@(0xa0000 + (__sensor(n)))
+#endif
+
+
+// constants for selecting sensors - also a shorthand to read the sensor's value
+#define SENSOR_1	SensorValue(S1)
+#define SENSOR_2	SensorValue(S2)
+#define SENSOR_3	SensorValue(S3)
+
+
+__nolist void ClearSensor(__sensor sensor) { asm { 0xd1, $sensor : 0x03000200}; }
+
+
+#ifdef __CM
+	// CM has alternative names for sensors
+	#define SENSOR_L SENSOR_1 // Left sensor
+	#define SENSOR_M SENSOR_2 // Middle sensor
+	#define SENSOR_R SENSOR_3 // Right sensor
+#endif
+
+
+#if defined(__RCX) || defined(__CM) || defined(__SWAN)
+	// RCX and CM support sensor modes
+	#define SENSOR_MODE_RAW			0x00
+	#define SENSOR_MODE_BOOL		0x20
+	#define SENSOR_MODE_EDGE		0x40
+	#define SENSOR_MODE_PULSE		0x60
+	#define SENSOR_MODE_PERCENT		0x80
+	#if defined(__RCX) || defined(__SWAN)
+		// RCX has some extra modes
+		#define SENSOR_MODE_CELSIUS	0xa0
+		#define SENSOR_MODE_FAHRENHEIT	0xc0
+		#define SENSOR_MODE_ROTATION	0xe0
+	#endif // __RCX or __SWAN
+
+
+	#define SensorMode(n)		@(0xb0000 + (__sensor(n)))	// read the sensor mode
+
+
+	__nolist void SetSensorMode(__sensor sensor, const int mode)	{ asm { 0x42, $sensor : 0x03000200, mode }; }
+#endif // defined(__RCX) || defined(__CM) || defined(__SWAN)
+
+
+#if defined(__SPY)
+	// SPY doesn't shift the mode over 5 bits in SensorMode(),
+	// so constants are different from RCX
+	#define SENSOR_MODE_RAW		0x00
+	#define SENSOR_MODE_BOOL	0x01
+	#define SENSOR_MODE_PERCENT	0x04
+	#define SensorMode(n)		@(0xb0000 + (__sensor(n)))	// read the sensor mode
+	__nolist void SetSensorMode(__sensor sensor, const int mode)	{ asm { 0x42, $sensor : 0x03000200, mode << 5 }; }
+#endif
+
+
+#if defined(__RCX) || defined(__SWAN)
+	// RCX supports sensor types
+
+	// types for SetSensorType()
+	#define SENSOR_TYPE_NONE	0
+	#define SENSOR_TYPE_TOUCH	1
+	#define SENSOR_TYPE_TEMPERATURE	2
+	#define SENSOR_TYPE_LIGHT	3
+	#define SENSOR_TYPE_ROTATION	4
+
+	#if defined(__SWAN)
+		#define SENSOR_TYPE_ACTIVE_RAW 5
+	#endif
+
+
+	// type/mode combinations for SetSensor()
+	#define _SENSOR_CFG(type,mode)	(((type)<<8) + (mode))
+	#define SENSOR_TOUCH		_SENSOR_CFG(SENSOR_TYPE_TOUCH, SENSOR_MODE_BOOL)
+	#define SENSOR_LIGHT		_SENSOR_CFG(SENSOR_TYPE_LIGHT, SENSOR_MODE_PERCENT)
+	#define SENSOR_ROTATION		_SENSOR_CFG(SENSOR_TYPE_ROTATION, SENSOR_MODE_ROTATION)
+	#define SENSOR_CELSIUS		_SENSOR_CFG(SENSOR_TYPE_TEMPERATURE, SENSOR_MODE_CELSIUS)
+	#define SENSOR_FAHRENHEIT	_SENSOR_CFG(SENSOR_TYPE_TEMPERATURE, SENSOR_MODE_FAHRENHEIT)
+	#define	SENSOR_PULSE		_SENSOR_CFG(SENSOR_TYPE_TOUCH, SENSOR_MODE_PULSE)
+	#define SENSOR_EDGE		_SENSOR_CFG(SENSOR_TYPE_TOUCH, SENSOR_MODE_EDGE)
+
+
+	#define SensorValueBool(n)	@(0xd0000 + (__sensor(n)))	// read the boolean value of a sensor
+
+
+	// set a sensor's type
+	__nolist void SetSensorType(__sensor sensor, const int type)	 { asm { 0x32, $sensor : 0x03000200, (type) }; }
+
+
+	// set a sensor's type and mode using a config - e.g. SetSensor(SENSOR_1, SENSOR_LIGHT);
+	__nolist void SetSensor(__sensor sensor, const int tm)	{ SetSensorType(sensor, tm>>8); SetSensorMode(sensor, tm); }
+#endif
+
+
+#ifdef __SCOUT
+	// Scout has some special routines to configure the light sensor
+	__nolist void CalibrateSensor()			{ asm { 0xc0 }; }
+	__nolist void SetSensorClickTime(const int &x)	{ asm { 0xe3, $x : __ASM_SRC_BASIC }; }
+	__nolist void SetSensorHysteresis(const int &x)	{ asm { 0xd3, $x : __ASM_SRC_BASIC }; }
+	__nolist void SetSensorLowerLimit(const int &x)	{ asm { 0xc3, $x : __ASM_SRC_BASIC }; }
+	__nolist void SetSensorUpperLimit(const int &x)	{ asm { 0xb3, $x : __ASM_SRC_BASIC }; }
+#endif
+
+
+#if defined(__RCX) || defined(__SCOUT) || defined(__SPY) || defined(__SWAN)
+	// RCX and Scout support reading the raw value
+	#define SensorValueRaw(n)	@(0xc0000 + (__sensor(n)))
+#endif
+
+
+
+/**************************
+ * outputs
+ **************************/
+
+
+// constants for selecting outputs
+#define OUT_A	0x01
+#define OUT_B	0x02
+#define OUT_C	0x04
+
+#define OUT_AB	0x03
+#define OUT_AC	0x05
+#define OUT_BC	0x06
+#define OUT_ABC	0x07
+
+#ifdef __SWAN
+	#define OUT_D	0x08
+	#define OUT_E	0x10
+	#define OUT_F	0x20
+#endif // __SWAN
+
+
+// output modes
+#define OUT_FLOAT	0
+#define OUT_OFF		0x40
+#define OUT_ON		0x80
+
+
+// output directions
+#define OUT_REV		0
+#define OUT_TOGGLE	0x40
+#define OUT_FWD		0x80
+
+
+// output power levels
+#define OUT_LOW		0
+#define OUT_HALF	3
+#define OUT_FULL	7
+
+
+// output functions
+__nolist void SetOutput(const int o, const int m)	{ asm { 0x21, (o) + (m) }; }
+__nolist void SetDirection(const int o, const int d)	{ asm { 0xe1, (o) + (d) }; }
+__nolist void SetPower(const int o, const int &p)	{ asm { 0x13, (o), $p : __ASM_SMALL_VALUE + __ASM_SRC_EXT}; }
+
+
+__nolist void On(const int o)	{ SetOutput(o, OUT_ON); }
+__nolist void Off(const int o)	{ SetOutput(o, OUT_OFF); }
+__nolist void Float(const int o) { SetOutput(o, OUT_FLOAT); }
+__nolist void Toggle(const int o) { SetDirection(o, OUT_TOGGLE); }
+__nolist void Fwd(const int o)	{ SetDirection(o, OUT_FWD); }
+__nolist void Rev(const int o)	{ SetDirection(o, OUT_REV); }
+__nolist void OnFwd(const int o)	{ Fwd(o); On(o); }
+__nolist void OnRev(const int o)	{ Rev(o); On(o); }
+__nolist void OnFor(const int o, const int &t)	{ On(o); Wait(t); Off(o); }
+
+
+#define OutputStatus(n)		@(0x030000 + (n))	// read the output status
+
+
+#ifdef __CM
+	// CyberMaster specific stuff
+	// alternate names for motors
+	#define OUT_L OUT_A // Left motor
+	#define OUT_R OUT_B // Right motor
+	#define OUT_X OUT_C // External motor
+
+
+	#define Drive(m0, m1)				asm { 0x41, DIRSPEED(m0) | DIRSPEED(m1)<<4 }
+	#define OnWait(m, n, t)				asm { 0xc2, (m)<<4 | DIRSPEED(n), t }
+	#define OnWaitDifferent(m, n0, n1, n2, t)	asm { 0x53, (m)<<4 | DIRSPEED(n0), DIRSPEED(n1)<<4 | DIRSPEED(n2), t }
+
+
+	// Aux. function: Transforms a number between -7 and 7 to a 4 bit sequence:
+	// Bits: 1..3 - Speed: 0 to 7
+	// Bit : 4    - Direction: 1 if v>=0, 0 if v<0
+	#define DIRSPEED(v)		((v)&8^8|((v)*(((v)>>3)*2^1))&7)
+
+
+	// reading the tacho, etc.
+	#define TachoCount(n)		@(0x50000 + (n)-1) // Use OUT_x as parameter
+	#define TachoSpeed(n)		@(0x60000 + (n)-1) // Use OUT_x as parameter
+	#define ExternalMotorRunning()	@(0x70002)	// Refered in the SDK as MotorCurrent(2). Non zero if external motor running.
+
+
+	#define ClearTachoCounter(m) asm { 0x11, (m) }
+#endif
+
+
+#if defined(__SCOUT) || __RCX==2 || defined(__SPY) || defined(__SWAN)
+	// Scout and RCX2 have global versions of output control
+	__nolist void SetGlobalOutput(const int o, const int m)	{ asm { 0x67, (o) + (m) }; }
+	__nolist void SetGlobalDirection(const int o, const int d)	{ asm { 0x77, (o) + (d) }; }
+	__nolist void SetMaxPower(const int o, const int &p)	{ asm { 0xa3, (o), $p : __ASM_SMALL_VALUE + __ASM_SRC_EXT}; }
+
+
+	__nolist void EnableOutput(const int o) { SetGlobalOutput(o, OUT_ON); }
+	__nolist void DisableOutput(const int o) { SetGlobalOutput(o, OUT_OFF); }
+	__nolist void InvertOutput(const int o) { SetGlobalDirection(o, OUT_REV); }
+	__nolist void ObvertOutput(const int o) { SetGlobalDirection(o, OUT_FWD); }
+
+
+	#define GlobalOutputStatus(n)		@(0x110000 + (n))	// read the global status
+#endif
+
+
+#if defined(__SCOUT) || defined(__SPY)
+	// Scout has a light
+	#define LIGHT_ON	0x80
+	#define LIGHT_OFF	0
+	__nolist void SetLight(const int x)	{ asm { 0x87, x }; }
+#endif
+
+
+
+/**************************
+ * sound
+ **************************/
+
+// sounds - for PlaySound()
+#define SOUND_CLICK		0
+#define SOUND_DOUBLE_BEEP	1
+#define SOUND_DOWN		2
+#define SOUND_UP		3
+#define SOUND_LOW_BEEP		4
+#define SOUND_FAST_UP		5
+
+#if defined(__SWAN)
+	#define SOUND_SHORT_BLIP	6
+	#define SOUND_EXCEPTION		7
+#endif
+
+
+// playing a system sound
+#if defined(__SPY)
+	// Spy can play variable or constant sounds
+	__nolist void PlaySound(const int &x)
+	{
+		if (__type(x)==2)
+			asm { 0x51, $x : 0x3000004 };
+		else
+			asm { 0xe7, $x : 0x3000001 };
+	}
+#else
+	__nolist void PlaySound(const int x)		{ asm { 0x51, x }; }
+#endif
+
+
+// playing a note
+#if defined(__SCOUT) || __RCX==2 || defined(__SPY) || defined(__SWAN)
+	// RCX2 and Scout can play variable or constant frequency
+	__nolist void PlayTone(const int &note, const int dur)
+	{
+		if (__type(note)==2)
+			asm { 0x23, $note : 0x2000004, dur };
+		else
+			asm { 0x02, $note : 0x3000001, dur};
+	}
+#else
+	// RCX1 and CM need constant frequency
+	__nolist void PlayTone(const int f, const int d)	{ asm { 0x23, (f), (f)>>8, (d) }; }
+#endif
+
+
+#if __RCX==2 || defined(__SPY) || defined(__SWAN)
+	// RCX2
+	__nolist void MuteSound()	{ asm { 0xd0 }; }
+	__nolist void UnmuteSound() 	{ asm { 0xe0 }; }
+	__nolist void ClearSound() 	{ asm { 0x80 }; }
+#elif defined(__SCOUT)
+	// SCOUT
+	__nolist void MuteSound()	{ asm { 0x57, 0x80 }; }
+	__nolist void UnmuteSound()	{ asm { 0x57, 0xc0 }; }
+	__nolist void SelectSounds(const int group)	{ asm { 0x57, group }; }
+#endif
+
+
+
+/**************************
+ * Display
+ **************************/
+
+#if defined(__RCX) || defined(__SWAN)
+	// set the display mode
+	__nolist void SelectDisplay(const int &v) { asm { 0x33, $v : __ASM_SRC_BASIC}; }
+
+	// display modes - for SelectDisplay
+	#define DISPLAY_WATCH		0
+	#define DISPLAY_SENSOR_1	1
+	#define DISPLAY_SENSOR_2	2
+	#define DISPLAY_SENSOR_3	3
+	#define DISPLAY_OUT_A		4
+	#define DISPLAY_OUT_B		5
+	#define DISPLAY_OUT_C		6
+
+	#if __RCX==2 || defined(__SWAN)
+		#define DISPLAY_USER	7
+		__nolist void SetUserDisplay(const int &v, const int prec) { asm { 0xe5, 0, prec, $v : __ASM_NO_LOCAL }; }
+	#endif
+
+	#if defined(__SWAN)
+		#define DISPLAY_EXCEPTION	8
+	#endif
+#endif
+
+
+
+/**************************
+ * communication
+ **************************/
+
+#if defined(__SPY) || defined(__SCOUT)
+	#if defined(__SPY)
+		#define VLL()		@(0xf0000)	// read the message buffer
+	#endif
+	// Scout and Spybot can send VLL commands
+	__nolist void SendVLL(const int &x)	{ asm { 0xe2, $x : __ASM_SMALL_VALUE + __ASM_SRC_BASIC}; }
+#endif
+
+
+#if defined(__RCX) || defined(__SCOUT) || defined(__SWAN)
+	// Scout and RCX have IR message capability
+	#define Message()			@(0xf0000)	// read the message buffer
+
+	__nolist void SendMessage(const int &v)	{ asm { 0xb2, $v : __ASM_SMALL_VALUE + __ASM_SRC_BASIC}; }
+	__nolist void ClearMessage()		{ asm { 0x90 }; }
+
+	#if __RCX==2 || defined(__SWAN)
+		__nolist void SetMessage(const int m)	{ asm { 0xf7, m }; }
+	#endif
+
+
+	#if defined(__SWAN)
+		#define MessageParam()		@(0xf0001) // read the msg param
+		__nolist void SendMessageWithParam(const int &m, const int &p)
+		  { asm { 0xc3, $m : __ASM_SMALL_VALUE + __ASM_SRC_EXT, $p : __ASM_SRC_EXT}; }
+		__nolist void SetMessageByteParam(const int m, const int p) { asm { 0xa2, m, p}; }
+		__nolist void SetMessageWordParam(const int m, const int p) { asm { 0xb3, m, p, p>>8}; }
+		__nolist void SetMessageVariableParam(const int &m, const int &p)
+		  { asm { 0xc4, $m : __ASM_SMALL_VALUE + __ASM_SRC_EXT, $p : __ASM_SRC_EXT}; }
+	#endif
+
+#endif
+
+
+#if __RCX==2 || defined(__SPY) || defined(__SWAN)
+  #if __RCX==2 || defined(__SWAN)
+	// serial communication sources
+	#define SerialPacket()	@(0x210010)
+	#define SerialComm()	@(0x210011)
+	__nolist void SetSerialPacket(const int &v)	{ Set(SerialPacket(), v); }
+	__nolist void SetSerialComm(const int &v)	{ Set(SerialComm(), v); }
+
+	// values for SerPacket
+	#define SERIAL_PACKET_DEFAULT	0	// raw serial, no checksum, no preamble
+	#define SERIAL_PACKET_PREAMBLE	1
+	#define SERIAL_PACKET_NEGATED	2	// includes checksum
+	#define SERIAL_PACKET_CHECKSUM	4	// use this for checksum w/o negated
+
+	#define SERIAL_PACKET_RCX	(SERIAL_PACKET_PREAMBLE + SERIAL_PACKET_NEGATED)
+	#define SERIAL_PACKET_RC	0	// default
+	#define SERIAL_PACKET_SPYBOT	0
+
+	// values for SerComm
+	#define SERIAL_COMM_DEFAULT	0
+	#define SERIAL_COMM_4800	1	// default is 2400 baud
+	#define SERIAL_COMM_76KHZ	2	// default is 38kHz
+	#define SERIAL_COMM_DUTY25	4	// default is 50% duty cycle
+
+	#define SERIAL_COMM_RCX		0
+	#define SERIAL_COMM_RC		7	// 4800/76KHZ/25%
+	#define SERIAL_COMM_SPYBOT	7	// was SERIAL_COMM_4800 + SERIAL_COMM_76KHZ
+
+	#ifdef __SWAN
+		#define SERIAL_COMM_9600	8
+		#define DefaultSerialPacket()	@(0x210012)
+		#define DefaultSerialComm()	@(0x210013)
+		__nolist void SetDefaultSerialPacket(const int &v)	{ Set(DefaultSerialPacket(), v); }
+		__nolist void SetDefaultSerialComm(const int &v)	{ Set(DefaultSerialComm(), v); }
+	#endif
+
+	// API for interacting with Spybot and other RC components
+	#define MSG_BROADCAST	0x8a
+	#define MSG_LINKCAST	0x89
+	#define MSG_DIRECT	0x88
+
+	// base addresses for uart data
+	#define UART_BOT	0
+	#define UART_CTRL	7
+	#define UART_PING	9
+	#define UART_RC		11
+
+	__nolist void InitSpybotComm()
+	{
+		SetSerialPacket(SERIAL_PACKET_SPYBOT);
+		SetSerialComm(SERIAL_COMM_SPYBOT);
+	}
+
+	__nolist void SendSpybotMsg()	{ SendSerial(UART_BOT, 7); }
+
+	__nolist void SetSpybotMessage(const int &nMode, const int &nMyID,
+	  const int &nAddress, const int &nCmd, const int &nHiByte, const int &nLoByte)
+	{
+		SetSerialData(UART_BOT+0,nMode);
+		SetSerialData(UART_BOT+1,nMyID);
+		SetSerialData(UART_BOT+2,nAddress);
+		SetSerialData(UART_BOT+3,nCmd);
+		SetSerialData(UART_BOT+4,nHiByte);
+		SetSerialData(UART_BOT+5,nLoByte);
+		SetSerialData(UART_BOT+6,0-nMode-nMyID-nAddress-nCmd-nHiByte-nLoByte);
+//		SetSerialData(UART_BOT+6,0x100-((nMode+nMyID+nAddress+nCmd+nHiByte+nLoByte)&0xff));
+	}
+
+	__nolist void SendSpybotMessage(const int &nMode, const int &nMyID,
+	  const int &nAddress, const int &nCmd, const int &nHiByte, const int &nLoByte)
+	{
+		InitSpybotComm();
+		SetSpybotMessage(nMode, nMyID, nAddress, nCmd, nHiByte, nLoByte);
+		SendSpybotMsg();
+	}
+
+	// Spybot controller commands
+	#define SPY_CTRL_BTN_1	0x01
+	#define SPY_CTRL_BTN_2	0x02
+	#define SPY_CTRL_BTN_3	0x03
+	#define SPY_CTRL_BTN_4	0x04
+	#define SPY_CTRL_BTN_5	0x05
+	#define SPY_CTRL_RCX_1	0x06	//RCX to Spybot specific
+	#define SPY_CTRL_RCX_2	0x07
+	#define SPY_CTRL_RCX_3	0x08
+	#define SPY_CTRL_RCX_4	0x09
+	#define SPY_CTRL_RCX_5	0x0a
+	#define SPY_CTRL_RCX_6	0x0b
+	#define SPY_CTRL_RCX_7	0x0c
+	#define SPY_CTRL_RCX_8	0x0d
+
+	#define __SPY_CTRL_CMD	0x90
+
+	__nolist void SendSpybotCtrlMsg()	{ SendSerial(UART_CTRL, 2); }
+
+	__nolist void SetSpybotCtrlMessage(const int &nMyID, const int &nMsg)
+	{
+		SetSerialData(UART_CTRL+0,__SPY_CTRL_CMD+nMyID);
+		SetSerialData(UART_CTRL+1,(nMsg * 16) + ((0 - ((__SPY_CTRL_CMD+nMyID) / 16) - (__SPY_CTRL_CMD+nMyID) - nMsg) & 0x0f));
+	}
+
+	__nolist void SendSpybotCtrlMessage(const int &nMyID, const int &nMsg)
+	{
+		InitSpybotComm();
+		SetSpybotCtrlMessage(nMyID, nMsg);
+		SendSpybotCtrlMsg();
+	}
+
+	__nolist void SendSpybotCtrlPingMsg()	{ SendSerial(UART_PING, 2); }
+
+	__nolist void SetSpybotCtrlPingMessage(const int &nID)
+	{
+		SetSerialData(UART_PING+0,__SPY_CTRL_CMD+nID);
+		SetSerialData(UART_PING+1,(0 - ((__SPY_CTRL_CMD+nID) / 16) - (__SPY_CTRL_CMD+nID)) & 0x0f);
+	}
+
+	__nolist void SendSpybotCtrlPingMessage(const int &nID)
+	{
+		InitSpybotComm();
+		SetSpybotCtrlPingMessage(nID);
+		SendSpybotCtrlPingMsg();
+	}
+
+	__nolist void SendSpybotPingMsg()	{ SendSerial(UART_PING, 4); }
+
+	__nolist void SetSpybotPing(const int &nLinkID, const int &nMyID, const int &nInfo)
+	{
+		SetSerialData(UART_PING+0,0x80+(nLinkID&0x7));
+		SetSerialData(UART_PING+1,nMyID);
+		SetSerialData(UART_PING+2,nInfo);
+		SetSerialData(UART_PING+3,0-(0x80+(nLinkID&0x7))-nMyID-nInfo);
+//		SetSerialData(UART_PING+3,0x100-((0x80+(nLinkID&0x7)+nMyID+nInfo)&0xff));
+	}
+
+	__nolist void SendSpybotPing(const int &nLinkID, const int &nMyID, const int &nInfo)
+	{
+		InitSpybotComm();
+		SetSpybotPing(nLinkID, nMyID, nInfo);
+		SendSpybotPingMsg();
+	}
+
+	// RC channels and commands
+	#define RC_CHANNEL_1	0x50
+	#define RC_CHANNEL_2	0x60
+	#define RC_CHANNEL_3	0x70
+
+	#define RC_CMD_FLOAT	0x00
+	#define RC_CMD_FWD	0x07
+	#define RC_CMD_OFF	0x08
+	#define RC_CMD_REV	0x0f
+
+	__nolist void InitRCComm()
+	{
+		SetSerialPacket(SERIAL_PACKET_RC);
+		SetSerialComm(SERIAL_COMM_RC);
+	}
+
+	__nolist void SendRCMsg()	{ SendSerial(UART_RC, 2); }
+
+	__nolist void SetRCMessage(const int &nChannel, const int &nLeft, const int &nRight)
+	{
+		SetSerialData(UART_RC+0,nChannel + nLeft);
+		SetSerialData(UART_RC+1,(nRight * 16) + ((0 - nRight - nLeft - (nChannel / 16)) & 0x0f));
+	}
+
+	__nolist void SendRCMessage(const int &nChannel, const int &nLeft, const int &nRight)
+	{
+		InitRCComm();
+		SetRCMessage(nChannel, nLeft, nRight);
+		SendRCMsg();
+	}
+
+
+  #endif
+
+  // Link ID constants for RCX2/Swan SendSpybotPing and Spybot API
+  #define ID_NONE	0
+  #define ID_CTRL_1	1
+  #define ID_CTRL_2	2
+  #define ID_CTRL_3	3
+  #define ID_CTRL_4	4
+  #define ID_CTRL_5	5
+  #define ID_CTRL_6	6
+  #define ID_PC		7
+
+  // my robot ID min and max values
+  #define ID_BOT_MIN	8
+  #define ID_BOT_MAX	255
+
+  // commands
+  #define CMD_TYPE_MASK		0x00f0
+
+  #define CMD_TYPE_GAME		0x10
+  #define CMD_GAME_START	0x10
+  #define CMD_GAME_COMMAND	0x11
+  #define CMD_GAME_GETVAR	0x12
+  #define CMD_GAME_VALUE	0x13
+  #define CMD_GAME_WIN		0x14
+  #define CMD_GAME_LOSE		0x15
+  #define CMD_GAME_BLINK	0x16
+  #define CMD_GAME_GIVE		0x17
+  #define CMD_GAME_TAKE		0x18
+
+  #define CMD_FROM_RCX2		0x1f
+
+//fire command protocol: <nBot>, 0x20 + <fireCommand>, <param1>, <param2>
+//		param1: target aspect (ie front, back, front left...)
+//		param2: strength
+  #define CMD_TYPE_FIRE		0x20
+  #define CMD_FIRE_LASER	0x21
+  #define CMD_FIRE_SPINNER	0x22
+  #define CMD_FIRE_ELECTRONET	0x23
+
+//react to special ability command protocol: <nBot>, 0x30 + <species>, <param1>, <param2>
+//		param1: range
+//		param2: strength/time
+  #define CMD_TYPE_REACT_TO		0x30
+  #define CMD_REACT_TO_GIGAMESH		0x31
+  #define CMD_REACT_TO_SNAPTRAX		0x32
+  #define CMD_REACT_TO_SHADOWSTRIKE	0x33
+  #define CMD_REACT_TO_TECHNOJAW	0x34
+
+//activate token in another bot tell protocol: <nBot>, 0x40 + <species>, <param1>, <param2>
+//		param1: 0
+//		param2: time
+  #define CMD_TYPE_TELL		x040
+  #define CMD_TELL_MAGNET	0x41
+  #define CMD_TELL_REPULSE	0x42
+  #define CMD_TELL_FLASHBLIND	0x43
+  #define CMD_TELL_FREEZE	0x44
+  #define CMD_TELL_SLOW		0x45
+  #define CMD_TELL_REVERSE	0x46
+  #define CMD_TELL_DIZZY	0x47
+  #define CMD_TELL_TAKECONTROL	0x48
+
+  #define CMD_TYPE_USER		0x50
+  #define CMD_TYPE_SPARE	0x60
+  #define CMD_SMART_BOMB	0x61
+  #define CMD_TYPE_VLL		0x70
+
+
+
+  #define SerialData(n)	@(0x210000 + (n)) // data for SendSer
+  __nolist void SetSerialData(const int n, const int &v)	{ Set(SerialData(n), v); }
+  __nolist void SendSerial(const int first, const int count)	{ asm { 0xc2, first, count }; }
+
+  #if defined(__SPY)
+
+	#define SERIAL_TYPE		0x10
+	#define SERIAL_TYPE_SPYBOT	0
+	#define SERIAL_TYPE_RCX		1
+	#define SERIAL_TYPE_RC		2
+	#define SERIAL_TYPE_USER	3
+	#define SerialType() @(0x210010)
+	__nolist void SetSerialType(const int &t) { Set(SerialType(), t); }
+
+	#define SERIAL_BAUD		0x11
+	#define SERIAL_BAUD_2400	0
+	#define SERIAL_BAUD_4800	1
+	#define SERIAL_BAUD_9600	2
+	#define SerialBaud() @(0x210011)
+	__nolist void SetSerialBaud(const int &b) { Set(SerialBaud(), b); }
+
+	#define SERIAL_CHANNEL		0x12
+	#define SERIAL_CHANNEL_IR	0
+	#define SERIAL_CHANNEL_PC	1
+	#define SerialChannel() @(0x210012)
+	__nolist void SetSerialChannel(const int &c) { Set(SerialChannel(), c); }
+
+	#define SERIAL_PREAMBLE_POS	0x13
+	#define SerialPreamblePos() @(0x210013)
+	__nolist void SetSerialPreamblePos(const int &p) { Set(SerialPreamblePos(), p); }
+
+	#define SERIAL_PREAMBLE_LEN	0x14
+	#define SerialPreambleLen() @(0x210014)
+	__nolist void SetSerialPreambleLen(const int &l) { Set(SerialPreambleLen(), l); }
+
+	#define SERIAL_CHECKSUM		0x15
+	#define SERIAL_CHECKSUM_NONE	0
+	#define SERIAL_CHECKSUM_SUM	0x04
+	#define SERIAL_CHECKSUM_ZERO_SUM	0x08
+	#define SerialChecksum() @(0x210015)
+	__nolist void SetSerialChecksum(const int &n) { Set(SerialChecksum(), n); }
+
+	#define SERIAL_BIPHASE		0x16
+	#define SERIAL_BIPHASE_OFF	0
+	#define SERIAL_BIPHASE_ON	0xff
+	#define SerialBiPhase() @(0x210016)
+	__nolist void SetSerialBiPhase(const int &n) { Set(SerialBiPhase(), n); }
+
+	#define MSG_NONE	0
+	#define MSG_IR		1
+	#define MSG_PC		2
+	#define RxMessageLock() @(0x210017)
+	__nolist void SetRxMessageLock(const int &l) { Set(RxMessageLock(), l); }
+
+	#define RxMessageIndex() @(0x210018)
+	#define RxMessageChannel() @(0x210019) // returns MSG_IR or MSG_PC
+	#define RxMessageID(c) @(0x210019 + (c)) // c == MSG_IR or MSG_PC
+
+	#define MSG_INDEX	0
+	#define MSG_COMMAND	1
+	#define MSG_HI_BYTE	2
+	#define MSG_LO_BYTE	3
+
+	#define COMMAND_CONTROLLER	0x40
+
+	#define INDEX_LINKCAST	0x40
+	#define INDEX_BROADCAST	0x80
+	#define INDEX_INVALID	0x20
+
+	#define RxMessage(c, n) @(0x210018 + (c*4) + (n)) // c == MSG_IR or MSG_PC; 4 bytes
+
+  #endif
+
+#endif
+
+
+
+/**************************
+ * Timers
+ **************************/
+
+#define T1	0
+#define T2	1
+#define T3	2
+
+#ifndef __SCOUT
+	#define T4	3
+#endif
+
+
+#define Timer(n)	@(0x10000 + (n))	// read a timer's value
+
+__nolist void ClearTimer(const int n) {	asm { 0xa1, n }; }
+
+
+#ifdef __SCOUT
+	__nolist void SetTimerLimit(const int n, const int &x)	{ asm { 0xc4, n, $x : __ASM_SRC_EXT }; }
+#endif
+
+
+#if __RCX==2 || defined(__SPY) || defined(__SWAN)
+	__nolist void SetTimer(const int n, const int &v)	 { Set(Timer(n), v); }
+	#define FastTimer(n)	@(0x1a0000 + (n))
+#endif
+
+
+
+/**************************
+ * Counters
+ **************************/
+
+
+#if defined(__SCOUT) || __RCX==2 || defined(__SPY) || defined(__SWAN)
+	// Scout, RCX2, Spy, and Swan have counter support
+	#define Counter(n)	@(0x150000 + (n))	// read a counter
+
+
+	__nolist void IncCounter(const int c) { asm { 0x97, c }; }
+	__nolist void DecCounter(const int c) { asm { 0xA7, c }; }
+	__nolist void ClearCounter(const int c) { asm { 0xb7, c}; }
+
+	#ifdef __SCOUT
+		__nolist void SetCounterLimit(const int c, const int &l) { asm { 0xd4, c, $l : __ASM_SRC_EXT }; }
+	#endif
+#endif
+
+
+
+/**************************
+ * Events
+ **************************/
+
+
+#if defined(__SCOUT) || __RCX==2 || defined(__SPY) || defined(__SWAN)
+	// Scout, RCX2, Spy, and Swan have basic event support
+	#define ActiveEvents(n)	@(0x170000 + (n))
+	#define EVENT_MASK(e)	(1 << (e))
+
+
+	#if defined(__SCOUT)
+		// only constant masks allowed
+		__nolist void Event(const int e)	{ asm { 0x03, 2, e, e>>8 }; }
+	#else
+		__nolist void Event(const int &e)	{ asm { 0x03, $e }; }
+	#endif
+#endif
+
+
+#if __RCX==2 || defined(__SPY) || defined(__SWAN)
+	#if __RCX==2 || defined(__SWAN)
+		#define CurrentEvents() ActiveEvents(10)
+	#else
+		#define CurrentEvents() ActiveEvents(16)
+	#endif
+
+
+	#define EVENT_TYPE_PRESSED	0
+	#define EVENT_TYPE_RELEASED	1
+	#define EVENT_TYPE_LOW		8
+	#define EVENT_TYPE_NORMAL	9
+	#define EVENT_TYPE_HIGH		10
+	#define EVENT_TYPE_CLICK	11
+
+	#ifdef __SPY
+		// these all correspond to using VLL() as the source
+		#define EVENT_TYPE_ENTRY_FOUND		4
+		#define EVENT_TYPE_MSG_DISCARD		6
+		#define EVENT_TYPE_MSG_RECEIVED		13
+		#define EVENT_TYPE_VLL_MSG_RECEIVED	14
+		#define EVENT_TYPE_ENTRY_CHANGED	15
+	#else
+		#define EVENT_TYPE_PULSE	2
+		#define EVENT_TYPE_EDGE		3
+		#define EVENT_TYPE_FASTCHANGE	7
+		#define EVENT_TYPE_DOUBLECLICK	12
+		#define EVENT_TYPE_MESSAGE	14
+	#endif
+
+	#if defined(__SWAN)
+		#define EVENT_TYPE_4			4
+		#define EVENT_TYPE_5			5
+		#define EVENT_TYPE_6			6
+		#define EVENT_TYPE_VIRTUAL_MOTOR_CHANGE	4
+		#define EVENT_TYPE_VIRTUAL_MOTOR_POWER	5
+		#define EVENT_TYPE_VIRTUAL_SENSOR_DEF	6
+		#define EVENT_TYPE_INFRARED_IDLE	13
+		#define EVENT_TYPE_RESET		16
+	#endif
+
+
+	#define SetEvent(e,s,t)	__SetEvent(e,__event_src(s),t)
+	__nolist void __SetEvent(const int evt, const int src, const int type)
+		{ asm { 0x93, evt, src, type}; }
+
+
+	__nolist void ClearEvent(const int evt)	{ asm { 0x93, evt, 0, 16 }; }
+	__nolist void ClearAllEvents()	{ asm { 0x06 }; }
+	__nolist void CalibrateEvent(const int evt, const int low, const int hi, const int hyst)
+		{ asm { 0x04, evt, hi, low, hyst }; }
+
+
+	#define EventState(n)	@(0x190000 + (n))
+	#define UpperLimit(n)	@(0x1c0000 + (n))
+	#define LowerLimit(n)	@(0x1d0000 + (n))
+	#define Hysteresis(n)	@(0x1e0000 + (n))
+	#define ClickTime(n)	@(0x1f0000 + (n))
+
+
+	__nolist void SetUpperLimit(const int evt, const int &v) 	{ Set(UpperLimit(evt), v); }
+	__nolist void SetLowerLimit(const int evt, const int &v) 	{ Set(LowerLimit(evt), v); }
+	__nolist void SetHysteresis(const int evt, const int &v) 	{ Set(Hysteresis(evt), v); }
+	__nolist void SetClickTime(const int evt, const int &v) 	{ Set(ClickTime(evt), v); }
+
+
+	#if __RCX==2 || defined(__SWAN)
+		#define ClickCounter(n)	@(0x1b0000 + (n))
+		__nolist void SetClickCounter(const int evt, const int &v) 	{ Set(ClickCounter(evt), v); }
+	#endif
+#endif
+
+
+#if __SCOUT
+	// event codes
+	#define EVENT_1_PRESSED		(1 << 0)
+	#define EVENT_1_RELEASED	(1 << 1)
+	#define EVENT_2_PRESSED		(1 << 2)
+	#define EVENT_2_RELEASED	(1 << 3)
+	#define EVENT_LIGHT_HIGH	(1 << 4)
+	#define EVENT_LIGHT_NORMAL	(1 << 5)
+	#define EVENT_LIGHT_LOW		(1 << 6)
+	#define EVENT_LIGHT_CLICK	(1 << 7)
+	#define EVENT_LIGHT_DOUBLECLICK	(1 << 8)
+	#define EVENT_COUNTER_0		(1 << 9)
+	#define EVENT_COUNTER_1		(1 << 10)
+	#define EVENT_TIMER_0		(1 << 11)
+	#define EVENT_TIMER_1		(1 << 12)
+	#define EVENT_TIMER_2		(1 << 13)
+	#define EVENT_MESSAGE		(1 << 14)
+#endif
+
+
+
+/**************************
+ * General
+ **************************/
+
+
+// wait for a condition to become true
+#define until(c)	while(!(c))
+
+
+// sleep for v ticks (10ms per tick)
+__nolist void Wait(const int &v)	{ asm { 0x43, $v : __ASM_SRC_EXT}; }
+
+__nolist void StopAllTasks()		{ asm { 0x50 }; }
+__nolist void SetSleepTime(const int t)	{ asm { 0xb1, t }; }
+__nolist void SleepNow() 		{ asm { 0x60 }; }
+
+
+#if defined(__RCX) || defined(__SCOUT) || defined(__SWAN)
+	// Scout and RCX
+	#define TX_POWER_LO	0
+	#define TX_POWER_HI	1
+	__nolist void SetTxPower(const int p)	{ asm { 0x31, p }; }
+#endif
+
+
+#if defined(__RCX) || defined(__SWAN)
+	// RCX and Swan only...
+
+	// Data logging
+	__nolist void CreateDatalog(const int size)	{ asm { 0x52, (size), (size)>>8 }; }
+	__nolist void AddToDatalog(const int &v)	{ asm { 0x62, $v : __ASM_NO_LOCAL + __ASM_SMALL_VALUE + 0x004203}; }
+	__nolist void UploadDatalog(const int s, const int n) { asm { 0xa4, (s), (s)>>8, (n), (n)>>8 }; }
+
+
+	// the system clock
+	#define Watch()		@(0xe0000)	// read the system clock
+	__nolist void SetWatch(const int h, const int m) 	{ asm { 0x22, h, m }; }
+
+  #if __RCX==2 || defined(__SWAN)
+	// requires RCX2 firmware newer than firm0328.lgo (or Swan firmware)
+	#define DatalogType(n)	@@(0x2625)[(n)]
+	#define DatalogValue(n)	@@(0x2827)[(n)]
+	#define DatalogByte(n)	@@(0x2a29)[(n)]
+  #endif
+
+#endif
+
+
+#if defined(__SCOUT)
+	// Scout - special functions
+	__nolist void SetScoutRules(const int m, const int t, const int l, const int tm, const int fx)
+		{ asm { 0xd5, m, t, l, tm, fx }; }
+
+
+	#define SCOUT_MODE_STANDALONE	0
+	#define SCOUT_MODE_POWER 	1
+	__nolist void SetScoutMode(const int s)		{ asm { 0x47, s}; }
+	__nolist void SetEventFeedback(const int &x)	{ asm { 0x83, $x : __ASM_SRC_BASIC}; }
+#endif
+
+
+#if defined(__SCOUT) || __RCX==2 || defined(__SPY) || defined(__SWAN)
+	__nolist void SetPriority(const int p)	{ asm { 0xd7, p }; }
+#endif
+
+
+#if __RCX==2 || defined(__SPY) || defined(__SWAN)
+	__nolist void Set(const int &dst, const int &src)	{ asm { 0x05, $dst : __ASM_SMALL_VALUE, $src }; }
+#endif
+
+
+#if __RCX==2 || defined(__SWAN)
+	__nolist void SelectProgram(const int n)		{ asm { 0x91, n }; }
+#endif
+
+
+#if defined(__SCOUT) || __RCX==2 || defined(__SPY) || defined(__SWAN)
+	// constants for acquire()
+	#define ACQUIRE_OUT_A	(1 << 0)
+	#define ACQUIRE_OUT_B	(1 << 1)
+	#define ACQUIRE_SOUND	(1 << 2)
+	#define ACQUIRE_OUT_C	(1 << 3)
+#endif
+
+#if defined(__SPY)
+	#define ACQUIRE_LED	(1 << 4)
+#endif
+
+#if __RCX==2 || defined(__SWAN)
+	// more constants for acqurie() - RCX2 only
+	#define ACQUIRE_USER_1	(1 << 4)
+	#define ACQUIRE_USER_2	(1 << 5)
+	#define ACQUIRE_USER_3	(1 << 6)
+	#define ACQUIRE_USER_4	(1 << 7)
+#endif
+
+
+
+/**************************
+ * Other data sources
+ **************************/
+
+
+#define Random(n)		@(0x40000 + (n))	// a random number
+#if __RCX==2 || defined(__SPY) || defined(__SWAN)
+	__nolist void SetRandomSeed(const int &v)	{ Set(Random(0), v); }
+#endif
+
+
+#ifdef __RCX || defined(__SWAN)
+	// RCX specific data sources
+	#define Program()	@(0x80000)	// currently active program
+#endif
+
+
+#ifdef __CM
+	// CM specific data sources
+	#define AGC()		@(0x100000)	// Automatic Gain Control
+#endif
+
+
+#if defined(__SCOUT)
+	#define ScoutRules(n)	@(0x120000 + (n))
+	#define TimerLimit(n)	@(0x140000 + (n))
+	#define CounterLimit(n)	@(0x160000 + (n))
+	#define EventFeedback()	@(0x180000)
+#endif
+
+
+#if __RCX==2 || defined(__SPY) || defined(__SWAN)
+	#define BatteryLevel()		@(0x220000)
+	#define FirmwareVersion()	@(0x230000)
+	#define Indirect(n)		@(0x240000 + (n)) // indirect variable registers
+
+	__nolist void SetIndirectVar(const int &v, const int &n)
+		{ asm { 0x05, 0x24, $v : 0x3000001, $n }; }
+#endif
+
+
+
+/**************************
+ * Default initialization
+ **************************/
+
+__nolist void _init()
+{
+	SetPower(OUT_A + OUT_B + OUT_C, OUT_FULL);
+	Fwd(OUT_A + OUT_B + OUT_C);
+}
+
+
+/**************************
+ * Scout compatibility API
+ **************************/
+
+#ifdef __SCOUT_COMPAT
+	/*
+	 * Scout support was initially released with preliminary APIs that
+	 * were styled after the LASM mnemonics.  Unfortunately, these mnemonics
+	 * led to some rather inconsistent APIs.  In order to align the Scout
+	 * API with the RCX 2.0 API a number of calls have been changed.  The
+	 * official calls appear in the various sections above.  The section
+	 * below is a temporary hack to ease the transition between the old
+	 * and new Scout APIs.  All of old calls that were dropped (or changed)
+	 * in the new API appear below, but with a preceding underscore.  For
+	 * example, the old GSetOutput() call now appears as _GSetOutput().
+	 * If you are in a hurry to get your old Scout program working, you
+	 * can just prepend underscores to the various obsolete calls.  However,
+	 * a longer term fix is to use the new APIs above.
+	 */
+
+
+	// global output functions
+	void _GSetOutput(const int o, const int m)	{ asm { 0x67, (o) + (m) }; }
+	void _GSetDirection(const int o, const int d)	{ asm { 0x77, (o) + (d) }; }
+	void _GSetPower(const int o, const int &p)	{ asm { 0xa3, (o), $p : 0x1000015}; }
+	void _GOn(const int o)	{ _GSetOutput(o, OUT_ON); }
+	void _GOff(const int o)	{ _GSetOutput(o, OUT_OFF); }
+	void _GFloat(const int o) { _GSetOutput(o, OUT_FLOAT); }
+	void _GToggle(const int o) { _GSetDirection(o, OUT_TOGGLE); }
+	void _GFwd(const int o)	{ _GSetDirection(o, OUT_FWD); }
+	void _GRev(const int o)	{ _GSetDirection(o, OUT_REV); }
+	void _GOnFwd(const int o)	{ _GFwd(o); GOn(o); }
+	void _GOnRev(const int o)	{ _GRev(o); GOn(o); }
+	void _GOnFor(const int o, const int &t)	{ GOn(o); Wait(t); GOff(o); }
+
+
+	void _WaitEvents(const int &mask) { asm { 0xb4, $mask : __ASM_SRC_EXT, 3, 0x27, 0x81 }; } // use monitor()
+
+
+	// light sensor
+	void _LSBlink(const int &x)	{ asm { 0xe3, $x : 0x0005 }; }	// use SetSensorBlink
+	void _LSCal()				{ asm { 0xc0 }; }	// use CalibrateSensor
+	void _LSHyst(const int &x)	{ asm { 0xd3, $x : 0x0005 }; }	// use SetSensorHyst
+	void _LSLower(const int &x)	{ asm { 0xc3, $x : 0x0005 }; }	// use SetSensorLower
+	void _LSUpper(const int &x)	{ asm { 0xb3, $x : 0x0005 }; }	// use SetSensorUpper
+
+
+	// other
+	void _Rules(const int m, const int t, const int l, const int tm, const int fx)
+		{ asm { 0xd5, m, t, l, tm, fx }; } // see SetScoutRules
+	void _Scout(const int s)			{ asm { 0x47, s}; } // SetScoutMode
+	void _SetFeedback(const int &x)	{ asm { 0x83, $x : 0x0005}; } // SetEventFeedback
+
+	void _Sound(const int x)			{ asm { 0x57, x }; }	// use MuteSound, UnmuteSound and SelectSounds
+
+
+	void _VLL(const int &x)		{ asm { 0xe2, $x : 0x1000005}; }	// use SendVLL
+	void _RTS()					{ asm { 0xf6 }; }	// don't ever need this
+
+
+	// use these for calling subroutines...for example:
+	//
+	// local(0) = 1;
+	// Call(3);
+	//
+	#define local(n)			(@((n) + 10))
+	void Call(const int n)		{ asm { 0x17, n }; }
+#endif // __SCOUT_COMPAT
+
+#if defined(__SCOUT)
+
+#endif
+
+/**************************
+ * Spybot-specific API
+ **************************/
+
+#if defined(__SPY)
+
+  // LED's may be set/checked manually
+  #define LED(n)			@(0x160000 + (n))	// LED control registers
+  __nolist void SetLED(const int mode, const int &v) 	{ Set(LED(mode), v); }
+
+  // constants for the mode argument in SetLED()
+  #define LED_MODE_ON			0
+  #define LED_MODE_BLINK		1
+  #define LED_MODE_DURATION		2
+  #define LED_MODE_SCALE		3
+  #define LED_MODE_SCALE_BLINK		4
+  #define LED_MODE_SCALE_DURATION	5
+  #define LED_MODE_RED_SCALE		6
+  #define LED_MODE_RED_SCALE_BLINK	7
+  #define LED_MODE_GREEN_SCALE		8
+  #define LED_MODE_GREEN_SCALE_BLINK	9
+  #define LED_MODE_YELLOW		10
+  #define LED_MODE_YELLOW_BLINK		11
+  #define LED_MODE_YELLOW_DURATION	12
+  #define LED_MODE_VLL			13
+  #define LED_MODE_VLL_BLINK		14
+  #define LED_MODE_VLL_DURATION		15
+
+  // ROM animations (for the front LEDs)
+  #define ANIMATION_SCAN		0
+  #define ANIMATION_SPARKLE		1
+  #define ANIMATION_FLASH		2
+  #define ANIMATION_RED_TO_GREEN	3
+  #define ANIMATION_GREEN_TO_RED	4
+  #define ANIMATION_POINT_FORWARD	5
+  #define ANIMATION_ALARM		6
+  #define ANIMATION_THINKING		7
+
+  // macro for defining a user animation:
+  //	ANIMATION my_animation { 1, 10, 2, 10, 4, 10, 2, 10, 255, 255 };
+  //
+  #define ANIMATION __res 3
+
+  // function to start a given animation
+  __nolist void SetAnimation(const int t)	{ asm { 0xc7, t }; }
+
+  #define AnimateLED(f, t) f, t
+  #define RepeatAnimation() 0xFF, 0
+
+  #define SOUNDEFFECT __res 2
+
+  #define Gate(o, p) 0x62, p, o
+  #define GateOff() 0x70
+  #define Glide(s, p, t) 0x45, t, s & 0xFF, s >> 8, p & 0xFF, p >> 8
+  #define Vibrato(s, p, t) 0x55, t, s & 0xFF, s >> 8, p & 0xFF, p >> 8
+  #define WaitEffect(t) 0x21, t
+  #define FixedWaitEffect(t) 0x81, t
+  #define Tone(f, t) 0x33, t, f & 0xFF, f >> 8
+  #define FixedTone(f, t) 0x93, t, f & 0xFF, f >> 8
+  #define RepeatEffect() 0x10
+
+  #define EffectSound()	@(0x350000) // Sound Effects control registers (0,1)
+  #define EffectTime()	@(0x350001)
+
+  __nolist void SetEffectSound(const int &s) { Set(EffectSound(), s); }
+  __nolist void SetEffectTime(const int &t) { Set(EffectTime(), t); }
+
+  #define TARGET_NONE		255
+
+  #define RANGE_NOWHERE		0
+  #define RANGE_ANYWHERE	1
+  #define RANGE_THERE		2
+  #define RANGE_HERE		3
+
+  #define DIRECTION_LEFT		0
+  #define DIRECTION_LEFT_OF_CENTER	1
+  #define DIRECTION_CENTER		2
+  #define DIRECTION_RIGHT_OF_CENTER	3
+  #define DIRECTION_RIGHT		4
+
+  #define ASPECT_FRONT_LEFT	0
+  #define ASPECT_FRONT		1
+  #define ASPECT_FRONT_RIGHT	2
+  #define ASPECT_BACK_RIGHT	3
+  #define ASPECT_BACK		4
+  #define ASPECT_BACK_LEFT	5
+
+  #define SPY_TARGETID	0
+  #define SPY_NOTE	1
+  #define SPY_LINKID	2
+  #define SPY_RANGE	3
+  #define SPY_DIRECTION	4
+  #define SPY_ASPECT	5
+  #define SPY_INFO	6
+  #define SPY_SHORTID	7
+
+  #define REL_GT	0x00
+  #define REL_LT	0x40
+  #define REL_EQ	0x80
+  #define REL_NE	0xc0
+
+  __nolist void FindWorld(int &v, const int relsrc, const int crit, const int& thresh)
+	{ asm { 0xd5, $v : 0x3000001, 0x2a + relsrc, crit + __type(thresh), $thresh : __ASM_NO_TYPE }; }
+  __nolist void ClearWorld() { asm { 0x36 }; }
+
+  #define Target(n)	@(0x320000 + n)
+
+  __nolist void SetTargetID(const int &v) { Set(Target(SPY_TARGETID), v); }
+  __nolist void SetTargetNote(const int &v) { Set(Target(SPY_NOTE), v); }
+
+  #define World(i, n) @@(0x322a+(i))[(n)]
+  #define WorldShortID(n) @@(0x322a+SPY_SHORTID)[(n)]
+  #define WorldLinkID(n) @@(0x322a+SPY_LINKID)[(n)]
+  #define WorldRange(n) @@(0x322a+SPY_RANGE)[(n)]
+  #define WorldDirection(n) @@(0x322a+SPY_DIRECTION)[(n)]
+  #define WorldAspect(n) @@(0x322a+SPY_ASPECT)[(n)]
+  #define WorldNote(n) @@(0x322a+SPY_NOTE)[(n)]
+
+  __nolist void GetWorld(const int n, int &t, int &v)
+  {
+	asm { 0x14, $v : __ASM_NO_TYPE + __ASM_SMALL_VALUE, 0x2a + n,
+		$t : __ASM_NO_TYPE + __ASM_SMALL_VALUE, 0x00 };
+  }
+  __nolist void GetWorldShortID(int &t, int &v)	{ GetWorld(SPY_SHORTID, t, v); }
+  __nolist void GetWorldLinkID(int &t, int &v)	{ GetWorld(SPY_LINKID, t, v); }
+  __nolist void GetWorldRange(int &t, int &v)	{ GetWorld(SPY_RANGE, t, v); }
+  __nolist void GetWorldDirection(int &t, int &v)	{ GetWorld(SPY_DIRECTION, t, v); }
+  __nolist void GetWorldAspect(int &t, int &v)	{ GetWorld(SPY_ASPECT, t, v); }
+  __nolist void GetWorldNote(int &t, int &v)	{ GetWorld(SPY_NOTE, t, v); }
+  __nolist void SetWorldNote(int &t, const int &v)
+	{ asm { 0x05, 0x2b, $t : __ASM_NO_TYPE + __ASM_SMALL_VALUE, $v}; }
+
+  #define Stack(n)	@(0x120000 + (n))
+  __nolist void Push(const int &v)	{ asm { 0xe3, $v }; }
+  __nolist void Pop(const int n)	{ asm { 0x01, n }; }
+  __nolist void SetStack(const int i, const int &v)	{ Set(Stack(i), v); }
+
+  #define TIMER_RUNNING	1
+  #define TIMER_STOPPED	0
+  #define TimerState(n)	@(0x130000 + (n))
+  __nolist void SetTimerState(const int n, const int &s) { Set(TimerState(n), s); }
+
+  #define CurrentTaskID()	@(0x200000)
+
+  #define PingControl(n)	@(0x330000 + (n)) // 51
+  #define PingData()		PingControl(0)
+  __nolist void SetPingData(const int &d) { Set(PingData(), d); }
+
+  #define PingInterval()	PingControl(1)
+  __nolist void SetPingInterval(const int &i)	{ Set(PingInterval(), i); }
+
+  #define PingID()	PingControl(2)
+
+  #define BeaconControl(n)	@(0x340000 + (n)) // 52
+
+  #define LinkID()	BeaconControl(0)
+  __nolist void SetLinkID(const int &n)	{ Set(LinkID(), n); }
+
+  #define RC_CHANNEL_BROADCAST	0
+  #define RC_CHANNEL_1		1
+  #define RC_CHANNEL_2		2
+  #define RC_CHANNEL_3		3
+  #define RC_CHANNEL_DISABLED	4
+
+  #define RCRxChannel()	BeaconControl(1)
+  __nolist void SetRCRxChannel(const int &c)	{ Set(RCRxChannel(), c); }
+
+  #define RCTxChannel()	BeaconControl(2)
+  __nolist void SetRCTxChannel(const int &c)	{ Set(RCTxChannel(), c); }
+
+  #define RCTXMODE_SINGLE_SHOT	0
+  #define RCTXMODE_CONTINUOUS	1
+
+  #define RCTxMode()	BeaconControl(3)
+  __nolist void SetRCTxMode(const int &m)	{ Set(RCTxMode(), m); }
+
+  #define EEPROM(n)	@@(0x1436)[(n)]
+  __nolist void SetEEPROM(const int &i, const int &d) { Set(EEPROM(i), d); }
+
+  __nolist void StartTask(const int t)	{ asm { 0x71, t}; }
+  __nolist void StopTask(const int t)	{ asm { 0x81, t}; }
+
+// EEPROM indices
+  #define EEPROM_MOTORCONTROL 0x00
+  #define EEPROM_SPECIES 0x01
+  #define EEPROM_LONGID 0x02
+  #define EEPROM_USERLEVEL 0x06
+  #define EEPROM_DEFAULTPINGRATE 0x07
+  #define EEPROM_RUNS 0x08
+  #define EEPROM_WINS 0x0a
+  #define EEPROM_LOSSES 0x0c
+  #define EEPROM_POINTS 0x0e
+  #define EEPROM_PLAYSECONDS 0x10
+  #define EEPROM_TOTALPLAYTIME 0x12
+  #define EEPROM_MAXBOTS 0x16
+  #define EEPROM_MISSIONID 0x17
+  #define EEPROM_MISSIONSPLAYED 0x18
+  #define EEPROM_MISSIONPOINTS 0x1c
+  #define EEPROM_HIGHSCORE 0x1e
+  #define EEPROM_ROBOTNAME 0x20
+  #define EEPROM_BIRTHDATE 0x40
+  #define EEPROM_BOTDATA 0x46
+  #define EEPROM_STATUS 0x47
+  #define EEPROM_FIRSTTOKEN 0x48
+  #define EEPROM_LASTTOKEN 0x7e
+  #define EEPROM_MAXTOKENS 28
+	//spare: 0x80 - 0xff
+
+//MotorControl (eeprom[eMotorControl]):
+  #define MOTORCONTROL_NORMALSPEEDMASK 0x07
+  #define MOTORCONTROL_SLOWSPEEDMASK 0x38
+  #define MOTORCONTROL_LEFTDIR 0x40
+  #define MOTORCONTROL_RIGHTDIR 0x80
+
+//Species (eeprom[eSpecies] values)
+  #define SPECIES_GIGAMESH 1
+  #define SPECIES_SNAPTRAX 2
+  #define SPECIES_SHADOWSTRIKE 3
+  #define SPECIES_TECHNOJAW 4
+
+//Status (eeprom[eStatus] values)
+  #define STATUS_INITIALIZING 0x01
+  #define STATUS_DOWNLOADING 0x02
+  #define STATUS_LOCKED 0x04
+	//bits 3-7 spare
+
+//Battery voltage
+  #define BATTERY_MAX 4600
+  #define BATTERY_LOW 3400
+  #define BATTERY_MIN 2700
+
+// Controller buttons
+  #define CONTROLLER_BUTTON1	0x0100
+  #define CONTROLLER_BUTTON2	0x0200
+  #define CONTROLLER_BUTTON3	0x0001
+  #define CONTROLLER_BUTTON4	0x0101
+  #define CONTROLLER_BUTTON5	0x0201
+
+  // ROM subroutines
+  // interaction subroutines
+  __nolist void SendSpybotMessage(const int &nIndex, const int &nCmd,
+    const int &nHiByte, const int &nLoByte)
+  {
+	asm { 0xe3, $nIndex };
+	asm { 0xe3, $nCmd };
+	asm { 0xe3, $nHiByte };
+	asm { 0xe3, $nLoByte };
+	asm { 0x17, 34 };
+	asm { 0x01, 4 };
+  }
+  __nolist void SendRCXMessage(const int &nMessage)
+	{ asm { 0xe3, $nMessage, 0x17, 37, 0x01, 1 }; }
+  __nolist void SendAllRangeMessage(const int &nMessage, const int &nData)
+	{ asm { 0xe3, $nMessage, 0xe3, $nData, 0x17, 38, 0x01, 2 }; }
+
+  // utils subroutines
+  __nolist void Disp(const int &display)
+	{ asm { 0xe3, $display, 0x17, 42, 0x01, 1 }; }
+
+  #define MOVE_BASIC		0x0100
+  #define MOVE_RANDOM		0x0200
+  #define MOVE_FANCY		0x0300
+  #define MOVE_SLOWDOWN		0x0400
+  #define MOVE_SPEEDUP		0x0500
+
+  #define MOVE_MASK		0x00ff
+  #define MOVE_TYPE_MASK	0xff00
+
+  #define MOVE_BASIC_FORWARD		MOVE_BASIC + 1
+  #define MOVE_BASIC_BACKWARD		MOVE_BASIC + 2
+  #define MOVE_BASIC_SPIN_LEFT		MOVE_BASIC + 3
+  #define MOVE_BASIC_SPIN_RIGHT		MOVE_BASIC + 4
+  #define MOVE_BASIC_TURN_LEFT		MOVE_BASIC + 5
+  #define MOVE_BASIC_TURN_RIGHT		MOVE_BASIC + 6
+  #define MOVE_BASIC_AVOID_LEFT		MOVE_BASIC + 7
+  #define MOVE_BASIC_AVOID_RIGHT	MOVE_BASIC + 8
+  #define MOVE_BASIC_REST		MOVE_BASIC + 9
+  #define MOVE_BASIC_STOP		MOVE_BASIC + 10
+
+  #define MOVE_RANDOM_FORWARD		MOVE_RANDOM + 1
+  #define MOVE_RANDOM_BACKWARD		MOVE_RANDOM + 2
+  #define MOVE_RANDOM_SPIN_LEFT		MOVE_RANDOM + 3
+  #define MOVE_RANDOM_SPIN_RIGHT	MOVE_RANDOM + 4
+  #define MOVE_RANDOM_TURN_LEFT		MOVE_RANDOM + 5
+  #define MOVE_RANDOM_TURN_RIGHT	MOVE_RANDOM + 6
+  #define MOVE_RANDOM_REST		MOVE_RANDOM + 7
+
+  #define MOVE_FANCY_ZIGZAG		MOVE_FANCY + 1
+  #define MOVE_FANCY_SHAKE		MOVE_FANCY + 2
+  #define MOVE_FANCY_SCAN		MOVE_FANCY + 3
+  #define MOVE_FANCY_STEP		MOVE_FANCY + 4
+  #define MOVE_FANCY_STEP_BACK		MOVE_FANCY + 5
+  #define MOVE_FANCY_SEARCH		MOVE_FANCY + 6
+  #define MOVE_FANCY_FAKE_LEFT		MOVE_FANCY + 7
+  #define MOVE_FANCY_RAKE_RIGHT		MOVE_FANCY + 8
+  #define MOVE_FANCY_BUG_FORWARD	MOVE_FANCY + 9
+  #define MOVE_FANCY_LAZY		MOVE_FANCY + 10
+  #define MOVE_FANCY_WALK		MOVE_FANCY + 11
+  #define MOVE_FANCY_WALK_BACK		MOVE_FANCY + 12
+  #define MOVE_FANCY_DANCE		MOVE_FANCY + 13
+
+  #define MOVE_SLOWDOWN_FORWARD		MOVE_SLOWDOWN + 1
+  #define MOVE_SLOWDOWN_BACKWARD	MOVE_SLOWDOWN + 2
+  #define MOVE_SLOWDOWN_SPIN_LEFT	MOVE_SLOWDOWN + 3
+  #define MOVE_SLOWDOWN_SPIN_RIGHT	MOVE_SLOWDOWN + 4
+
+  #define MOVE_SPEEDUP_FORWARD		MOVE_SPEEDUP + 1
+  #define MOVE_SPEEDUP_BACKWARD		MOVE_SPEEDUP + 2
+  #define MOVE_SPEEDUP_SPIN_LEFT	MOVE_SPEEDUP + 3
+  #define MOVE_SPEEDUP_SPIN_RIGHT	MOVE_SPEEDUP + 4
+
+  __nolist void BasicMove (const int &move, const int &time)
+	{ asm { 0xe3, $move, 0xe3, $time, 0x17, 43, 0x01, 2 }; }
+
+  // nSound is 0-79, -1 = no sound
+  // nDisplay is LED animation (0-15) to play, -1 = no animation
+  // nMovement is from the *Move routines defined below, -1 = no move
+  // nRepeat is number of times to repeat motion
+  // ntime is in 10ms steps
+  __nolist void Action (const int &nSound, const int &nDisplay,
+    const int &nMovement, const int &nRepeat, const int &nTime)
+  {
+	asm { 0xe3, $nSound };
+	asm { 0xe3, $nDisplay };
+	asm { 0xe3, $nMovement };
+	asm { 0xe3, $nRepeat };
+	asm { 0xe3, $nTime };
+	asm { 0x17, 44 };
+	asm { 0x01, 5 };
+  }
+
+  __nolist void RandomMove (const int &move, const int &time)
+	{ asm { 0xe3, $move, 0xe3, $time, 0x17, 46, 0x01, 2 }; }
+
+  __nolist void FancyMove (const int &move, const int &time)
+	{ asm { 0xe3, $move, 0xe3, $time, 0x17, 47, 0x01, 2 }; }
+
+  __nolist void SlowDownMove (const int &move, const int &time)
+	{ asm { 0xe3, $move, 0xe3, $time, 0x17, 48, 0x01, 2 }; }
+
+  __nolist void SpeedUpMove (const int &move, const int &time)
+	{ asm { 0xe3, $move, 0xe3, $time, 0x17, 49, 0x01, 2 }; }
+
+  // Adds a value to a 2 byte location in EEprom
+  __nolist void Sum2Mem (const int &nMem, const int &nValue)
+	{ asm { 0xe3, $nMem, 0xe3, $nValue, 0x17, 50, 0x01, 2 }; }
+
+  // Adds a value to a 4 byte location in EEprom
+  __nolist void Sum4Mem (const int &nMem, const int &nValue)
+	{ asm { 0xe3, $nMem, 0xe3, $nValue, 0x17, 51, 0x01, 2 }; }
+
+  #define SOUND_NONE			-1
+  #define SOUND_SHOCKED			6
+  #define SOUND_FIRE_LASER		7
+  #define SOUND_FIRE_ELECTRONET		8
+  #define SOUND_FIRE_SPINNER		9
+  #define SOUND_HIT_BY_LASER		10
+  #define SOUND_HIT_BY_ELECTRONET	11
+  #define SOUND_HIT_BY_SPINNER		12
+  #define SOUND_TAG			13
+  #define SOUND_CRASH			14
+  #define SOUND_FIGHT			15
+  #define SOUND_GOT_IT			16
+  #define SOUND_GENERAL_ALERT		17
+  #define SOUND_OUT_OF_ENERGY_ALERT	18
+  #define SOUND_LOW_ENERGY_ALERT	19
+  #define SOUND_SCORE_ALERT		20
+  #define SOUND_TIME_ALERT		21
+  #define SOUND_PROXIMITY_ALERT		22
+  #define SOUND_DANGER_ALERT		23
+  #define SOUND_BOMB_ALERT		24
+  #define SOUND_FINAL_COUNTDOWN		25
+  #define SOUND_TICK_TOCK		26
+  #define SOUND_GOTO			27
+  #define SOUND_SCAN			28
+  #define SOUND_POINT_TO		29
+  #define SOUND_ACTIVATE_SHIELDS	30
+  #define SOUND_ACTIVATE_REFLECT	31
+  #define SOUND_ACTIVATE_CLOAK		32
+  #define SOUND_ACTIVATE_FLASH_BLIND	33
+  #define SOUND_MAGNET			34
+  #define SOUND_QUAD_DAMAGE		35
+  #define SOUND_REPULSE			36
+  #define SOUND_TURBO			37
+  #define SOUND_FREEZE			38
+  #define SOUND_SLOW			39
+  #define SOUND_REVERSE			40
+  #define SOUND_DIZZY			41
+  #define SOUND_BOOST			42
+  #define SOUND_DEACTIVATE_SHIELDS	43
+  #define SOUND_DEACTIVATE_REFLECT	44
+  #define SOUND_DEACTIVATE_CLOAK	45
+  #define SOUND_REFLECT			46
+  #define SOUND_EXPLOSION		47
+  #define SOUND_BIG_EXPLOSION		48
+  #define SOUND_PLACE_BOMB		49
+  #define SOUND_HIT_BY_WIND		50
+  #define SOUND_OUCH			51
+  #define SOUND_GEIGER			52
+  #define SOUND_WHISTLE			53
+  #define SOUND_IM_IT			54
+  #define SOUND_HELP			55
+  #define SOUND_SIREN			56
+  #define SOUND_BURNT			57
+  #define SOUND_GRINDED			58
+  #define SOUND_SMACKED			59
+  #define SOUND_TRILL_UP		60
+  #define SOUND_TRILL_DOWN		61
+  #define SOUND_YELL			62
+  #define SOUND_WHISPER			63
+
+  #define LED_RED1		0x01
+  #define LED_RED2		0x02
+  #define LED_RED3		0x04
+  #define LED_GREEN1		0x08
+  #define LED_GREEN2		0x10
+  #define LED_GREEN3		0x20
+  #define LED_YELLOW		0x40
+  #define LED_ALL_RED		LED_RED1 + LED_RED2 + LED_RED3
+  #define LED_ALL_GREEN		LED_GREEN1 + LED_GREEN2 + LED_GREEN3
+  #define LED_ALL_RED_GREEN	LED_ALL_RED + LED_ALL_GREEN
+  #define LED_ALL		LED_ALL_RED_GREEN + LED_YELLOW
+
+#endif // __SPY
+
+/**************************
+ * Swan-specific API
+ **************************/
+
+#if defined(__SWAN)
+
+/**********************************************************
+ * Motors
+ **********************************************************/
+
+  // Motor
+  #define MTR_A	0
+  #define MTR_B	1
+  #define MTR_C	2
+  #define MTR_D	3
+  #define MTR_E	4
+  #define MTR_F	5
+
+  // MotorPowerDirection
+  #define MPD_FWD	0x80
+  #define MPD_REV	0x40
+  #define MPD_FLOAT	0xC0
+  #define MPD_OFF	0x00
+
+  // MotorState
+  #define MS_FLOAT	0x00
+  #define MS_BRAKE	0x40
+  #define MS_FWD	0x88
+  #define MS_REV	0x80
+
+  #define SMOTOR_FWD	0x08
+
+  #define MTR_FWD_POWER_1	0x88
+  #define MTR_FWD_POWER_2	0x89
+  #define MTR_FWD_POWER_3	0x8A
+  #define MTR_FWD_POWER_4	0x8B
+  #define MTR_FWD_POWER_5	0x8C
+  #define MTR_FWD_POWER_6	0x8D
+  #define MTR_FWD_POWER_7	0x8E
+  #define MTR_FWD_POWER_8	0x8F
+
+  #define MTR_REV_POWER_1	0x80
+  #define MTR_REV_POWER_2	0x81
+  #define MTR_REV_POWER_3	0x82
+  #define MTR_REV_POWER_4	0x83
+  #define MTR_REV_POWER_5	0x84
+  #define MTR_REV_POWER_6	0x85
+  #define MTR_REV_POWER_7	0x86
+  #define MTR_REV_POWER_8	0x87
+
+  #define MTR_FLOAT_POWER_1	0x00
+  #define MTR_FLOAT_POWER_2	0x01
+  #define MTR_FLOAT_POWER_3	0x02
+  #define MTR_FLOAT_POWER_4	0x03
+  #define MTR_FLOAT_POWER_5	0x04
+  #define MTR_FLOAT_POWER_6	0x05
+  #define MTR_FLOAT_POWER_7	0x06
+  #define MTR_FLOAT_POWER_8	0x07
+
+  #define MTR_BRAKE_POWER_1	0x40
+  #define MTR_BRAKE_POWER_2	0x41
+  #define MTR_BRAKE_POWER_3	0x42
+  #define MTR_BRAKE_POWER_4	0x43
+  #define MTR_BRAKE_POWER_5	0x44
+  #define MTR_BRAKE_POWER_6	0x45
+  #define MTR_BRAKE_POWER_7	0x46
+  #define MTR_BRAKE_POWER_8	0x47
+
+  #define MotorPowerSigned(n)	@(0x050000 + (n))
+  __nolist void SetMotorPowerSigned(const int n, const int &v) { Set(MotorPowerSigned(n), v); }
+
+  #define MotorBrakePower(n)	@(0x070000 + (n))
+  __nolist void SetMotorBrakePower(const int n, const int &v) { Set(MotorBrakePower(n), v); }
+
+  #define MotorPower8(n)	@(0x200000 + (n))
+  __nolist void SetMotorPower8(const int n, const int &v) { Set(MotorPower8(n), v); }
+
+  #define MotorPower128(n)	@(0x100000 + (n))
+  __nolist void SetMotorPower128(const int n, const int &v) { Set(MotorPower128(n), v); }
+
+/**********************************************************
+ * Event sources
+ **********************************************************/
+
+  // EventSensorType
+  #define EST_SENSOR_1		0
+  #define EST_SENSOR_2		1
+  #define EST_SENSOR_3		2
+  #define EST_TIMER_1		3
+  #define EST_TIMER_2		4
+  #define EST_TIMER_3		5
+  #define EST_TIMER_4		6
+  #define EST_LAST_IR_MSG	7
+  #define EST_COUNTER_1		8
+  #define EST_COUNTER_2		9
+  #define EST_COUNTER_3		10
+  #define EST_USER_EVENT_0	11
+  #define EST_USER_EVENT_1	12
+  #define EST_USER_EVENT_2	13
+  #define EST_USER_EVENT_3	14
+  #define EST_USER_EVENT_4	15
+  #define EST_VIRTUAL_MOTOR	11
+  #define EST_VIRTUAL_SENSOR	12
+  #define EST_WAIT_FOR_MSG	13
+  #define EST_INFRARED_STATUS	14
+  #define EST_SENSOR_UNUSED	16
+
+  // EventStates
+  #define ES_BELOW_LOWER	0
+  #define ES_BETWEEN		1
+  #define ES_ABOVE_UPPER	2
+  #define ES_UNDETERMINED	3
+
+  #define EventType(n)		@(0x120000 + (n))
+  __nolist void SetEventType(const int n, const int &v) { Set(EventType(n), v); }
+
+  #define EventSrc(n)		@(0x130000 + (n))
+  __nolist void SetEventSrc(const int n, const int &v) { Set(EventSrc(n), v); }
+
+  #define EventCounts(n)	@(0x140000 + (n))
+  __nolist void SetEventCounts(const int n, const int &v) { Set(EventCounts(n), v); }
+
+/**********************************************************
+ * 1 MS Timer
+ **********************************************************/
+
+  #define MSTimer(n)		@(0x160000 + (n))
+  __nolist void ResetMSTimer(const int n) { Set(MSTimer(n), 0); }
+
+  __nolist void WaitMS(const int &v)	{ asm { 0x47, $v : __ASM_SRC_EXT}; }
+
+
+/**********************************************************
+ * System settings
+ **********************************************************/
+
+  #define System(n)			@(0x180000 + (n))
+  __nolist void SetSystem(const int n, const int &v) { Set(System(n), v); }
+
+  #define SYS_BATTERY_LEVEL		0 // R/O
+  #define ImmediateBatteryLevel()	System(SYS_BATTERY_LEVEL)
+
+  #define SYS_DEBUG_TASK_MODE		1 // R/O
+  #define DebugTaskMode()		System(SYS_DEBUG_TASK_MODE)
+
+  #define SYS_MEMORY_MAP_ADDRESS	2 // R/O
+  #define MemoryMapAddress()		System(SYS_MEMORY_MAP_ADDRESS)
+
+  #define SYS_CURRENT_TASK		3 // R/O
+  #define CurrentTask()			System(SYS_CURRENT_TASK)
+
+  #define SYS_SERIAL_LINK_STATUS	4 // R/O
+  #define SerialLinkStatus()		System(SYS_SERIAL_LINK_STATUS)
+
+	#define SLS_WAIT_FOR_MSG	0
+	#define SLS_RECEIVING_MSG	1
+	#define SLS_TRANSMITTING	2
+	#define SLS_UNKNOWN		3
+
+  #define SYS_OPCODES_PER_TIMESLICE	5 // R/W (100x only)
+  #define OpcodesPerTimeslice()		System(SYS_OPCODES_PER_TIMESLICE)
+  __nolist void SetOpcodesPerTimeslice(const int &v) { Set(OpcodesPerTimeslice(), v); }
+
+  #define SYS_MOTOR_TRANSITION_DELAY	6 // R/W
+  #define MotorTransitionDelay()	System(SYS_MOTOR_TRANSITION_DELAY)
+  __nolist void SetMotorTransitionDelay(const int &v) { Set(MotorTransitionDelay(), v); }
+
+  #define SYS_SENSOR_REFRESH_RATE	7 // R/W
+  #define SensorRefreshRate()		System(SYS_SENSOR_REFRESH_RATE)
+  __nolist void SetSensorRefreshRate(const int &v) { Set(SensorRefreshRate(), v); }
+
+  #define SYS_EXPANDED_RC_MESSAGES	8 // R/W
+  #define ExpandedRemoteMessages()	System(SYS_EXPANDED_RC_MESSAGES)
+  __nolist void SetExpandedRemoteMessages(const int &v) { Set(ExpandedRemoteMessages(), v); }
+
+  #define SYS_LCD_REFRESH_RATE		9 // R/W (100ms ticks)
+  #define LCDRefreshRate()		System(SYS_LCD_REFRESH_RATE)
+  __nolist void SetLCDRefreshRate(const int &v) { Set(LCDRefreshRate(), v); }
+
+  #define SYS_NO_POWER_DOWN_ON_AC	10 // R/W (true/false)
+  #define NoPowerDownOnAC()		System(SYS_NO_POWER_DOWN_ON_AC)
+  __nolist void SetNoPowerDownOnAC(const int &v) { Set(NoPowerDownOnAC(), v); }
+
+  #define SYS_DEFAULT_TASK_STACK_SIZE	11 // R/W
+  #define DefaultStackSize()		System(SYS_DEFAULT_TASK_STACK_SIZE)
+  __nolist void SetDefaultStackSize(const int &v) { Set(DefaultStackSize(), v); }
+
+  #define SYS_TASK_ACQUIRE_PRIORITY	12 // R/W
+  #define TaskAcquirePriority()		System(SYS_TASK_ACQUIRE_PRIORITY)
+  __nolist void SetTaskAcquirePriority(const int &v) { Set(TaskAcquirePriority(), v); }
+
+  #define SYS_TRANSMITTER_RANGE		13 // R/W (0/1) ???
+  #define TransmitterRange()		System(SYS_TRANSMITTER_RANGE)
+
+  #define SYS_FLOAT_DURING_INACTIVE_PWM	14 // R/W (true/false)
+  #define FloatDuringInactivePWM()	System(SYS_FLOAT_DURING_INACTIVE_PWM)
+  __nolist void SetFloatDuringInactivePWM(const int &v) { Set(FloatDuringInactivePWM(), v); }
+
+  #define SYS_ROT_ERRORS_COUNT		15 // R/W
+  #define RotErrorsCount()		System(SYS_ROT_ERRORS_COUNT)
+
+  #define SYS_ROT_DEBOUNCED_GLITCHES	16 // R/W debug
+  #define RotDebouncedGlitches()	System(SYS_ROT_DEBOUNCED_GLITCHES)
+
+  #define SYS_PREAMBLE_SIZE		17 // R/W (0..3)
+  #define SystemPreambleSize()		System(SYS_PREAMBLE_SIZE)
+  __nolist void SetSystemPreambleSize(const int &v) { Set(SystemPreambleSize(), v); }
+
+  #define SYS_UNSOLICITED_MESSAGES	18 // R/W (true/false)
+  #define UnsolicitedMessages()		System(SYS_UNSOLICITED_MESSAGES)
+
+  #define SYS_EXPANDED_SUBROUTINES	19 // R/W (true/false)
+  #define ExpandedSubroutines()		System(SYS_EXPANDED_SUBROUTINES)
+  __nolist void SetExpandedSubroutines(const int &v) { Set(ExpandedSubroutines(), v); }
+
+  #define SYS_POWER_DOWN_DELAY		20 // R/W
+  #define PowerDownDelay()		System(SYS_POWER_DOWN_DELAY)
+
+  #define SYS_WATCH_FORMAT		21 // R/W
+  #define WatchFormat()			System(SYS_WATCH_FORMAT)
+  __nolist void SetWatchFormat(const int &v) { Set(WatchFormat(), v); }
+  #define FMT_HHMM	0
+  #define FMT_MMSS	1
+  #define FMT_MSSTENTHS	2
+
+  #define SYS_SENSOR_MISSED_CONVERSIONS	22 // R/W debug
+  #define MissedSensorADConversions()	System(SYS_SENSOR_MISSED_CONVERSIONS)
+
+  #define SYS_IGNORE_MESSAGES_CPU	23
+  #define IgnoreMessagesCPU()		System(SYS_IGNORE_MESSAGES_CPU)
+
+  #define SYS_COMM_ERRORS_TIMEOUT	24
+  #define CommErrorsTimeout()		System(SYS_COMM_ERRORS_TIMEOUT)
+
+  #define SYS_COMM_ERRORS_PARITY	25
+  #define CommErrorsParity()		System(SYS_COMM_ERRORS_PARITY)
+
+  #define SYS_COMM_ERRORS_FRAMING	26
+  #define CommErrorsFraming()		System(SYS_COMM_ERRORS_FRAMING)
+
+  #define SYS_COMM_ERRORS_OVERRUN	27
+  #define CommErrorsOverrun()		System(SYS_COMM_ERRORS_OVERRUN)
+
+  #define SYS_INTER_CHAR_TIMEOUT	28 // R/W
+  #define InterCharTimeout()		System(SYS_INTER_CHAR_TIMEOUT)
+  __nolist void SetInterCharTimeout(const int &v) { Set(InterCharTimeout(), v); }
+
+  #define SYS_TASK_SCHEDULING_PRIORITY	29 // R/W
+  #define TaskSchedulingPriority()	System(SYS_TASK_SCHEDULING_PRIORITY)
+  __nolist void SetTaskSchedulingPriority(const int &v) { Set(TaskSchedulingPriority(), v); }
+
+  #define SYS_VOLUME			30 // R/W
+  #define Volume()			System(SYS_VOLUME)
+  __nolist void SetVolume(const int &v) { Set(Volume(), v); }
+  #define MAX_VOLUME	16
+
+  #define SYS_SOUND_PLAYING		31 // R/O (true/false)
+  #define SoundActive()			System(SYS_SOUND_PLAYING)
+
+  #define SYS_PLAY_SOUNDS		32 // R/W (true/false)
+  #define PlaySounds()			System(SYS_PLAY_SOUNDS)
+  __nolist void SetPlaySounds(const int &v) { Set(PlaySounds(), v); }
+
+  #define SYS_QUEUED_SOUND_COUNT	33 // R/O
+  #define QueuedSoundCount()		System(SYS_QUEUED_SOUND_COUNT)
+
+  #define SYS_SENSOR_STARTUP_DELAY	34
+  #define SensorStartupDelay()		System(SYS_SENSOR_STARTUP_DELAY)
+  __nolist void SetSensorStartupDelay(const int &v) { Set(SensorStartupDelay(), v); }
+
+  #define SYS_SENSOR_DELAY_CYCLES	35
+  #define SensorDelayCycles()		System(SYS_SENSOR_DELAY_CYCLES)
+
+  #define SYS_SENSOR_REFRESH_STATE	36
+  #define SensorRefreshState()		System(SYS_SENSOR_REFRESH_STATE)
+
+  #define SYS_SENSOR_SCAN_COUNT		37
+  #define SensorScanCount()		System(SYS_SENSOR_SCAN_COUNT)
+
+  #define SYS_DATALOG_SIZE		38 // R/W
+  #define DatalogSize()			System(SYS_DATALOG_SIZE)
+
+  // InfraredReceiveMode
+  #define IRM_ACCEPT_ALL	0
+  #define IRM_ACCEPT_USER	1
+  #define IRM_DISCARD		2
+
+/**********************************************************
+ * Global Variables & Indirect Intrinsic sources
+ **********************************************************/
+
+  #define IntrinsicIndGlobal(n)	@(0x060000 + (n))
+  #define GlobalVar(n)		@@(0x2b2c)[(n)]
+
+/*
+	#define srcIndexedGlobalConst	47
+	#define srcStackVar		49
+	#define srcConstantVar		50
+	#define srcFunctionRetValWord	51
+	#define srcVarByte		54
+	#define srcVarWord		55
+	#define srcTaskStackVarByte	57
+	#define srcTaskStackVarWord	58
+	#define srcTaskVar		60
+*/
+
+  #define StackAddress(n)	@(0x3d0000 + (n))
+  #define StackSize(n)		@(0x3e0000 + (n))
+
+/**********************************************************
+ * New opcodes
+ **********************************************************/
+
+  // ClearCommandAction
+  #define CLR_TIMERS		0x01
+  #define CLR_INPUTS		0x02
+  #define CLR_VARIABLES		0x04
+  #define CLR_TASK_STACK	0x08
+  #define CLR_EVENTS		0x10
+  #define CLR_BREAKPOINTS	0x20
+  #define CLR_DATALOG		0x40
+
+  __nolist void ClearAll(const int &nCmdFlags)
+  { asm { 0xc7, $nCmdFlags : (__ASM_NO_TYPE  | __ASM_SMALL_VALUE) }; }
+
+  __nolist void BitSet(const int &result, const int &operand)
+  { asm { 0x7e, $result : __ASM_SRC_EXT, $operand : __ASM_SRC_EXT }; }
+
+  __nolist void BitClear(const int &result, const int &operand)
+  { asm { 0x7f, $result : __ASM_SRC_EXT, $operand : __ASM_SRC_EXT }; }
+
+  __nolist void Negate(const int &result, const int &operand)
+  { asm { 0x9b, $result : __ASM_SRC_EXT, $operand : __ASM_SRC_EXT }; }
+
+/*
+  #define opWaitTimerValue	0x7A
+  #define opSetMotorState	0xF1
+*/
+
+#endif // __SWAN

@@ -1,0 +1,113 @@
+{\rtf1\mac\ansicpg10000\cocoartf102
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fmodern\fcharset77 Courier;
+}
+{\colortbl;\red255\green255\blue255;\red255\green6\blue3;}
+\margl1440\margr1440\vieww12700\viewh11280\viewkind0
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b\fs36 \cf0 \ul NQC for Mac OS X
+\f1\b0\fs24 \ul \
+\ulnone \
+This is the standard Unix version of NQC, which must be run from a command shell.  To access a command shell, launch the Terminal application (which can be found in the Utilities folder within the Applications folder).  These instructions assume that you are running tcsh (which is the default).  You will be using shell windows a lot, so consider adding Terminal to the Dock.\
+\
+These instructions will often refer to your "home directory".  This is the directory that you see when you click the "Home" button in a Finder window.  It is also the directory that you start out in when you create a new Terminal window.  When using a Unix shell, the "~" symbol is shorthand for your home directory.\
+\
+Frequently the instructions will include commands to be typed into a shell window.  The commands will be enclosed in double quotes, but you shouldn't type the double quotes into the shell.  Just type everything between the quotes, and be careful- the shell is very picky.  Commands are executed by hitting the <return> key.\
+\
+
+\f0\b\fs28 \cf2 \ul IMPORTANT - Older versions of OS X and/or serial drivers might hang...
+\f1\b0\fs24 \ulnone \
+\
+If NQC hangs when it tries to download, then it is possible that your serial driver and/or the version of OS X you are using has a bug with the function tcdrain().  If that is the case, you can tell NQC not to use this function by appending ":nodrain" to the device name you specified.  For example, if your device was named "/dev/cu.KeyUSA28X191.1", then you would use "/dev/cu.KeyUSA28X191.1:nodrain" instead.  Versions of NQC prior to 2.4 r3 never used tcdrain(), but as of Mac OS X 10.1.3 it appears to be working (at least with the Keyspan serial drivers), so I changed NQC to use it by default.\cf0 \
+\
+
+\f0\b\fs28 \ul Installation of NQC
+\f1\b0 \ulnone \
+
+\fs24 \
+1) From the Finder, create a folder called "bin" in your home directory.\
+\
+2) Copy the file "nqc" to the folder created in step 1.\
+\
+\
+
+\f0\b\fs28 \ul Setting the Default Port\ulnone \
+
+\f1\b0\fs24 \
+NQC need to be told what port to use when talking with the RCX.  The easiest way to do this is by setting  the RCX_PORT environment variable.  \
+\
+First you need to determine the name of the port.  If you are using a USB tower, then the port name is simply "usb".  \
+\
+If you are using a serial tower, then the device name depends on the USB-serial adapter you are using and is a bit more complicated to figure out.  For example, I am using the Keyspan Twin USB adapter, and it happens to name its ports "cu.KeyUSA28X191.1" and "cu.KeyUSA28X191.2".  These names depend on the driver being used and how the adapter is hooked up to the computer so your names could be a little different.   The name will probably start with "cu".  To see all of the available device names, open a shell window and type "ls /dev" and look for names starting with "cu".  If you want to see if a device is the right one, hook up the IR tower and type the command "ls >/dev/xxx" substituting the device name for xxx.  This will send a bunch of data out the serial port.  If the green LED on the IR tower turns on, then you have the right device name.  Now you are ready to define the environment variable; type the following commands in a shell:\
+\
+1) Type "cd".  This will put you in your home directory (the shell starts out in the home directory, so you're probably already there, but it never hurts to make sure).\
+\
+2) Type "emacs .tcshrc".  This will start an editor program called emacs and create the .tcshrc file (which is a special file run by the shell every time it starts).  Unless you have been editing .tcshrc previously, it should be empty and you should be looking at a mostly blank window.\
+\
+3) Type "setenv RCX_PORT xxx" into the window replacing xxx with the port name you determined before.  For example, on my machine I typed "setenv RCX_PORT /dev/cu.KeyUSA28X191.1" to use port 1 of my Keyspan adapter.  For a USB tower, you could type "setenv RCX_PORT usb".\
+\
+4) Type Control-X  (hold <control> and press <x>) and Control-C.  This instructs emacs to quit.  It will ask you if you want to save the file.  Type "y".\
+\
+5) To check your work, open a new Terminal window and type "echo $RCX_PORT".  You should see your port name printed on the screen.  If not, then go back to step 2 and check your work.\
+\
+Emacs is the prefered text editor for many programmers.  You may want to get a little more familiar with it and use it for editing NQC programs.  If you start emacs without specifying a file (just type "emacs") it will give you some tips for getting started.  Perhaps try the tutorial (type Control-h then "t").\
+\
+
+\f0\b\fs28 \ul Setting the Command Path
+\f1\b0\fs26 \ulnone \
+
+\fs24 \
+As of 10.2, Apple no longer includes ~/bin in the default command search path.  In order to add ~/bin to the search path (so that the NQC command can be found), add the following line to the ~/.tcshrc file (see the section above for instructions on how to edit this file using emacs):\
+\
+setenv PATH ~/bin/:$PATH\
+\
+This new setting will take effect on any new Terminal windows.  In order to check your work, close the current Terminal window, open a new one, and type "echo $PATH".  You should see /Users/xx/bin as part of the list of entries printed (where xx is replaced by your login name).\
+\
+
+\f0\b\fs28 \ul Testing NQC
+\f1\b0\fs24 \ulnone \
+\
+We'll start by compling and download the test program included with NQC (called test.nqc).\
+\
+1) From the Finder, create a new folder in your home directory called "nqc_work"\
+\
+2) Copy the file "test.nqc" program to this new folder\
+\
+3) Open a new shell window\
+\
+4) Type "cd nqc_work".  The "cd" command is used to change your current directory - this is the place that the shell is currently working in.\
+\
+5) Type "nqc -l test.nqc".  If everything is working, the program will be compiled and listed on the screen like this:\
+\
+
+\f2 *** Task 0 = main\
+000 pwr        ABC, 7                13 07 02 07 \
+004 dir        ABC, Fwd              e1 87 \
+006 sent       0, Switch             32 00 01 \
+009 senm       0, Boolean            42 00 20 \
+012 out        A, On                 21 81 \
+014 chkl       1 != Input(0), 14     95 82 09 01 00 00 fa ff \
+022 plays      0                     51 00 \
+024 out        A, Off                21 41 \
+\
+Total size: 26 bytes\
+
+\f1 \
+If you get a message like "nqc: Command not found." then the shell cannot find the nqc program.  Make sure you installed it in the right place.  If you are using 10.2 or later, make sure that you modified the search path in the .tcshrc file.\
+\
+If you get a message like "Error: could not open file test.nqc", then the shell is finding NQC, but then NQC cannot find the test.nqc program.  Make sure that you typed the right "cd" command.  The command "pwd" will tell you what directory you are currently using.  You can list the contents of the current directory by typing "ls".\
+\
+6) Try downloading the program.  Set up the IR tower, turn on your RCX, and type "nqc -d test.nqc".  If everything is set up correctly, you should see a message about the program being downloaded to the RCX, then hear a sound from the RCX when the download is complete.\
+\
+If you see and error like "Could not open serial port", then you probably have not defined RCX_PORT correctly.  For other errors, check to make sure that everything is hooked up, batteries are fresh, etc.  See the NQC web site for general tips on troubleshooting communication with the RCX.\
+\
+\
+
+\f0\b\fs28 \ul Writing Your Own Programs
+\f1\b0\fs24 \ul \
+\ulnone \
+NQC compiles and downloads programs, but to write them you need to use a text editor.  There are many choices for text editors.  emacs and vi are two popular editors that run within shell windows.  If you have installed the Apple developer tools, then you can use Project Builder to write your NQC programs.  BBEdit is a popular classic Mac program for text editing.  Any program that can save plain text files will do.\
+\
+You can name your NQC programs however you want, but the convention is to name them ending in ".nqc".  Once you save your NQC program, use a shell window to type the appropriate NQC command ("nqc -d xxx" to download program xxx).\
+\
+}

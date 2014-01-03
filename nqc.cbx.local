@@ -1,0 +1,32 @@
+buildhistory.win32b_Preprocess[0]=Target settings
+buildhistory.win32b_bcc32[0]=Paths and Defines
+buildhistory.win32b_brcc32[0]=Paths and Defines
+buildhistory.win32b_ilink32[0]=Paths and Defines
+buildtool_history_project.win32b[0]=bcc32
+debugger.PreviousBreakpointConditions.1[0]=computedLen != argLen
+debugger.PreviousBreakpointConditions.2[0]=argLen == 7
+debugger.breakpointgroups.1[0]=Breakpoints
+debugger.breakpoints.1[0]=1  023 compiler/parse_util.cpp3  2551  11  10  1  10  11 Breakpoints0  0  0   -1
+debugger.breakpoints.2[0]=1  023 compiler/parse_util.cpp3  2341  11  10  1  10  11 Breakpoints0  0  0   -1
+debugger.breakpoints.3[0]=1  011 nqc/nqc.cpp3  6241  11  10  1  10  11 Breakpoints0  0  0   -1
+debugger.gdbAssemblyFlavor[0]=ATT disassembly
+debugger.previouswatches.1[0]=data
+debugger.previouswatches.2[0]=*(fData+3)
+debugger.previouswatches.3[0]=*(fData+2)
+debugger.previouswatches.4[0]=*(fData+1)
+debugger.previouswatches.5[0]=*fData
+editor.search.file_filter_history.1[0]=*.cpp; *.c; *.cc; *.hpp; *.h; *.hh
+editor.search.file_filter_history.2[0]=*.*
+history.files.active[0]=compiler/Error.h
+history.files.open.1[0]=compiler/Error.h,F;77,1741
+history.files.open.2[0]=nqc/nqc.cpp,F;1079,24002
+team.ActiveVCS[0]=CVS
+team.CvsAccessMethod[0]=local
+team.CvsAutosaveEnabled[0]=1
+team.CvsModule[0]=nqc
+team.CvsPruneEmptyDirs[0]=1
+team.CvsRemoteShell[0]=
+team.CvsRepository[0]=c:\winapps\projects\nqc
+team.CvsServer[0]=
+team.CvsShowConsole[0]=0
+team.CvsUsername[0]=jhansen

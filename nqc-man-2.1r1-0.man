@@ -1,0 +1,235 @@
+.de Y
+.ft CW
+.in +4n
+.nf
+\&\\$1
+.ft
+.in
+.fi
+..
+.TH nqc 1 "Version 2.1 r1: 19 Feb 2000"
+.SH NAME
+nqc - A simple C-like language for Lego's RCX programmable brick
+.SH SYNOPSIS
+.B nqc
+.RI "[ " options " ] [ " actions " ] [ \fB\-\fR | " filename " ] [ " actions " ]"
+.SH DESCRIPTION
+NQC stands for Not Quite C, and is a simple language for programming
+the LEGO RCX.  The preprocessor and control structures of NQC are
+very similar to C.  NQC is not a general purpose language -- there are many
+restrictions that stem from limitations of the standard RCX firmware.
+.PP
+This man page does not attempt to describe the NQC programming language or
+the RCX API, merely the options of the nqc command-line program.  References
+to more complete documentation are given at the end of this man page.
+
+.PP 
+nqc is normally used to process a single source file given as
+\fIfilename\fP.  You can also read from stdin by using \fB\-\fR
+instead.  If the filename ends in \fI.rcx\fR, it is assumed to be a RCX image
+file from a previous compile, and will be used as is (for downloading or
+listing).
+
+.SH OPTIONS
+.TP
+.B \-1
+use NQC 1.x compatibility mode.  The RCX API changed significantly with
+version 2.0.  This flag makes the compiler grok old code.
+.TP
+\fB\-T\fItarget\fP
+generate code and use communications methods for "smart
+bricks" other than the RCX.  Currently, can be either \fBCM\fR or
+\fBScout\fR.  
+.TP
+.B \-d
+download program to the RCX.  When this option is given, code is sent
+directly over the serial port to the brick and no output file is generated
+by default.
+.TP
+.B \-n
+prevent the standard \fInqc.h\fR file from being automatically included.
+.TP
+\fB\-D\fR\fIsym\fR[=\fIvalue\fR]
+define macro \fIsym\fR as \fIvalue\fR.
+.TP
+\fB\-E\fR[\fIfilename\fR]
+write compiler errors to \fIfilename\fR (or to stdout, if no name specified)
+instead of to stderr.
+.TP
+\fB\-I\fR\fIpath\fR
+search \fIpath\fR for include files.  Multiple directories should be
+seperated as normal for the platform (under Linux / Unix, that'd be "\fB\:\fR"). 
+Can also be set with the NQC_INCLUDE environment variable.
+.TP
+\fB\-L\fR[\fIfilename\fR]
+generate a human-readable bytecode listing to \fIfilename\fR (or to stdout)
+instead of generating a binary file.
+.TP
+\fB\-O\fR\fIoutfile\fR
+output code to \fIoutfile\fR.  This option causes a file to be written even
+if \fB\-d\fR or \fB-L\fR is also given.  If no filename is specified, the
+output file will have the same basename as the input file but an
+extension of \fI\.rcx\fR instead of \fI\.nqc\fR.
+.TP
+\fB\-S\fR\fIportname\fR
+use serial port \fIportname\fR.  Under Linux, \fI/dev/ttyS0\fR is the
+default.  (This will differ on other platforms.)  The port can also be specified
+via the RCX_PORT environment variable, but the command line option takes
+precedence.
+.TP
+\fB\-U\fR\fIsym\fR
+undefine macro \fIsym\fR.
+.SH
+ACTIONS 
+Actions look similar to options, but they have some subtle differences.  In
+general, options set up things (such as a serial port) for later use, while
+actions cause something to happen.  Actions are executed in the order that
+they appear on the command line.  In addition, actions appearing before the
+source file happen before compilation, while actions after the source file
+happen after compilation.  For historical reasons, downloading the compiled
+file (\fB\-d\fR) works as an option and not an action.
+.TP
+.B \-run
+run the current program.  This causes the program selected on the RCX to
+execute.
+.TP
+\fB\-pgm\fR \fInumber\fR
+select program number.  This changes the program slot on the RCX.
+.TP
+.B \-datalog
+get the datalog from the RCX and print it to stdout.
+.TP
+.B \-datalog\-full
+same as \fB\-datalog\fR but with more verbose output.
+.TP
+.B \-near
+set the IR port to short-range mode.
+.TP
+.B \-far
+set the IR port to long-range mode.
+.TP
+\fB\-watch\fR \fItime\fR
+set the RCX's clock to the specified time.  If you use \fBnow\fR, then the host's
+current time is used.
+.TP 
+\fB\-firmware\fR \fIfilename\fR
+downloads the firmware to the RCX.  You'll need the official Lego RCX
+firmware from the CD-ROM -- the current (and so far only) file is called
+\fIfirm0309.lgo\fR.  This will probably be necessary the first time you use
+your RCX, and whenever it's been without batteries for more than a few
+minutes.
+.TP
+\fB\-firmfast\fR \fIfilename\fR
+same as \fB\-firmware\fR, but at quad speed.  Requires the tower to be in
+near mode (see \fB\-near\fR).   If you have trouble getting the fast
+download to work, please revert to the older (and slower) method.
+.TP 
+\fB\-sleep\fR \fItimeout\fR
+set RCX auto-shutoff timeout, in minutes.
+.TP 
+\fB\-msg\fR \fInumber\fR
+send IR message to RCX. The brick will respond to this just as it would a
+communication from another RCX.
+.TP
+\fB\-raw\fR \fIdata\fR
+send an arbitrary packet to the RCX and print the reply (if any) to stdout.
+The data should be a hexadecimal string, with no spaces, zero-padded so that
+it is an even number of characters (although it may be an odd number of
+bytes). For example, to read the contents of variable 1, you could use
+\fB\-raw 120001\fR. The bytecodes for raw messages can be found on web sites
+that document the RCX protocol.
+.TP
+\fB\-remote\fR \fIvalue\fR \fIrepeat\fR
+send a repeating remote command to the RCX.
+.TP
+.B \-clear
+erase all programs and datalog from the RCX.
+.SH "ENVIRONMENT VARIABLES"
+.TP 
+RCX_PORT
+sets the default serial port.  See the \fB\-S\fR option.
+.TP
+NQC_OPTIONS
+specifies extra options to be inserted into the command line.  For example,
+setting NQC_OPTIONS to \fB\-TScout\fR would cause nqc to target the Scout
+by default.
+.TP
+NQC_INCLUDE 
+specifies additional paths to search for include files.  See also the
+\fB\-I\fR option.
+.SH EXAMPLES
+To compile \fIfoo.nqc\fR, download the bytecode to program slot three, and
+make the RCX start executing it immediately:
+.PP
+.Y "nqc -d -pgm 3 foo.nqc -run"
+.PP
+To just compile \fIbar.nqc\fR, resulting in \fIbar.rcx\fR:
+.PP
+.Y "nqc bar.nqc"
+.PP
+To download \fIbar.rcx\fR to the RCX:
+.PP
+.Y "nqc -d bar.rcx"
+.PP
+To set the IR tower to short-range mode and download the firmware at high
+speed:
+.PP
+.Y "nqc -near -firmfast firm0309.lgo"
+.PP
+To compile \fI/usr/doc/nqc-2.1.0/test.nqc\fR and print the resulting
+bytecode listing to the screen in human-readable format:
+.PP
+.Y "nqc -L /usr/doc/nqc-2.1.0/test.nqc"
+.PP
+(This should result in the following output under nqc 2.1.0:
+.PP
+.Y "*** Task 0 = main"
+.Y "000 pwr        ABC, 7                13 07 02 07"
+.Y "004 dir        ABC, Fwd              e1 87"
+.Y "006 InType     0, Switch             32 00 01"
+.Y "009 InMode     0, Boolean            42 00 20"
+.Y "012 out        A, On                 21 81"
+.Y "014 chkl       1 != Input(0), 14     95 82 09 01 00 00 fa ff"
+.Y "022 plays      0                     51 00"
+.Y "024 out        A, Off                21 41"
+.PP
+)
+.SH FILES
+Older versions of nqc required a seperate \fIrcx.nqh\fR or \fIrcx2.nqh\fR
+file.  This is now integrated into the binary and no longer necessary,
+but for reference, \fIrcx2.nqh\fR is included with the package. 
+(If you installed the RPM, try \fI/usr/doc/nqc-2.1.0/rcx2.nqh\fR).
+.SH SEE ALSO
+.TP
+.I http://www.enteract.com/~dbaum/nqc/
+The main Not Quite C web site.  You'll definitely want to look here. 
+Notably, you'll find the \fINQC Programmer's Guide\fR, which covers the NQC
+language itself.
+.TP
+.I http://www.crynwr.com/lego-robotics/
+A great site for alternative RCX / Mindstorms development.
+.TP
+.I http://graphics.stanford.edu/~kekoa/rcx/
+Details on the internals of the RCX and the RCX protocol.
+.TP 
+.I http://www.lugnet.com/robotics/rcx/nqc/
+Discussion group for NQC.  Also available via NNTP at \fIlugnet.com\fR.
+.TP 
+.I http://nqc.mattdm.org/
+Linux binaries and RPM-format packages for NQC, including source RPMs.  Also
+has an RPM containing the NQC language documentation from Dave's site, in
+case you'd prefer to have it installed locally.
+.SH BUGS
+None known.  But be aware that Scout support is still preliminary and may
+change significantly.
+.SH COPYRIGHT
+nqc is Copyright (C) 1998-2000 David Baum and released under the terms of
+the Mozilla Public License.  See the documentation included with the program
+for more details.
+.SH AUTHOR
+The Not Quite C programming language and the nqc program were written and
+are maintained by Dave Baum.  Various contributions have been made by other
+people -- a full list of these can be found on Dave's web site.
+.PP
+This man page was written by Matthew Miller (mattdm@mattdm.org), with
+extremely large amounts of borrowing from other NQC documentation.

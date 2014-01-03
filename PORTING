@@ -1,0 +1,154 @@
+Disclaimer - most of the source is uncommented, and I don't have time
+to answer questions on it.  Bottom line - you're on your own.
+
+
+Mainfest
+--------
+
+	LICENSE    - the source code license (MPL)
+	Makefile   - a sample Makefile that builds nqcc for Linux
+	PORTING    - this file
+	default    - default parse/lexer sources
+	nqc        - sources specific to nqc
+	platform   - source for utility classes
+	rcx.nqh    - system include file for using nqcc
+	rcxlib     - classes implementing the rcx interface
+	readme.txt - the readme file
+	test.nqc   - a trivial nqcc test program
+
+
+The Mac and win32 version are built under Metrowerks CodeWarrior.
+The included Makefile was designed for Linux, but should work on other
+Unix platforms with minor modification.
+
+
+General
+-------
+
+The Makefile uses a variable called TARGET to determine if platform specific
+options are needed for the build.  Currently there are two targets defined:
+  macosx - Mac OS X
+  solaris - sun solaris
+
+If TARGET is not defined, then the default options are used which are suitable
+for Linux and probably most Posix systems.  You can define TARGET as part of the
+make command like this:
+
+make TARGET=macosx
+
+There are two other variables that might be helpful during a build:
+
+DEFAULT_SERIAL_NAME: the name of the device to be used as a default serial
+  port.  If undefined, the Makefile sets it to /dev/ttyS0
+
+USBOBJ: the object files that implement USB support.  If undefined, the
+  Makefile defaults to rcxlib/RCX_USBTowerPipe_none.o, which is a dummy
+  module for when no USB support is present.  Note that a TARGET of
+  macosx overrides the default USBOBJ with a macosx specific one.
+
+The build is done with lots of warnings turned on (-Wall and a few others),
+and warnings are treated as errors (-Werror).  The build goes through my
+compilers just fine this way, but every compiler looks for something a
+little different with -Wall.  If you're having trouble with the build,
+remove -Werror from the compiler flags.
+
+
+Serial Ports
+------------
+All serial access is done through subclasses of PSerial.  Which subclass
+is determined by which implementation is linked into the executable:
+
+	PSerial_mac.cpp - macintosh
+	PSerial_win.cpp - win32
+	PSerial_unix.cpp - Linux, NetBSD and possibly others
+
+Other unix implementations may wish to #ifdef the unix file, or create
+a new implementation file (e.g. PSerial_solaris.cpp).  Note that the
+Unix code is only a partial implementation of the generic serial interface,
+but it is sufficient to work with the RCX.  Most notably, the unix code
+defaults to the appropriate serial setting (2400/8/1/odd), and does not
+support the SetSpeed() method.
+
+Unix implementations may also wish to override the default serial port.  This
+can be done by setting DEFAULT_SERIAL_NAME to the appropriate device name in
+the Makefile:
+
+DEFAULT_SERIAL_NAME = "/dev/ttyS0"
+
+
+Note for BSD Unix users:
+-----------------------
+When choosing the correct serial driver be sure to pick the one that
+doesn't require Carrier Detect to be raised. The IR tower doesn't seem
+to raise Carrier Detect like a modem or a Pilot cradle does. For
+COM1 on an Intel box running FreeBSD you'll want to use /dev/cuaa0, not
+/dev/ttyd0. You'll also probably need to check the ownships and
+permissions on the device to be sure you can read and write it.
+
+
+Note for Solaris users:
+-----------------------
+
+One file (PSerial_unix.cpp) has an #ifdef for building under Solaris.  Be
+sure to define the symbol SOLARIS before building (e.g. -DSOLARIS to CFLAGS
+in the Makefile).
+
+
+Parser and Lexer
+----------------
+
+The parser and lexer are normally built using bison and flex respectively.  The
+parser consists of parse.cpp and parse.tab.h, both of which are generated from
+parse.y using bison.  The lexer consists of lexer.cpp which is generated from
+lex.l using flex.
+
+Is most cases, the C++ source files (parse.cpp, parse.tab.h and lexer.cpp) should
+be re-generated using local versions of bison and flex.  In some cases, however,
+this may not be possible (perhaps there is no version of flex on your system).
+In this case, the default versions (those generated with the Linux versions of
+flex and bison) can be used instead.  This is done by making the following
+targets:
+
+make default-parser   (copies parse.cpp and parse.tab.h from default directory)
+make default-lexer    (copies lexer.cpp from default directory)
+
+I'm fairly certain that yacc can be substitued for bison, but it has not been
+tested extensively.
+
+Lex cannot be substituted for flex - the lex.l file will not work with most
+variants of lex.  Use flex, or stick with the default lexer.cpp.
+
+
+Version Numbers
+---------------
+
+The macro VERSION contains the version number for the build, and
+is defined in nqcc.cpp.  Version numbers have the following format:
+
+	major.minor[.fix] [phase release]
+
+For example, version "0.5 b1" is the first beta release of major
+version 0, minor version 5.  The phases are 'a' for my own alpha
+tests, and 'b' for public beta.  Final releases do not have a
+phase as part of the version string.
+
+The first official release would be version "1.0".  A beta test to
+a bug fix to this version could be "1.0.1 b1", which would then
+get released as "1.0.1".
+
+If you port nqc to another platform, you should keep the version
+number intact.  You may, however, want to print out additional
+information in the PrintUsage() function in nqc.cpp.
+
+If you add new features to nqc or write a new program based on nqc,
+please embed the nqcc version number within your own version numbering,
+e.g. "Foo 1.42 (nqc 1.0)".  This will help track potential problems
+back to the appropriate version of nqc source code.
+
+
+
+
+Bugs
+----
+
+If you find a bug, please let me know - dbaum@enteract.com
