@@ -65,9 +65,13 @@ static int FillBuffer(char *ptr, int max);
 #define YY_NEVER_INTERACTIVE 1
 #endif
 
+// Unused defs
+#define YY_NO_INPUT 1
+
 
 %}
 
+%option nounput
 %option outfile="lexer.cpp"
 
 id0			[a-zA-Z_]
