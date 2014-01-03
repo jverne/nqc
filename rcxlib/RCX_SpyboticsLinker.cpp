@@ -43,9 +43,9 @@ struct EmptyChunkDef
 static const EmptyChunkDef sEmptyChunkDefs[] =
 {
 	{ 0 },			// empty task (not used - tasks are special cases)
-	{ 1, 0xf6 },	// empty sub
-	{ 1, 0 }, 		// empty sound
-	{ 2, 0, 0 }, 	// empty animation
+	{ 1, {0xf6} },	// empty sub
+	{ 1, {0} }, 	// empty sound
+	{ 2, {0, 0} }, 	// empty animation
 };
 
 
@@ -119,7 +119,7 @@ void RCX_SpyboticsLinker::Generate(const RCX_Image &image, std::vector<UByte> &o
 		printf("%02x ", data[i]);
 	}
 	printf("\n");
-/**/
+*/
 
 }
 
