@@ -1,27 +1,16 @@
 /*
- * The contents of this file are subject to the Mozilla Public License
- * Version 1.0 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
- * License for the specific language governing rights and limitations
- * under the License.
- *
- * Code adapted for use with Linux LegoUSB driver by Bret Thaeler
- * 	& the LegoUSB DevTeam <http://legousb.sourceforge.net>.
- * 	LegoUSB Portions Copyright (c) 2001 - 2002 Bret Thaeler & The LegoUSB DevTeam
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * The Initial Developer of this code is David Baum.
- * Portions created by David Baum are Copyright (C) 1998 David Baum.
+ * Portions created by David Baum are Copyright (C) 1999 David Baum.
  * All Rights Reserved.
  *
  * Portions created by John Hansen are Copyright (C) 2005 John Hansen.
  * All Rights Reserved.
  *
  */
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>

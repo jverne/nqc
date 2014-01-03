@@ -1,14 +1,16 @@
-//	LEGOUSBTowerioctl.h
-//
-//	Define control codes for LEGOUSBTower driver
-//
-//	Written by AS
-//	Copyright (C) 1999-2000 The LEGO Company. All rights reserved.
-//
-//	@doc
-//
-//
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * The Initial Developer of this code is David Baum.
+ * Portions created by David Baum are Copyright (C) 1999 David Baum.
+ * All Rights Reserved.
+ *
+ * Portions created by John Hansen are Copyright (C) 2005 John Hansen.
+ * All Rights Reserved.
+ *
+ */
 #if _MSC_VER > 1000
 	#pragma once
 #endif // _MSC_VER > 1000

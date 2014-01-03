@@ -1,16 +1,16 @@
-//
-//	TOWERAPI.H
-//
-//	Header file for the LEGO USB Tower API. It contains the prototypes of the functions exported
-//	by TOWERAPI.DLL
-//
-//	Written by AS
-//	Copyright (C) 1999 The LEGO Group. All rights reserved.
-//
-//	@doc
-//
-//
-#ifndef __TOWERAPI_H__
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * The Initial Developer of this code is David Baum.
+ * Portions created by David Baum are Copyright (C) 1999 David Baum.
+ * All Rights Reserved.
+ *
+ * Portions created by John Hansen are Copyright (C) 2005 John Hansen.
+ * All Rights Reserved.
+ *
+ */#ifndef __TOWERAPI_H__
 
 	#define __TOWERAPI_H__
 
