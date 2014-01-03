@@ -63,7 +63,7 @@ RCX_PipeTransport::RCX_PipeTransport(RCX_Pipe *pipe) : fPipe(pipe)
 	fVerbose = false;
 	fTxLastCommand = 0;
 	fFastMode = false;
-        fOmitHeader = false;
+    fOmitHeader = false;
 }
 
 
@@ -147,7 +147,6 @@ void RCX_PipeTransport::SetFastMode(bool fast)
 }
 
 
-
 RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxData, int rxExpected, int rxMax, bool retry, int timeout)
 {
 	RCX_Result result;
@@ -197,15 +196,16 @@ RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxD
 		if (result == kRCX_IREchoError && i > 0) break;
                 if (fVerbose)
                 {
-                        printf("Retrying...\n");
+                	printf("Retrying...\n");
                 }
 	}
 
 	if (retry)
 	{
 		// retries exceeded, restore original timeout and lose the sync
-		if (fDynamicTimeout)
+		if (fDynamicTimeout) {
 			fRxTimeout = originalTimeout;
+		}
 		fSynced = false;
 	}
 
@@ -351,38 +351,6 @@ RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &rep
 
 	return length - 1;
 }
-
-
-/* this function is now obsolete
-
-int RCX_PipeTransport::ValidateRxData()
-{
-	// must be an even number of bytes
-	if (fRxLength & 1) return 0;
-
-	// validate complements
-	int count = fRxLength / 2;
-	for(int i=0; i<count; ++i)
-	{
-		UByte d = fRxData[2*i];
-
-		if (d + fRxData[2*i+1] != 0xff) return 0;
-
-		fRxData[i] = d;
-	}
-
-	// compute checksum
-	--count;
-	UByte checksum = 0;
-	for(int i=0; i<count; ++i)
-		checksum += fRxData[i];
-
-	if (checksum != fRxData[count]) return 0;
-
-	return count;
-}
-*/
-
 
 int RCX_PipeTransport::FindReply(const int rxExpected, int &offset)
 {

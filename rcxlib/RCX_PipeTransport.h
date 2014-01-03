@@ -40,60 +40,58 @@ public:
 	};
 
 	RCX_PipeTransport(RCX_Pipe *pipe);
-	virtual		~RCX_PipeTransport();
+	virtual ~RCX_PipeTransport();
 
+	virtual RCX_Result Open(RCX_TargetType target, const char *deviceName, ULong options);
+	virtual void Close();
 
-	virtual RCX_Result 	Open(RCX_TargetType target, const char *deviceName, ULong options);
-	virtual void		Close();
+	virtual RCX_Result Send(const UByte *txData, int txLength, UByte *rxData, int rxExpected, int rxMax, bool retry, int timeout);
 
-	virtual RCX_Result	Send(const UByte *txData, int txLength, UByte *rxData, int rxExpected, int rxMax, bool retry, int timeout);
-
-	virtual bool		FastModeSupported() const;
-	virtual bool		FastModeOddParity() const { return fPipe->GetCapabilities() & RCX_Pipe::kFastOddParityFlag; }
-	virtual void		SetFastMode(bool fast);
-    virtual bool            GetFastMode() const { return fFastMode; }
-    virtual bool            GetComplementData() const { return fComplementData; }
+	virtual bool FastModeSupported() const;
+	virtual bool FastModeOddParity() const { return fPipe->GetCapabilities() & RCX_Pipe::kFastOddParityFlag; }
+	virtual void SetFastMode(bool fast);
+    virtual bool GetFastMode() const { return fFastMode; }
+    virtual bool GetComplementData() const { return fComplementData; }
 
 	// the Receive() interface is still experiemental
-	RCX_Result      Receive(UByte *data, int maxLength, bool echo);
+	RCX_Result Receive(UByte *data, int maxLength, bool echo);
 
 private:
-    int         ExpectedReceiveLen(const int rxExpected);
-	void		BuildTxData(const UByte *data, int length, bool duplicateReduction);
-	void		SendFromTxBuffer(int delay);
-	RCX_Result	ReceiveReply(int rxExpected, int timeout, int &replyOffset);
-	//int		ValidateRxData();  // obsolete
-	int			FindReply(const int rxExpected, int &offset);
-	void		CopyReply(UByte *dst, int offset, int length);
-	void		AdjustTimeout(RCX_Result result, int attempt);
+    int ExpectedReceiveLen(const int rxExpected);
+	void BuildTxData(const UByte *data, int length, bool duplicateReduction);
+	void SendFromTxBuffer(int delay);
+	RCX_Result ReceiveReply(int rxExpected, int timeout, int &replyOffset);
 
-	void		ProcessRxByte(UByte b);
-	int			VerifyReply(const int rxExpected, const UByte *data, int length, UByte cmd);
+	int	FindReply(const int rxExpected, int &offset);
+	void CopyReply(UByte *dst, int offset, int length);
+	void AdjustTimeout(RCX_Result result, int attempt);
 
-	RCX_Pipe*	fPipe;
-	UByte*		fTxData;
-	int			fTxLength;
-	UByte		fTxLastCommand;
+	void ProcessRxByte(UByte b);
+	int	VerifyReply(const int rxExpected, const UByte *data, int length, UByte cmd);
 
-	UByte*		fRxData;
-	int			fRxLength;
+	RCX_Pipe* fPipe;
+	UByte* fTxData;
+	int	fTxLength;
+	UByte fTxLastCommand;
+
+	UByte* fRxData;
+	int	 fRxLength;
 
 	// these fields are used by the Receive() state machine
-	//int		fRxExpectedLength;
-	int		fRxState;
+	int	fRxState;
 
 	// parameters that define packet formatting
-	const UByte*	fSync;	// sync pattern for packets (depends on target and usb mode)
-	bool		fComplementData;
+	const UByte* fSync;	// sync pattern for packets (depends on target and usb mode)
+	bool fComplementData;
 
-	bool		fVerbose;
-	bool		fSynced;
-	RCX_TargetType	fTarget;
-	int			fRxTimeout;
-	bool		fDynamicTimeout;
+	bool fVerbose;
+	bool fSynced;
+	RCX_TargetType fTarget;
+	int fRxTimeout;
+	bool fDynamicTimeout;
 
 	// use for fast download
-	bool		fFastMode;
+	bool fFastMode;
 };
 
 

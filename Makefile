@@ -82,7 +82,8 @@ ifneq (,$(strip $(findstring $(OSTYPE), Darwin)))
   LIBS += -framework IOKit -framework CoreFoundation
   USBOBJ = rcxlib/RCX_USBTowerPipe_osx.o
   CXX = c++
-  #CFLAGS += -DDEBUG
+  CFLAGS += -O3
+  #CFLAGS += -DDEBUG -g -O0
 else
 ifneq (,$(strip $(findstring $(OSTYPE), Linux)))
   # Linux
@@ -101,7 +102,7 @@ ifneq (,$(strip $(findstring $(OSTYPE), FreeBSD)))
   CFLAGS += -Wno-deprecated
 else
   # default Unix build without USB support
-  CFLAGS += -O6
+  CFLAGS += -O2
 endif
 endif
 endif
