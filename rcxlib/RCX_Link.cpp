@@ -585,8 +585,8 @@ RCX_Result RCX_Link::Download(const UByte *data, int length, int chunk)
 	{
 		if (remain <= chunk)
 		{
-                        if (!gQuiet || gProgramMode)
-			  seq = 0;
+        	if (!gQuiet || gProgramMode)
+				seq = 0;
 			n = remain;
 		}
 		else

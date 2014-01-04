@@ -253,6 +253,7 @@ long RCX_USBTowerPipe_osx::Read(void *data, long length, long timeout_ms)
 	fReadRemain = length;
 	fReadDone = false;
 
+	// This doesn't work with a USB tower for some reason.
 	//SetTimeout(timeout_ms);
 
 	// consume any previously buffered data

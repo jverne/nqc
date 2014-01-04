@@ -285,12 +285,10 @@ void RCX_PipeTransport::SendFromTxBuffer(int delay)
 }
 
 
-
 RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &replyOffset)
 {
 	int receiveLen = ExpectedReceiveLen(rxExpected);
-	if (!((fTarget == kRCX_SpyboticsTarget) || fPipe->IsUSB()))
-	{
+	if (!((fTarget == kRCX_SpyboticsTarget) || fPipe->IsUSB())) {
 		receiveLen += fTxLength; // serial tower echoes the sent bytes
 	}
 
@@ -299,49 +297,57 @@ RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &rep
 	fRxLength = 0;
 
 	int length = 0;
-        bool bFirstRead = true;
-	while(fRxLength < kMaxRxData)
-	{
-		if (bFirstRead)
-		{
+    bool bFirstRead = true;
+	while(fRxLength < kMaxRxData) {
+		if (bFirstRead) {
 			bFirstRead = false;
-			if (fVerbose) printf("reading %d bytes, timeout = %d\n", receiveLen, timeout);
+			if (fVerbose) printf("expecting %d bytes, timeout = %d\n", receiveLen, timeout);
 			int bytesRead = fPipe->Read(fRxData+fRxLength, receiveLen, timeout);
-			if (bytesRead == 0) break;
+			if (bytesRead == 0) {
+				break;
+			}
+
 			fRxLength += bytesRead;
+			if (fVerbose) printf("read %d bytes, total = %d\n", bytesRead, fRxLength);
 		}
-		else
-		{
-			if (fVerbose) printf("reading 1 byte, timeout = %d\n", timeout);
-			if (fPipe->Read(fRxData+fRxLength, 1, timeout) != 1) break;
+		else {
+			if (fVerbose) {
+				printf("expecting 1 byte, timeout = %d\n", timeout);
+			}
+			if (fPipe->Read(fRxData+fRxLength, 1, timeout) != 1) {
+				break;
+			}
+
 			fRxLength++;
-
+			if (fVerbose) printf("read 1 byte, total = %d\n", fRxLength);
 		}
-/*
-		if (fPipe->Read(fRxData+fRxLength, 1, timeout) != 1) break;
-		fRxLength++;
 
-		if (fRxLength < receiveLen) continue;
-*/
 		// check for replies
 		length = FindReply(rxExpected, replyOffset);
-		if (length == rxExpected) break;
+		if (length == rxExpected) {
+			break;
+		}
 	}
 
-	if (fVerbose)
-	{
+	if (fVerbose) {
 		printf("Rx: ");
 		DumpData(fRxData, fRxLength);
 	}
 
-	if (fRxLength == 0 &&
-		(fPipe->GetCapabilities() & RCX_Pipe::kTxEchoFlag) &&
-		(fTarget!=kRCX_CMTarget))
+	if (fRxLength == 0
+		&& (fPipe->GetCapabilities() & RCX_Pipe::kTxEchoFlag)
+		&& (fTarget != kRCX_CMTarget))
+	{
+		if (fVerbose) printf("!early return: kRCX_IREchoError\n");
 		return  kRCX_IREchoError;
+	}
 
-	if (length == 0)
+	if (length == 0) {
+		if (fVerbose) printf("!early return: kRCX_ReplyError\n");
 		return kRCX_ReplyError;
+	}
 
+	if (fVerbose) printf("returning: %d\n", length - 1);
 	return length - 1;
 }
 

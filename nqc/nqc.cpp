@@ -331,21 +331,21 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
 					if  (*(a+2)=='\0') return kUsageError;
 					result = SetTarget(a+2);
 					break;
-                                case 'x':
-                                        gLink.SetOmitHeader(true);
-                                        break;
-//                                case 'p':
-//                                        if  (*(a+2)=='\0') return kUsageError;
-//                                        gLink.SetRCXProgramChunkSize(atoi(a+2));
-//                                        break;
-                                case 'f':
-                                        if  (*(a+2)=='\0') return kUsageError;
-                                        gLink.SetRCXFirmwareChunkSize(atoi(a+2));
-                                        break;
-                                case 'w':
-                                        if  (*(a+2)=='\0') return kUsageError;
-                                        gLink.SetDownloadWaitTime(atoi(a+2));
-                                        break;
+                case 'x':
+                    gLink.SetOmitHeader(true);
+                    break;
+//              case 'p':
+//                  if  (*(a+2)=='\0') return kUsageError;
+//                  	gLink.SetRCXProgramChunkSize(atoi(a+2));
+//                  break;
+                case 'f':
+                    if  (*(a+2)=='\0') return kUsageError;
+                        gLink.SetRCXFirmwareChunkSize(atoi(a+2));
+                     break;
+                case 'w':
+                    if  (*(a+2)=='\0') return kUsageError;
+                        gLink.SetDownloadWaitTime(atoi(a+2));
+                    break;
 				case 'U':
 					if  (*(a+2)=='\0') return kUsageError;
 					Compiler::Get()->Undefine(a+2);
@@ -369,9 +369,9 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
 				case 'v':
 					gVerbose = true;
 					break;
-                                case 'q':
-                                        gQuiet = true;
-                                        break;
+                case 'q':
+                    gQuiet = true;
+                    break;
 
 				// actions
 				case kCompileStdinCode:
@@ -1028,9 +1028,9 @@ void PrintError(RCX_Result error, const char *filename)
 
 	switch(error)
 	{
-                case kRCX_RequestError:
-                        fprintf(STDERR, "Request error\n");
-                        break;
+        case kRCX_RequestError:
+            fprintf(STDERR, "Request error\n");
+            break;
 		case kRCX_OpenSerialError:
 			fprintf(STDERR, "Could not open serial port or USB device\n");
 			break;
@@ -1105,8 +1105,8 @@ void PrintUsage()
 	fprintf(stdout,"   -v: verbose\n");
 	fprintf(stdout,"   -q: quiet\n");
 	fprintf(stdout,"   -x: omit packet header (RCX only)\n");
-	fprintf(stdout,"   -f<size>: set firmware chunk size\n");
-	fprintf(stdout,"   -w<ms>: set the download wait timeout\n");
+	fprintf(stdout,"   -f<size>: set firmware chunk size in bytes\n");
+	fprintf(stdout,"   -w<ms>: set the download wait timeout in millis\n");
 //	fprintf(stdout,"   -p<size>: set program chunk size\n");
 //	fprintf(stdout,"   -X<factor>: set USB tower speed factor (<100=faster, >100=slower)\n");
 	fprintf(stdout,"   -O<outfile>: specify output file\n");

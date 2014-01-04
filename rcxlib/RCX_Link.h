@@ -86,10 +86,10 @@ public:
 	// it can be used to determine if an kRCX_ReplyError error was due to missing firmware
 	bool		WasErrorFromMissingFirmware();
 
-        void            SetOmitHeader(bool value) { fOmitHeader = value; if (fTransport) fTransport->SetOmitHeader(value); }
-        void            SetRCXProgramChunkSize(int value) { fRCXProgramChunkSize = value; }
-        void            SetRCXFirmwareChunkSize(int value) { fRCXFirmwareChunkSize = value; }
-        void            SetDownloadWaitTime(int value) { fDownloadWaitTime = value; }
+    void        SetOmitHeader(bool value) { fOmitHeader = value; if (fTransport) fTransport->SetOmitHeader(value); }
+    void        SetRCXProgramChunkSize(int value) { fRCXProgramChunkSize = value; }
+    void        SetRCXFirmwareChunkSize(int value) { fRCXFirmwareChunkSize = value; }
+    void        SetDownloadWaitTime(int value) { fDownloadWaitTime = value; }
 
 private:
 	RCX_Result	DownloadByChunk(const RCX_Image &image, int programNumber);
@@ -99,18 +99,18 @@ private:
 	RCX_Result	Download(const UByte *data, int length, int chunk);
 
 	int		ExpectedReplyLength(const UByte *data, int length);
-        int		AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOnes, const UByte *data, bool bComplement);
-	void		BeginProgress(int total);
-	bool		IncrementProgress(int delta);
+    int		AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOnes, const UByte *data, bool bComplement);
+	void	BeginProgress(int total);
+	bool	IncrementProgress(int delta);
 
 	RCX_Transport*	fTransport;
 	bool		fSynced;
 	RCX_TargetType	fTarget;
-        bool            fOmitHeader;
-        int             fRCXProgramChunkSize;
-        int             fRCXFirmwareChunkSize;
-        int             fDownloadWaitTime;
-        bool            fVerbose;
+    bool            fOmitHeader;
+    int             fRCXProgramChunkSize;
+    int             fRCXFirmwareChunkSize;
+    int             fDownloadWaitTime;
+    bool            fVerbose;
 
 	RCX_Result	fResult;
 	UByte		fReply[kMaxReplyLength];	// includes command and data
