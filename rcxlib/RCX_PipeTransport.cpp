@@ -125,13 +125,11 @@ void RCX_PipeTransport::SetFastMode(bool fast)
 {
 	if (fast == fFastMode) return;
 
-	if (fast)
-	{
+	if (fast) {
 		fComplementData = false;
 		fPipe->SetMode(RCX_Pipe::kFastIrMode);
 	}
-	else
-	{
+	else {
 		fComplementData = (fTarget != kRCX_SpyboticsTarget);
 		fPipe->SetMode(RCX_Pipe::kNormalIrMode);
 	}
@@ -140,7 +138,8 @@ void RCX_PipeTransport::SetFastMode(bool fast)
 }
 
 
-RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxData, int rxExpected, int rxMax, bool retry, int timeout)
+RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxData,
+	int rxExpected, int rxMax, bool retry, int timeout)
 {
 	RCX_Result result;
 
@@ -151,28 +150,26 @@ RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxD
 	int tries = retry ? kDefaultRetryCount : 1;
 	int originalTimeout = fRxTimeout;
 
-	for(int i=0; i<tries; i++)
-	{
+	for (int i=0; i<tries; i++) {
 		SendFromTxBuffer(fFastMode ? 100 : 0);
 
 		// if no reply is expected, we can just return now (no retries, no errors, etc)
 		if (!rxExpected) return kRCX_OK;
 
-                int tmpTimeout;
-                if (timeout > 0)
-                  tmpTimeout = timeout;
-                else
-                  tmpTimeout = fRxTimeout;
-
+        int tmpTimeout;
+        if (timeout > 0)
+        	tmpTimeout = timeout;
+        else
+            tmpTimeout = fRxTimeout;
 
 		int replyOffset;
 		result = ReceiveReply(rxExpected, tmpTimeout, replyOffset);
-		if (fDynamicTimeout) AdjustTimeout(result, i);
+		if (fDynamicTimeout) {
+			AdjustTimeout(result, i);
+		}
 
-		if (!RCX_ERROR(result))
-		{
-			if (rxData)
-			{
+		if (!RCX_ERROR(result)) {
+			if (rxData) {
 				int length = result+1;
 				if (length > rxMax) length = rxMax;
 				CopyReply(rxData, replyOffset, length);
@@ -187,14 +184,11 @@ RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxD
 		// level failure on a single packet doesn't kill the entire
 		// send
 		if (result == kRCX_IREchoError && i > 0) break;
-                if (fVerbose)
-                {
-                	printf("Retrying...\n");
-                }
+                
+        if (fVerbose) printf("Retrying...\n");
 	}
 
-	if (retry)
-	{
+	if (retry) {
 		// retries exceeded, restore original timeout and lose the sync
 		if (fDynamicTimeout) {
 			fRxTimeout = originalTimeout;
@@ -295,13 +289,13 @@ RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &rep
 	// get the reply
 	fRxState = kReplyState;
 	fRxLength = 0;
-
 	int length = 0;
-    bool bFirstRead = true;
+	bool bFirstRead = true;
 	while(fRxLength < kMaxRxData) {
 		if (bFirstRead) {
 			bFirstRead = false;
 			if (fVerbose) printf("expecting %d bytes, timeout = %d\n", receiveLen, timeout);
+
 			int bytesRead = fPipe->Read(fRxData+fRxLength, receiveLen, timeout);
 			if (bytesRead == 0) {
 				break;
@@ -311,9 +305,8 @@ RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &rep
 			if (fVerbose) printf("read %d bytes, total = %d\n", bytesRead, fRxLength);
 		}
 		else {
-			if (fVerbose) {
-				printf("expecting 1 byte, timeout = %d\n", timeout);
-			}
+			if (fVerbose) printf("expecting 1 byte, timeout = %d\n", timeout);
+
 			if (fPipe->Read(fRxData+fRxLength, 1, timeout) != 1) {
 				break;
 			}
@@ -338,16 +331,13 @@ RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &rep
 		&& (fPipe->GetCapabilities() & RCX_Pipe::kTxEchoFlag)
 		&& (fTarget != kRCX_CMTarget))
 	{
-		if (fVerbose) printf("!early return: kRCX_IREchoError\n");
 		return  kRCX_IREchoError;
 	}
 
 	if (length == 0) {
-		if (fVerbose) printf("!early return: kRCX_ReplyError\n");
 		return kRCX_ReplyError;
 	}
 
-	if (fVerbose) printf("returning: %d\n", length - 1);
 	return length - 1;
 }
 
@@ -356,17 +346,20 @@ int RCX_PipeTransport::FindReply(const int rxExpected, int &offset)
 	int length;
 
 	offset = 0;
-	while(1)
-	{
+	while(1) {
 		int start = FindSync(fRxData + offset, fRxLength - offset, fSync, fTxLastCommand);
 
-		if (start == 0) return 0;
+		if (start == 0) {
+			return 0;
+		}
 
 		offset += start;
 
 		length = VerifyReply(rxExpected, fRxData + offset, fRxLength - offset, fTxLastCommand);
 
-		if (length > 0) return length;
+		if (length > 0) {
+			return length;
+		}
 	}
 }
 
@@ -387,8 +380,6 @@ void RCX_PipeTransport::CopyReply(UByte *dst, int offset, RCX_Result length)
 void RCX_PipeTransport::AdjustTimeout(RCX_Result result, int attempt)
 {
 	int newTimeout = fRxTimeout;
-
-	//printf("RCS_Result = %d attempt = %d \n", result, attempt);
 
 	if (!RCX_ERROR(result) && attempt==0)
 	{
@@ -522,16 +513,19 @@ void RCX_PipeTransport::ProcessRxByte(UByte b)
 
 int RCX_PipeTransport::ExpectedReceiveLen(const int rxExpected)
 {
-        int result = rxExpected;
-        if (fComplementData)
-            result *= 2;
-        if ((fFastMode && ((fTxLastCommand & 0xf7) == 0xa5)) || fComplementData)
-            result += 2;
-        else
-            result += 1;
-        // allow at least one byte for the header
-        result += 3; // 3 byte header
-        return result;
+	int result = rxExpected;
+
+	if (fComplementData)
+		result *= 2;
+
+	if ((fFastMode && ((fTxLastCommand & 0xf7) == 0xa5)) || fComplementData)
+		result += 2;
+	else
+		result += 1;
+
+	// allow at least one byte for the header
+	result += 3; // 3 byte header
+	return result;
 }
 
 int RCX_PipeTransport::VerifyReply(const int rxExpected, const UByte *data, int length, UByte cmd)
@@ -545,42 +539,54 @@ int RCX_PipeTransport::VerifyReply(const int rxExpected, const UByte *data, int 
 	// this is a hack to work around the problem that the reply for
 	// opcode a5 has a complemented command byte even in fast mode
 	bool complementCmd;
-	if (fFastMode && ((cmd & 0xf7) == 0xa5))
+	if (fFastMode && ((cmd & 0xf7) == 0xa5)) {
 		complementCmd = true;
-	else
+	} else {
 		complementCmd = fComplementData;
-
-	// always need a cmd and a checksum
-	if (length < ((complementCmd ? 2 : 1) + width)) return 0;
-
-	// check the cmd
-	if ((*ptr & 0xf7) != (~cmd & 0xf7)) return 0;
-        ptr++;
-
-	if (complementCmd)
-	{
-		if ((*ptr & 0xf7) != (cmd & 0xf7)) return 0;
-                ptr++;
 	}
 
-	while(ptr < end)
-	{
-		if (fComplementData && ((ptr[0] & 0xf7) != (~ptr[1] & 0xf7))) break;
+	// always need a cmd and a checksum
+	if (length < ((complementCmd ? 2 : 1) + width)) {
+		return 0;
+	}
 
-		if (ptr[0] == ComputeChecksum(dataSum, fTarget)) match = ptr;
+	// check the cmd
+	if ((*ptr & 0xf7) != (~cmd & 0xf7)) {
+		return 0;
+	}
+	ptr++;
+
+	if (complementCmd) {
+		if ((*ptr & 0xf7) != (cmd & 0xf7)) {
+			return 0;
+		}
+		ptr++;
+	}
+
+	while(ptr < end) {
+		if (fComplementData && ((ptr[0] & 0xf7) != (~ptr[1] & 0xf7))) {
+			break;
+		}
+
+		if (ptr[0] == ComputeChecksum(dataSum, fTarget)) {
+			match = ptr;
+		}
 
 		dataSum += ptr[0];
 		ptr += width;
 	}
 
-        // certain spybot responses have screwed-up checksums when
-        // communicating via USB tower
-        if (!match && (fTarget == kRCX_SpyboticsTarget) && fPipe->IsUSB())
-        {
-              if (length == rxExpected+1)
-                match = end - 1;
-        }
-	if (!match) return 0;
+	// certain spybot responses have screwed-up checksums when
+	// communicating via USB tower
+	if (!match && (fTarget == kRCX_SpyboticsTarget) && fPipe->IsUSB()) {
+		if (length == rxExpected+1) {
+			match = end - 1;
+		}
+	}
+
+	if (!match) {
+		return 0;
+	}
 
 	return ((match - data) / width);
 }
@@ -588,13 +594,11 @@ int RCX_PipeTransport::VerifyReply(const int rxExpected, const UByte *data, int 
 
 UByte ComputeChecksum(UByte dataSum, RCX_TargetType targetType)
 {
-	if (targetType == kRCX_SpyboticsTarget)
-	{
+	if (targetType == kRCX_SpyboticsTarget) {
 		// preamble + dataSum + checksum = 0
 		return -0x98 - dataSum;
 	}
-	else
-	{
+	else {
 		// checksum = dataSum
 		return dataSum;
 	}
@@ -603,28 +607,27 @@ UByte ComputeChecksum(UByte dataSum, RCX_TargetType targetType)
 int FindSync(const UByte *data, int length, const UByte *sync, const UByte cmd)
 {
 	int syncLen = *sync++;
-        while (syncLen > 0)
-        {
-                const UByte *end = data + length - syncLen + 1;
-                const UByte *ptr;
+	while (syncLen > 0) {
+		const UByte *end = data + length - syncLen + 1;
+		const UByte *ptr;
 
-                for(ptr=data; ptr<end; ptr++)
-                {
-                        int i;
-                        for(i=0; i<syncLen; i++)
-                        {
-                                if (ptr[i] != sync[i]) break;
-                        }
-                        // check the next byte to see if it matches the command.
-                        // if it doesn't then we haven't really found the sync
-                        if ((i==syncLen) && ((ptr[syncLen] & 0xf7) == (~cmd & 0xf7)))
-                        {
-                          return ptr-data+syncLen;
-                        }
-                }
-                sync++;
-                syncLen--;
-        }
+		for (ptr=data; ptr<end; ptr++) {
+			int i;
+			for(i=0; i<syncLen; i++) {
+				if (ptr[i] != sync[i]) {
+					break;
+				}
+			}
+            
+			// check the next byte to see if it matches the command.
+			// if it doesn't then we haven't really found the sync
+			if ((i==syncLen) && ((ptr[syncLen] & 0xf7) == (~cmd & 0xf7))) {
+				return ptr - data + syncLen;
+			}
+		}
+		sync++;
+		syncLen--;
+	}
 
 	return 0;
 }

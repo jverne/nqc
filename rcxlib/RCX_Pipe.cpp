@@ -15,9 +15,10 @@
 
 void RCX_Pipe::FlushRead(int delay)
 {
-        const int BUFFSIZE = 512;
-        UByte * buff = new UByte[BUFFSIZE];
-        while(Read(buff, BUFFSIZE, delay) > 0)
-                ;
-        delete[] buff;
+    const int BUFFSIZE = 512;
+    UByte * buff = new UByte[BUFFSIZE];
+
+    while (Read(buff, BUFFSIZE, delay) > 0) {;}
+
+    delete[] buff;
 }

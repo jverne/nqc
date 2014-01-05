@@ -34,24 +34,24 @@
 class RCX_Transport
 {
 public:
-			RCX_Transport() {}
-	virtual		~RCX_Transport() {};
+    RCX_Transport() {}
+    virtual ~RCX_Transport() {};
 
-	virtual RCX_Result 	Open(RCX_TargetType target, const char *deviceName, ULong options) = 0;
-	virtual void		Close() = 0;
+    virtual RCX_Result Open(RCX_TargetType target, const char *deviceName, ULong options) = 0;
+    virtual void Close() = 0;
 
-	virtual RCX_Result	Send(const UByte *txData, int txLength, UByte *rxData, int rxExpected, int rxMax, bool retry, int timeout) = 0;
+    virtual RCX_Result Send(const UByte *txData, int txLength, UByte *rxData, int rxExpected, int rxMax, bool retry, int timeout) = 0;
 
-	virtual bool		FastModeSupported() const { return false; }
-	virtual bool		FastModeOddParity() const { return false; }
-	virtual void		SetFastMode(bool /* fast */) { }
-        virtual bool            GetFastMode() const { return false; }
-        void                    SetOmitHeader(bool value) { fOmitHeader = value; }
-        virtual bool            GetComplementData() const { return false; }
+    virtual bool FastModeSupported() const { return false; }
+    virtual bool FastModeOddParity() const { return false; }
+    virtual void SetFastMode(bool /* fast */) { }
+    virtual bool GetFastMode() const { return false; }
+    void SetOmitHeader(bool value) { fOmitHeader = value; }
+    virtual bool GetComplementData() const { return false; }
 
 protected:
-        static void DumpData(const UByte *ptr, int length);
-        bool fOmitHeader;
+    static void DumpData(const UByte *ptr, int length);
+    bool fOmitHeader;
 
 private:
 };

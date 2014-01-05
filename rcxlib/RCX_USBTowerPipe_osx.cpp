@@ -205,11 +205,11 @@ RCX_Result RCX_USBTowerPipe_osx::SetMode(int mode)
 			ControlRequest(LTW_REQ_SET_RX_SPEED, SPEED_COMM_BAUD_4800);
 			ControlRequest(LTW_REQ_SET_TX_CARRIER_FREQUENCY, 38);
 			return kRCX_OK;
-                case kSpyboticsMode:
-                        ControlRequest(LTW_REQ_SET_PARM, LTW_PARM_RANGE, LTW_RANGE_SHORT);
-                        ControlRequest(LTW_REQ_SET_TX_SPEED, SPEED_COMM_BAUD_4800);
-                        ControlRequest(LTW_REQ_SET_RX_SPEED, SPEED_COMM_BAUD_4800);
-                        return kRCX_OK;
+        case kSpyboticsMode:
+            ControlRequest(LTW_REQ_SET_PARM, LTW_PARM_RANGE, LTW_RANGE_SHORT);
+            ControlRequest(LTW_REQ_SET_TX_SPEED, SPEED_COMM_BAUD_4800);
+            ControlRequest(LTW_REQ_SET_RX_SPEED, SPEED_COMM_BAUD_4800);
+            return kRCX_OK;
 		default:
 			return kRCX_PipeModeError;
 	}

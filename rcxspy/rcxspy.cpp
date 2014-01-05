@@ -19,29 +19,29 @@
 class Reader
 {
 public:
-			Reader();
-			~Reader();
+	Reader();
+	~Reader();
 
-	bool 	open(const char *name);
-	void	close();
+	bool open(const char *name);
+	void close();
 
-	void	poll();
+	void poll();
 
-	void	beginDownload();
-	void	continueDownload();
+	void beginDownload();
+	void continueDownload();
 
 private:
 	static const int MAX_PACKET = 1024;
 
 	RCX_PipeTransport*	transport;
 
-	UByte		packet[MAX_PACKET];
-	int			packetLength;
+	UByte packet[MAX_PACKET];
+	int packetLength;
 
-	UByte*		code;
-	ULong		codeLength;
-	ULong		codePos;
-	ULong		lastBlock;
+	UByte* code;
+	ULong codeLength;
+	ULong codePos;
+	ULong lastBlock;
 };
 
 
@@ -114,8 +114,7 @@ void Reader::poll()
 
 	cmd &= 0xf7;
 
-	switch(cmd)
-	{
+	switch(cmd) {
 		case 0x15:	// firmware version
 			*ptr++ = 0;
 			*ptr++ = 3;
@@ -169,11 +168,11 @@ void Reader::continueDownload()
 
 	lastBlock = block;
 
-	for(int i=0; i<length && codePos < codeLength; ++i)
+	for (int i=0; i<length && codePos < codeLength; ++i) {
 		code[codePos++] = packet[5 + i];
+	}
 
-	if (block == 0)
-	{
+	if (block == 0) {
 		RCX_StdioPrinter dst(stdout);
 		gRCX_Disasm.Print(&dst, code, codeLength);
 	}

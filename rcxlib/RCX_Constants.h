@@ -15,150 +15,152 @@
 #define __RCX_Constants_h
 
 // opcodes
-
 // outputs
-#define kRCX_OutputModeOp	0x21
-#define kRCX_OutputPowerOp	0x13
-#define kRCX_OutputDirOp	0xe1
+#define kRCX_OutputModeOp 0x21
+#define kRCX_OutputPowerOp 0x13
+#define kRCX_OutputDirOp 0xe1
+
 // inputs
-#define kRCX_InputModeOp	0x42
-#define kRCX_InputTypeOp	0x32
+#define kRCX_InputModeOp 0x42
+#define kRCX_InputTypeOp 0x32
+
 // sound
-#define kRCX_PlaySoundOp	0x51
-#define kRCX_PlayToneOp		0x23
+#define kRCX_PlaySoundOp 0x51
+#define kRCX_PlayToneOp 0x23
+
 // control flow
-#define kRCX_TestOp	        0x95
-#define kRCX_STestOp            0x85
-#define kRCX_JumpOp		0x72
-#define kRCX_SJumpOp		0x27
-#define kRCX_SetLoopOp		0x82
-#define kRCX_CheckLoopOp	0x92
-#define kRCX_SCheckLoopOp	0x37
-#define kRCX_DecVarJmpLTZeroOp  0xf3
+#define kRCX_TestOp 0x95
+#define kRCX_STestOp 0x85
+#define kRCX_JumpOp 0x72
+#define kRCX_SJumpOp 0x27
+#define kRCX_SetLoopOp 0x82
+#define kRCX_CheckLoopOp 0x92
+#define kRCX_SCheckLoopOp 0x37
+#define kRCX_DecVarJmpLTZeroOp 0xf3
 #define kRCX_SDecVarJmpLTZeroOp 0xf2
-#define kRCX_ExitEventCheckOp   0xb0
-#define kRCX_ExitAccessCtrlOp   0xa0
-#define kRCX_SStartEventMonOp   0xb4
-#define kRCX_StartEventMonOp    0xb5
-#define kRCX_EnterAccessCtrlOp  0x73
+#define kRCX_ExitEventCheckOp 0xb0
+#define kRCX_ExitAccessCtrlOp 0xa0
+#define kRCX_SStartEventMonOp 0xb4
+#define kRCX_StartEventMonOp 0xb5
+#define kRCX_EnterAccessCtrlOp 0x73
 
 // misc
-#define kRCX_SetSrcValueOp      0x05
-#define kRCX_DelayOp		0x43
-#define kRCX_DisplayOp		0x33
-#define kRCX_VarOp(code)	(0x14 + ((code) * 16))
-#define kRCX_SendMessage	0xb2
-#define kRCX_StartTaskOp	0x71
-#define kRCX_StopTaskOp		0x81
-#define kRCX_StopAllOp		0x50
-#define kRCX_ClearTimerOp	0xa1
-#define kRCX_ClearMsgOp		0x90
-#define kRCX_SendMsgOp		0xb2
-#define kRCX_ClearSensorOp	0xd1
-#define kRCX_GoSubOp		0x17
-#define kRCX_SetDatalogOp	0x52
-#define kRCX_DatalogOp		0x62
-#define kRCX_UploadDatalogOp	0xa4
+#define kRCX_SetSrcValueOp 0x05
+#define kRCX_DelayOp 0x43
+#define kRCX_DisplayOp 0x33
+#define kRCX_VarOp(code) (0x14 + ((code) * 16))
+#define kRCX_SendMessage 0xb2
+#define kRCX_StartTaskOp 0x71
+#define kRCX_StopTaskOp 0x81
+#define kRCX_StopAllOp 0x50
+#define kRCX_ClearTimerOp 0xa1
+#define kRCX_ClearMsgOp 0x90
+#define kRCX_SendMsgOp 0xb2
+#define kRCX_ClearSensorOp 0xd1
+#define kRCX_GoSubOp 0x17
+#define kRCX_SetDatalogOp 0x52
+#define kRCX_DatalogOp 0x62
+#define kRCX_UploadDatalogOp 0xa4
 
 // special
-#define kRCX_ReadOp		0x12
-#define kRCX_UnlockOp		0x15
-#define kRCX_BeginTaskOp	0x25
-#define kRCX_BeginSubOp		0x35
-#define kRCX_DownloadOp		0x45
-#define kRCX_DeleteTasksOp	0x40
-#define kRCX_DeleteSubsOp	0x70
-#define kRCX_BootModeOp		0x65
-#define kRCX_BeginFirmwareOp    0x75
-#define kRCX_BootOp		0xa5
-#define kRCX_PingOp		0x10
-#define kRCX_SelectProgramOp	0x91
-#define kRCX_BatteryLevelOp	0x30
-#define kRCX_SetWatchOp		0x22
-#define kRCX_IRModeOp	        0x31
-#define kRCX_AutoOffOp	        0xb1
+#define kRCX_ReadOp 0x12
+#define kRCX_UnlockOp 0x15
+#define kRCX_BeginTaskOp 0x25
+#define kRCX_BeginSubOp 0x35
+#define kRCX_DownloadOp 0x45
+#define kRCX_DeleteTasksOp 0x40
+#define kRCX_DeleteSubsOp 0x70
+#define kRCX_BootModeOp 0x65
+#define kRCX_BeginFirmwareOp 0x75
+#define kRCX_BootOp 0xa5
+#define kRCX_PingOp 0x10
+#define kRCX_SelectProgramOp 0x91
+#define kRCX_BatteryLevelOp 0x30
+#define kRCX_SetWatchOp 0x22
+#define kRCX_IRModeOp 0x31
+#define kRCX_AutoOffOp 0xb1
 
-#define kRCX_Message		0xf7
-#define kRCX_Remote		0xd2
+#define kRCX_Message 0xf7
+#define kRCX_Remote 0xd2
 
 // cybermaster ops
-#define kRCX_DriveOp	        0x41
-#define kRCX_OnWaitOp	        0xc2
-#define kRCX_OnWaitDifferentOp	0x53
-#define kRCX_ClearTachoOp	0x11
+#define kRCX_DriveOp 0x41
+#define kRCX_OnWaitOp 0xc2
+#define kRCX_OnWaitDifferentOp 0x53
+#define kRCX_ClearTachoOp 0x11
 
 // some scout ops
-#define kRCX_GOutputModeOp	0x67
-#define kRCX_GOutputPowerOp	0xa3
-#define kRCX_GOutputDirOp	0x77
-#define kRCX_PollMemoryOp	0x63
+#define kRCX_GOutputModeOp 0x67
+#define kRCX_GOutputPowerOp 0xa3
+#define kRCX_GOutputDirOp 0x77
+#define kRCX_PollMemoryOp 0x63
 
 // some spybot ops
-#define kRCX_PushStackEntryOp   0xe3
-#define kRCX_PopStackEntryOp    0x01
-#define kRCX_UploadEepromOp     0x11
-#define kRCX_FindOp             0xd5
-#define kRCX_ClearRelTableOp    0x36
-#define kRCX_PlaySysMoodOp      0xc7
-#define kRCX_PlaySysSndVarOp    0xe7
+#define kRCX_PushStackEntryOp 0xe3
+#define kRCX_PopStackEntryOp 0x01
+#define kRCX_UploadEepromOp 0x11
+#define kRCX_FindOp 0xd5
+#define kRCX_ClearRelTableOp 0x36
+#define kRCX_PlaySysMoodOp 0xc7
+#define kRCX_PlaySysSndVarOp 0xe7
 
 typedef enum
 {
-	kRCX_VariableType	 = 0,
-	kRCX_TimerType,
-	kRCX_ConstantType,
-	kRCX_OutputStatusType,
-	kRCX_RandomType,
-	kRCX_TachCounterType,
-	kRCX_TachSpeedType,
-	kRCX_OutputCurrentType,
-	kRCX_ProgramType,
-	kRCX_InputValueType,
-	kRCX_InputTypeType,
-	kRCX_InputModeType,
-	kRCX_InputRawType,
-	kRCX_InputBooleanType,
-	kRCX_WatchType,
-	kRCX_MessageType,
-	kRCX_AGCType, // 16
-        kRCX_GlobalMotorStatusType, // = 17;
-        kRCX_SpybotStackType, //       = 18; // spybot only
-        kRCX_SpybotTimerCtrlType, //   = 19; // spybot only
-        kRCX_SpybotEepromType, //      = 20; // spybot only
-        kRCX_CounterType, //           = 21; // RCX2, scout, & spybot only
-        kRCX_SpybotLEDType, //         = 22; // spybot only
-        kRCX_TaskEventsType, //        = 23; // rcx2, scout, spybot
-        kRCX_ScoutEventFBType, //      = 24; // scout only
-        kRCX_EventStateType, //        = 25; // rcx2 & spybot
-        kRCX_TenMSTimerType, //        = 26; // rcx2 & spybot fast timer
-        kRCX_ClickCounterType, //      = 27; // rcx2
-        kRCX_UpperThresholdType, //    = 28; // rcx2 & spybot
-        kRCX_LowerThresholdType, //    = 29; // rcx2 & spybot
-        kRCX_HysteresisType, //        = 30; // rcx2 & spybot
-        kRCX_DurationType, //          = 31; // rcx2 & spybot
-        kRCX_SpybotTaskIDType, //      = 32; // spybot only
-        kRCX_UARTSetupType, //         = 33; // rcx2 & spybot
-        kRCX_BatteryLevelType, //      = 34; // rcx2 & spybot
-        kRCX_FirmwareVersionType, //   = 35; // rcx2 & spybot
-        kRCX_IndirectType, //          = 36
-        kRCX_DatalogTypeInd, //        = 37
-        kRCX_DatalogType, //           = 38
-        kRCX_DatalogValueInd, //       = 39
-        kRCX_DatalogValue, //          = 40
-        kRCX_DatalogByteInd, //        = 41
-        kRCX_DatalogByte, //           = 42
-        kRCX_SpybotGameNotesType, //   = 43; // spybot only
-        kRCX_SpybotType44, //          = 44; // ????????
-        kRCX_SpybotRobotDistType, //   = 45; // spybot only
-        kRCX_SpybotRobotDirType, //    = 46; // spybot only
-        kRCX_SpybotRobotOrientType, // = 47; // spybot only
-        kRCX_SpybotType48, //          = 48; // ????????
-        kRCX_SpybotRobotIDType, //     = 49; // spybot only
-        kRCX_SpybotRobotTargetType, // = 50; // spybot only
-        kRCX_SpybotPingCtrlType, //    = 51; // spybot only
-        kRCX_SpybotBeaconCtrlType, //  = 52; // spybot only
-        kRCX_SpybotSoundCtrlType, //   = 53; // spybot only
-        kRCX_SpybotIndEepromType //    = 54; // spybot only
+  kRCX_VariableType = 0,
+  kRCX_TimerType,
+  kRCX_ConstantType,
+  kRCX_OutputStatusType,
+  kRCX_RandomType,
+  kRCX_TachCounterType,
+  kRCX_TachSpeedType,
+  kRCX_OutputCurrentType,
+  kRCX_ProgramType,
+  kRCX_InputValueType,
+  kRCX_InputTypeType,
+  kRCX_InputModeType,
+  kRCX_InputRawType,
+  kRCX_InputBooleanType,
+  kRCX_WatchType,
+  kRCX_MessageType,
+  kRCX_AGCType, // 16
+  kRCX_GlobalMotorStatusType, // = 17;
+  kRCX_SpybotStackType, //       = 18; // spybot only
+  kRCX_SpybotTimerCtrlType, //   = 19; // spybot only
+  kRCX_SpybotEepromType, //      = 20; // spybot only
+  kRCX_CounterType, //           = 21; // RCX2, scout, & spybot only
+  kRCX_SpybotLEDType, //         = 22; // spybot only
+  kRCX_TaskEventsType, //        = 23; // rcx2, scout, spybot
+  kRCX_ScoutEventFBType, //      = 24; // scout only
+  kRCX_EventStateType, //        = 25; // rcx2 & spybot
+  kRCX_TenMSTimerType, //        = 26; // rcx2 & spybot fast timer
+  kRCX_ClickCounterType, //      = 27; // rcx2
+  kRCX_UpperThresholdType, //    = 28; // rcx2 & spybot
+  kRCX_LowerThresholdType, //    = 29; // rcx2 & spybot
+  kRCX_HysteresisType, //        = 30; // rcx2 & spybot
+  kRCX_DurationType, //          = 31; // rcx2 & spybot
+  kRCX_SpybotTaskIDType, //      = 32; // spybot only
+  kRCX_UARTSetupType, //         = 33; // rcx2 & spybot
+  kRCX_BatteryLevelType, //      = 34; // rcx2 & spybot
+  kRCX_FirmwareVersionType, //   = 35; // rcx2 & spybot
+  kRCX_IndirectType, //          = 36
+  kRCX_DatalogTypeInd, //        = 37
+  kRCX_DatalogType, //           = 38
+  kRCX_DatalogValueInd, //       = 39
+  kRCX_DatalogValue, //          = 40
+  kRCX_DatalogByteInd, //        = 41
+  kRCX_DatalogByte, //           = 42
+  kRCX_SpybotGameNotesType, //   = 43; // spybot only
+  kRCX_SpybotType44, //          = 44; // ????????
+  kRCX_SpybotRobotDistType, //   = 45; // spybot only
+  kRCX_SpybotRobotDirType, //    = 46; // spybot only
+  kRCX_SpybotRobotOrientType, // = 47; // spybot only
+  kRCX_SpybotType48, //          = 48; // ????????
+  kRCX_SpybotRobotIDType, //     = 49; // spybot only
+  kRCX_SpybotRobotTargetType, // = 50; // spybot only
+  kRCX_SpybotPingCtrlType, //    = 51; // spybot only
+  kRCX_SpybotBeaconCtrlType, //  = 52; // spybot only
+  kRCX_SpybotSoundCtrlType, //   = 53; // spybot only
+  kRCX_SpybotIndEepromType //    = 54; // spybot only
 } RCX_ValueType;
 
 const RCX_ValueType kRCX_NoType = (RCX_ValueType) -1;
@@ -170,91 +172,90 @@ const RCX_ValueType kRCX_IndexedArrayType = (RCX_ValueType) 6;
 
 typedef int RCX_Value;
 
-#define kRCX_ValueUsesTemp	0x1000000	// flag used for indirects
-#define RCX_VALUE(t, d)		(((int)(t) << 16) | ((d) & 0xffff))
-#define RCX_VALUE_TYPE(v)	((RCX_ValueType)(((v)>>16) & 0xff))
-#define RCX_VALUE_DATA_INT(v)	((v) & 0xffff)
-#define RCX_VALUE_DATA(v)	((short)RCX_VALUE_DATA_INT(v))
+#define kRCX_ValueUsesTemp  0x1000000 // flag used for indirects
+#define RCX_VALUE(t, d) (((int)(t) << 16) | ((d) & 0xffff))
+#define RCX_VALUE_TYPE(v) ((RCX_ValueType)(((v)>>16) & 0xff))
+#define RCX_VALUE_DATA_INT(v) ((v) & 0xffff)
+#define RCX_VALUE_DATA(v) ((short)RCX_VALUE_DATA_INT(v))
 
 typedef enum
 {
-	kRCX_SetVar = 0,
-	kRCX_AddVar,
-	kRCX_SubVar,
-	kRCX_DivVar,
-	kRCX_MulVar,
-	kRCX_SgnVar,
-	kRCX_AbsVar,
-	kRCX_AndVar,
-	kRCX_OrVar,
-        kRCX_NotVar, // Swan only
-        kRCX_ModVar, // Swan only
-        kRCX_ShlVar, // Swan only
-        kRCX_ShrVar, // Swan only
-        kRCX_XOrVar, // Swan only
-	kRCX_IllegalVar = -1
+  kRCX_SetVar = 0,
+  kRCX_AddVar,
+  kRCX_SubVar,
+  kRCX_DivVar,
+  kRCX_MulVar,
+  kRCX_SgnVar,
+  kRCX_AbsVar,
+  kRCX_AndVar,
+  kRCX_OrVar,
+  kRCX_NotVar, // Swan only
+  kRCX_ModVar, // Swan only
+  kRCX_ShlVar, // Swan only
+  kRCX_ShrVar, // Swan only
+  kRCX_XOrVar, // Swan only
+  kRCX_IllegalVar = -1
 } RCX_VarCode;
 
 
 typedef enum
 {
-	kRCX_OutputFloat = 0,
-	kRCX_OutputOff = 0x40,
-	kRCX_OutputOn = 0x80
+  kRCX_OutputFloat = 0,
+  kRCX_OutputOff = 0x40,
+  kRCX_OutputOn = 0x80
 } RCX_OutputMode;
 
 
 typedef enum
 {
-	kRCX_OutputBackward = 0,
-	kRCX_OutputToggle = 0x40,
-	kRCX_OutputForward = 0x80
+  kRCX_OutputBackward = 0,
+  kRCX_OutputToggle = 0x40,
+  kRCX_OutputForward = 0x80
 } RCX_OutputDir;
 
 
 typedef enum
 {
-	kRCX_InputRaw = 0,
-	kRCX_InputBoolean = 0x20,
-	kRCX_InputEdgeCounter = 0x40,
-	kRCX_InputPeriodicCounter = 0x60,
-	kRCX_InputPercentage = 0x80,
-	kRCX_InputCelcius = 0xa0,
-	kRCX_InputFahrenheit = 0xc0,
-	kRCX_InputAngle = 0xe0
+  kRCX_InputRaw = 0,
+  kRCX_InputBoolean = 0x20,
+  kRCX_InputEdgeCounter = 0x40,
+  kRCX_InputPeriodicCounter = 0x60,
+  kRCX_InputPercentage = 0x80,
+  kRCX_InputCelcius = 0xa0,
+  kRCX_InputFahrenheit = 0xc0,
+  kRCX_InputAngle = 0xe0
 } RCX_InputMode;
 
 typedef enum
 {
-	kRCX_InputNone = 0,
-	kRCX_InputSwitch,
-	kRCX_InputTemp,
-	kRCX_InputLight,
-	kRCX_InputRotation,
-	kRCX_InputID0,
-	kRCX_InputID1,
-	kRCX_InputID2
+  kRCX_InputNone = 0,
+  kRCX_InputSwitch,
+  kRCX_InputTemp,
+  kRCX_InputLight,
+  kRCX_InputRotation,
+  kRCX_InputID0,
+  kRCX_InputID1,
+  kRCX_InputID2
 } RCX_InputType;
 
 
 typedef enum
 {
-	kRCX_LessOrEqual = 0,
-	kRCX_GreaterOrEqual,
-	kRCX_NotEqualTo,
-	kRCX_EqualTo
+  kRCX_LessOrEqual = 0,
+  kRCX_GreaterOrEqual,
+  kRCX_NotEqualTo,
+  kRCX_EqualTo
 } RCX_Relation;
 
 
 typedef enum
 {
-	kRCX_TaskChunk = 0,
-	kRCX_SubChunk,
-	kRCX_SoundChunk,
-        kRCX_AnimationChunk,
-//        kRCX_DataChunk,
-
-	kRCX_ChunkTypeCount // must be last entry
+  kRCX_TaskChunk = 0,
+  kRCX_SubChunk,
+  kRCX_SoundChunk,
+  kRCX_AnimationChunk,
+//kRCX_DataChunk,
+  kRCX_ChunkTypeCount // must be last entry
 } RCX_ChunkType;
 
 
@@ -264,14 +265,14 @@ typedef unsigned char ubyte;
 
 typedef enum
 {
-  arithOffsetAddTo          = 0, // Must be consecutive opcodes
-  arithOffsetMinusTo        = 1,
-  arithOffsetTimesTo        = 2,
-  arithOffsetDivideTo       = 3,
-  arithOffsetAndTo          = 4,
-  arithOffsetOrTo           = 5,
-  arithOffsetBitComplement  = 6,
-  arithOffsetModuloTo       = 7  // Don't change order. Used as bounds in 'for' statements
+  arithOffsetAddTo = 0,           // Must be consecutive opcodes
+  arithOffsetMinusTo = 1,
+  arithOffsetTimesTo = 2,
+  arithOffsetDivideTo = 3,
+  arithOffsetAndTo = 4,
+  arithOffsetOrTo = 5,
+  arithOffsetBitComplement = 6,
+  arithOffsetModuloTo = 7         // Don't change order. Used as bounds in 'for' statements
 } TArithOffsets;
 
 typedef enum
@@ -348,10 +349,10 @@ typedef enum
   rcxDivideToFloat                =  (ubyte) (rcxAddToFloat + (ubyte) arithOffsetDivideTo),
 
   /*
-  //rcxAddToFloatConstant           =  (ubyte)  0x3C, // Must be consecutive opcodes
-  //rcxMinusToFloatConstant         =  (ubyte) (rcxAddToFloatConstant + (ubyte) arithOffsetMinusTo),
-  //rcxTimesToFloatConstant         =  (ubyte) (rcxAddToFloatConstant + (ubyte) arithOffsetTimesTo),
-  //rcxDivideToFloatConstant        =  (ubyte) (rcxAddToFloatConstant + (ubyte) arithOffsetDivideTo),
+  rcxAddToFloatConstant           =  (ubyte)  0x3C, // Must be consecutive opcodes
+  rcxMinusToFloatConstant         =  (ubyte) (rcxAddToFloatConstant + (ubyte) arithOffsetMinusTo),
+  rcxTimesToFloatConstant         =  (ubyte) (rcxAddToFloatConstant + (ubyte) arithOffsetTimesTo),
+  rcxDivideToFloatConstant        =  (ubyte) (rcxAddToFloatConstant + (ubyte) arithOffsetDivideTo),
   */
   rcxTestAndBranchLongBigNear     =   0x3C, // New
   rcxTestAndBranchLongBigFar      =   0x3D, // New
