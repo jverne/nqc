@@ -1080,8 +1080,8 @@ void PrintError(RCX_Result error, const char *filename)
 
 void PrintVersion()
 {
-	fprintf(STDERR,"nqc version %s (built "__DATE__", " __TIME__")\n",
-		VERSION_STRING);
+	fprintf(STDERR,"nqc version %s (built %s, %s)\n",
+		VERSION_STRING, __DATE__, __TIME__);
 	fprintf(STDERR,"     Copyright (C) 2005 John Hansen.  All Rights Reserved.\n");
 }
 

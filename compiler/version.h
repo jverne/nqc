@@ -15,13 +15,13 @@
 #define __version_h
 
 #define MAJOR_VERSION	3
-#define MINOR_VERSION	1
+#define MINOR_VERSION	2
 #define RELEASE_STAGE	"r"
 
 // 0=alpha, 2=release
-#define RELEASE_STAGE_INDEX 2
+#define RELEASE_STAGE_INDEX 0
 
-#define RELEASE_BUILD	6
+#define RELEASE_BUILD	1
 
 #define STR_(x)	#x
 #define STR(x)	STR_(x)

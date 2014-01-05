@@ -44,14 +44,11 @@ FLEX ?= flex
 #
 LIBS ?= -lstdc++
 
-
-
 # installation information
 PREFIX?=/usr/local
 BINDIR?=${PREFIX}/bin
 MANDIR?=${PREFIX}/man/man1
 MANEXT?=1
-
 
 # other commands
 CP?=cp -f
@@ -65,7 +62,6 @@ CFLAGS += -Iplatform -Ircxlib -Inqc -Icompiler -Wall
 
 USBOBJ = rcxlib/RCX_USBTowerPipe_none.o
 
-
 #
 # Platform specific tweaks
 #
@@ -75,9 +71,9 @@ ifneq (,$(strip $(findstring $(OSTYPE), Darwin)))
   # Mac OSX
   LIBS += -framework IOKit -framework CoreFoundation
   USBOBJ = rcxlib/RCX_USBTowerPipe_osx.o
+  # May as well use the default Clang on OS X
   CXX = c++
-  CFLAGS += -O3
-  #CFLAGS += -DDEBUG -g -O0
+  CFLAGS += -O3 -std=c++11
 else
 ifneq (,$(strip $(findstring $(OSTYPE), Linux)))
   # Linux
@@ -107,6 +103,9 @@ endif
 endif
 endif
 
+# Debug builds for most Clang/GCC environments.
+# This implies DEBUG_TIMEOUT
+#CFLAGS += -DDEBUG -g -O0
 
 # this must happen after the platform tweaks just in case the platform
 # wants to redefine the default serial name
@@ -179,7 +178,6 @@ clean-obj:
 	$(RM) bin/*
 	$(RM) */*.o
 
-
 clean-parser:
 	$(RM) compiler/parse.cpp compiler/parse.tab.h
 
@@ -230,7 +228,6 @@ rcxlib/rcxnub.h: rcxlib/fastdl.srec bin/mkdata
 .cpp.o:
 	$(CXX) -c $(CFLAGS) $< -o $*.o
 
-
 #
 # Use these targets to use the default parser/lexer files.  This is handy if
 # your system does not have a suitable flex and/or yacc tool.
@@ -240,7 +237,6 @@ default-parser:
 
 default-lexer:
 	$(CP) default/lexer.cpp nqc
-
 
 #
 # This is used to create a default parser, lexer, and nqh files for later use.
