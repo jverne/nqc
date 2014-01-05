@@ -52,12 +52,12 @@ static bool gUSB = false;
 
 RCX_Link::RCX_Link()
 {
-	fTransport = 0;
-        fOmitHeader = false;
-        fRCXProgramChunkSize  = kFragmentChunk;
-        fRCXFirmwareChunkSize = kFirmwareChunk;
-        fDownloadWaitTime     = kDownloadWaitTime;
-        fVerbose = false;
+    fTransport = 0;
+    fOmitHeader = false;
+    fRCXProgramChunkSize = kFragmentChunk;
+    fRCXFirmwareChunkSize = kFirmwareChunk;
+    fDownloadWaitTime = kDownloadWaitTime;
+    fVerbose = false;
 }
 
 
@@ -335,7 +335,8 @@ RCX_Result RCX_Link::GetVersion(ULong &rom, ULong &ram)
 	result = Sync();
 	if (RCX_ERROR(result)) return result;
 
-	result = Send(cmd.MakeUnlock());
+    // Do our best to get a result.
+	result = Send(cmd.MakeUnlock(), true, kDownloadWaitTime);
 	if (RCX_ERROR(result)) return result;
 
 	if (result != 8) return kRCX_ReplyError;
@@ -459,8 +460,9 @@ RCX_Result RCX_Link::TransferFirmware(const UByte *data, int length, int start, 
 	// last packet is no-retry with an extra long delay
 	// this gives the RCX time to respond and makes sure response doesn't get trampled
 	result = Send(cmd.MakeBoot(), false);
-        if (fTransport->GetFastMode())
-          return kRCX_OK;
+    if (fTransport->GetFastMode()) {
+    	return kRCX_OK;
+    }
 
 	return result;
 }
@@ -487,89 +489,83 @@ const int nOnesDensity[256] = {
 #define max(x, y) ((x) > (y)) ? (x) : (y)
 
 int RCX_Link::AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOnes,
-  const UByte *data, bool bComplement)
+	const UByte *data, bool bComplement)
 {
-  int size = n;
-  //
-  // Avoid long strings of zeroes -- fast downloading doesn't like it and messaging
-  // can loose sync. Especially with short distances and transmitter set to long
-  // range [i.e. high power]
-  //
-  // Only need this check when complement byte transmission is disabled
-  //
-  if (!bComplement)
-  {
-    const int kOnesPlusMinusScore = 3;
+	int size = n;
+  	//
+  	// Avoid long strings of zeroes -- fast downloading doesn't like it and messaging
+  	// can lose sync. Especially with short distances and transmitter set to long
+  	// range [i.e. high power]
+  	//
+  	// Only need this check when complement byte transmission is disabled
+  	//
+  	if (!bComplement) {
+        const int kOnesPlusMinusScore = 3;
 
-    int i;
-    for (i = 0; i < (size - nMaxZeros); ++i)
-    {
-      int j;
+        int i;
+        for (i = 0; i < (size - nMaxZeros); ++i) {
+            int j;
 
-      UByte * p = (UByte*)data + i;
-      if (*p != 0)
-        continue;
-      //
-      // found a zero -- check to see how many
-      //
-      for (j = 0; j < nMaxZeros; ++j)
-      {
-        UByte * q = (UByte*)data + i + j;
-        if (*q != 0)
-          break;
-      }
-      if (j >= nMaxZeros)
-      {
-        // too many consecutive zeros. Shorten the message size
-        //
-        size = i + nMaxZeros;
-        if (fVerbose)
-                printf("too many consecutive zeros (%d)\n", j);
-        break;
-      }
+            UByte * p = (UByte*)data + i;
+            if (*p != 0) {
+                continue;
+            }
+
+            //
+            // Found a zero -- check to see how many consecutive
+            //
+            for (j = 0; j < nMaxZeros; ++j) {
+                UByte * q = (UByte*)data + i + j;
+                if (*q != 0) {
+                    break;
+                }
+            }
+
+            if (j >= nMaxZeros) {
+                // Too many consecutive zeros. Shorten the message size.
+                size = i + nMaxZeros;
+                if (fVerbose) printf("too many consecutive zeros (%d)\n", j);
+                break;
+            }
+        }
+
+        for (i = 0; i < (size - nMaxOnes); ++i) {
+            int j;
+            ubyte aByte;
+            int nLotsOfOnes;
+
+            aByte = *(data + i);
+            if (nOnesDensity[aByte] >= 3) {
+                continue;
+            }
+
+            //
+            // Found a sparse byte -- check to see how many consecutive.
+            //
+            nLotsOfOnes = 0;
+            for (j = 0; j < nMaxOnes; ++j) {
+                aByte = *(data + i + j);
+                if (nOnesDensity[aByte] >= 3) {
+                    ++nLotsOfOnes;
+                    if (nLotsOfOnes > kOnesPlusMinusScore) {
+                        break;
+                    }
+                } else {
+                    nLotsOfOnes -= 2;
+                    nLotsOfOnes = max(0, nLotsOfOnes);
+                }
+            }
+
+            if (j >= nMaxOnes) {
+                // Too many consecutive sparse bytes. Shorten the message size.
+                size = max(i, nMaxOnes);
+                if (fVerbose) printf("too many consecutive sparse bytes (%d)\n", j);
+                break;
+            }
+        }
     }
 
-    for (i = 0; i < (size - nMaxOnes); ++i)
-    {
-      int j;
-      ubyte aByte;
-      int nLotsOfOnes;
-
-      aByte = *(data + i);
-      if (nOnesDensity[aByte] >= 3)
-        continue;
-      //
-      // found a sparse byte -- check to see how many consecutive
-      //
-      nLotsOfOnes = 0;
-      for (j = 0; j < nMaxOnes; ++j)
-      {
-        aByte = *(data + i + j);
-        if (nOnesDensity[aByte] >= 3)
-        {
-          ++nLotsOfOnes;
-          if (nLotsOfOnes > kOnesPlusMinusScore)
-            break;
-        }
-        else
-        {
-              nLotsOfOnes -= 2;
-              nLotsOfOnes = max(0, nLotsOfOnes);
-        }
-      }
-      if (j >= nMaxOnes)
-      {
-        // too many consecutive sparse bytes. Shorten the message size
-        //
-        size = max(i, nMaxOnes);
-        if (fVerbose)
-                printf("too many consecutive sparse bytes (%d)\n", j);
-        break;
-      }
-    }
-
-  }
-  return size;
+    return size;
 }
 
 RCX_Result RCX_Link::Download(const UByte *data, int length, int chunk)
@@ -581,29 +577,34 @@ RCX_Result RCX_Link::Download(const UByte *data, int length, int chunk)
 	int n;
 
 	seq = 1;
-	while(remain > 0)
-	{
-		if (remain <= chunk)
-		{
-        	if (!gQuiet || gProgramMode)
+	while (remain > 0) {
+		if (remain <= chunk) {
+        	if (!gQuiet || gProgramMode) {
 				seq = 0;
+			}
 			n = remain;
 		}
-		else
+		else {
 			n = chunk;
+		}
 
-                int maxZeros = gUSB ? 23 : 30;
-                int maxOnes  = 90;
-                n = AdjustChunkSize(n, maxZeros, maxOnes, data, fTransport->GetComplementData());
-                if (fVerbose)
-                        printf("sending %d bytes\n", n);
+        int maxZeros = gUSB ? 23 : 30;
+        int maxOnes  = 90;
+        n = AdjustChunkSize(n, maxZeros, maxOnes, data, fTransport->GetComplementData());
+        if (fVerbose) {
+        	printf("sending %d bytes\n", n);
+        }
 
 		result = Send(cmd.MakeDownload(seq++, data, (UShort)n), true, fDownloadWaitTime);
-		if (result < 0) return result;
+		if (result < 0) {
+			return result;
+		}
 
 		remain -= n;
 		data += n;
-		if (!IncrementProgress(n)) return kRCX_AbortError;
+		if (!IncrementProgress(n)) {
+			return kRCX_AbortError;
+		}
 	}
 
 	return kRCX_OK;
@@ -620,8 +621,9 @@ RCX_Result RCX_Link::Send(const UByte *data, int length, bool retry, int timeout
 {
 	int expected = ExpectedReplyLength(data, length);
 
-	if (length > kMaxCmdLength ||
-		expected > kMaxReplyLength) return kRCX_RequestError;
+	if (length > kMaxCmdLength || expected > kMaxReplyLength) {
+		return kRCX_RequestError;
+	}
 
 	fResult = fTransport->Send(data, length, fReply, expected, kMaxReplyLength, retry, timeout);
 
@@ -687,8 +689,8 @@ int RCX_Link::ExpectedReplyLength(const UByte *data, int length)
 			return 3;
 		case 0x15:
 			return 9;
-                case 0x11: // spybot upload EEPROM
-                        return (fTarget == kRCX_CMTarget) ? 1 : 17;
+        case 0x11: // spybot upload EEPROM
+            return (fTarget == kRCX_CMTarget) ? 1 : 17;
 		case 0xa5:
 			return 26;
 		case 0x20:
@@ -736,5 +738,3 @@ int Checksum(const UByte *data, int length)
 	}
 	return check;
 }
-
-
