@@ -621,7 +621,7 @@ RCX_Result RCX_Link::Send(const UByte *data, int length, bool retry, int timeout
 {
 	int expected = ExpectedReplyLength(data, length);
 
-	if (length > kMaxCmdLength || expected > kMaxReplyLength) {
+	if (length > (int)kMaxCmdLength || expected > (int)kMaxReplyLength) {
 		return kRCX_RequestError;
 	}
 

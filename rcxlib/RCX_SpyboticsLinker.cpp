@@ -44,7 +44,7 @@ static const EmptyChunkDef sEmptyChunkDefs[] =
 
 RCX_SpyboticsLinker::RCX_SpyboticsLinker()
 {
-	int i;
+	size_t i;
 
 	fTarget = getTarget(kRCX_SpyboticsTarget);
 
