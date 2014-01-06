@@ -55,6 +55,7 @@ CP?=cp -f
 MKDIR?=mkdir
 MV?=mv -f
 RM?=rm -f
+DOXYGEN=doxygen
 
 # CFLAGS
 #CFLAGS = -pipe -Iplatform -Ircxlib -Inqc -Icompiler -Wall -Wstrict-prototypes -Wmissing-prototypes
@@ -120,16 +121,16 @@ CFLAGS += -DDEFAULT_SERIAL_NAME='$(DEFAULT_SERIAL_NAME)'
 #
 OBJ = $(NQCOBJ) $(COBJ) $(RCXOBJ) $(POBJ)
 
-RCXOBJ= rcxlib/RCX_Cmd.o rcxlib/RCX_Disasm.o rcxlib/RCX_Image.o \
+RCXOBJ = rcxlib/RCX_Cmd.o rcxlib/RCX_Disasm.o rcxlib/RCX_Image.o \
 	rcxlib/RCX_Link.o rcxlib/RCX_Log.o rcxlib/RCX_Target.o \
 	rcxlib/RCX_Pipe.o rcxlib/RCX_PipeTransport.o rcxlib/RCX_Transport.o \
 	rcxlib/RCX_SpyboticsLinker.o rcxlib/RCX_SerialPipe.o \
 	$(USBOBJ)
 
-POBJ= platform/PStream.o platform/PSerial_unix.o \
+POBJ = platform/PStream.o platform/PSerial_unix.o \
 	platform/PHashTable.o platform/PListS.o
 
-COBJ=	compiler/AsmStmt.o compiler/AssignStmt.o compiler/BlockStmt.o compiler/Bytecode.o \
+COBJ = compiler/AsmStmt.o compiler/AssignStmt.o compiler/BlockStmt.o compiler/Bytecode.o \
 	compiler/Conditional.o compiler/CondParser.o compiler/DoStmt.o \
 	compiler/Expansion.o compiler/Fragment.o compiler/IfStmt.o compiler/JumpStmt.o \
 	compiler/lexer.o compiler/Macro.o compiler/parse.o \
@@ -248,6 +249,9 @@ default-snapshot: default $(DEF_FILES)
 
 default:
 	$(MKDIR) default
+
+docs:
+	@$(DOXYGEN) Doxyfile
 
 #
 # Installation of binary and man page
