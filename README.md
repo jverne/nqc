@@ -2,14 +2,14 @@ NQC Readme
 ----------
 
 If you have a problem, PLEASE CHECK THE FAQ:
-  http://bricxcc.sourceforge.net/nqc/doc/faq.html
+  <http://bricxcc.sourceforge.net/nqc/doc/faq.html>
   
 Send bug reports to bricxcc@comcast.net.  Be sure to include details about what
 platform you are running nqc on and a sample file that demonstrates the bug if
 possible.
 
 For updates and additional documentation, visit the NQC Web Site:
-http://bricxcc.sourceforge.net/nqc.
+<http://bricxcc.sourceforge.net/nqc>
 
 
 Note to Windows Users
