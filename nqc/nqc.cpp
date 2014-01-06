@@ -134,6 +134,8 @@ enum
     kClearMemoryCode,
     kFirmwareCode,
     kFirmware4xCode,
+    kGetVersion,
+    kGetBatteryLevel,
     kNearCode,
     kFarCode,
     kWatchCode,
@@ -151,8 +153,9 @@ enum
 
 // these must be in the same order as the codes for the long options
 static const char *sActionNames[] = {
-    "datalog", "datalog_full", "clear", "firmware", "firmfast", "near", "far", "watch",
-    "sleep", "run", "pgm", "msg", "raw", "raw1", "remote", "api", "help", ""
+    "datalog", "datalog_full", "clear", "firmware", "firmfast",
+    "getversion", "batterylevel", "near", "far", "watch", "sleep",
+    "run", "pgm", "msg", "raw", "raw1", "remote", "api", "help", ""
 };
 
 // these MUST be in the same order as the RCX_TargetType values
@@ -197,6 +200,8 @@ static bool GenerateListing(RCX_Image *image, const char *filename,
 static RCX_Result Download(RCX_Image *image);
 static RCX_Result UploadDatalog(bool verbose);
 static RCX_Result DownloadFirmware(const char *filename, bool fast);
+static RCX_Result GetVersion();
+static RCX_Result GetBatteryLevel();
 static RCX_Result SetWatch(const char *timeSpec);
 static RCX_Result SetErrorFile(const char *filename);
 static RCX_Result RedirectOutput(const char *filename);
@@ -397,6 +402,12 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
                 case kFirmware4xCode:
                     if (!args.Remain()) return kUsageError;
                     result = DownloadFirmware(args.Next(), true);
+                    break;
+                case kGetVersion:
+                    result = GetVersion();
+                    break;
+                case kGetBatteryLevel:
+                    result = GetBatteryLevel();
                     break;
                 case kNearCode:
                     result = gLink.Send(cmd.Set(kRCX_IRModeOp, 0));
@@ -654,29 +665,41 @@ bool GenerateListing(RCX_Image *image, const char *filename, bool includeSource,
     return true;
 }
 
+RCX_Result GetBatteryLevel()
+{
+    RCX_Result result;
+
+    result = gLink.Open();
+    if (RCX_ERROR(result)) return result;
+
+    result = gLink.GetBatteryLevel();
+    if (!RCX_ERROR(result)) {
+        fprintf(STDERR, "Battery Level = %3.1fV\n", (double)result / 1000);
+        int lowBatt = (gTargetType == kRCX_SpyboticsTarget) ? kLow45Battery : kLowBattery;
+        if (result < lowBatt)
+            fprintf(STDERR, "Warning: battery level is low.\n");
+
+        return kRCX_OK;
+    }
+    else {
+        fprintf(STDERR, "Error: Could not fetch battery status.\n");
+        return result;
+    }
+}
 
 RCX_Result Download(RCX_Image *image)
 {
     RCX_Result result;
     RCX_Cmd cmd;
 
-    fprintf(STDERR, "Downloading Program:");
+    fprintf(STDERR, "Downloading Program: ");
     result = gLink.Open();
     if (result != kRCX_OK) goto ErrorReturn;
 
     result = image->Download(&gLink);
     if (result != kRCX_OK) goto ErrorReturn;
 
-    fprintf(STDERR, "complete\n");
-
-    result = gLink.GetBatteryLevel();
-    if (!RCX_ERROR(result))
-    {
-        fprintf(STDERR, "Battery Level = %3.1f V\n", (double)result / 1000);
-        int lowBatt = (gTargetType==kRCX_SpyboticsTarget) ? kLow45Battery : kLowBattery;
-        if (result < lowBatt)
-            fprintf(STDERR, "*** Warning: batteries are low ***\n");
-    }
+    fprintf(STDERR, "Complete\n");
 
     return kRCX_OK;
 
@@ -793,6 +816,21 @@ RCX_Result ClearMemory()
     return result;
 }
 
+RCX_Result GetVersion()
+{
+    RCX_Result result;
+    ULong rom, ram;
+
+    result = gLink.Open();
+    if (RCX_ERROR(result)) return result;
+
+    result = gLink.GetVersion(rom, ram);
+    if (RCX_ERROR(result)) return result;
+
+    fprintf(STDERR, "Current Version: %08lx/%08lx\n", rom, ram);
+
+    return result;  
+}
 
 RCX_Result DownloadFirmware(const char *filename, bool fast)
 {
@@ -800,7 +838,6 @@ RCX_Result DownloadFirmware(const char *filename, bool fast)
     SRecord srec;
     bool ok;
     RCX_Result result;
-    ULong rom, ram;
 
     fp = fopen(filename, "rb");
     if (!fp)
@@ -821,16 +858,16 @@ RCX_Result DownloadFirmware(const char *filename, bool fast)
     result = gLink.Open();
     if (RCX_ERROR(result)) return result;
 
-    fprintf(STDERR, "Downloading firmware:");
+    fprintf(STDERR, "Downloading firmware: ");
     fflush(STDERR);
     result = gLink.DownloadFirmware(srec.GetData(), srec.GetLength(), srec.GetStart(), fast);
     fputc('\n', STDERR);
-    if (RCX_ERROR(result)) return result;
 
-    result = gLink.GetVersion(rom, ram);
-    if (RCX_ERROR(result)) return result;
-
-    fprintf(STDERR, "Current Version: %08lx/%08lx\n", rom, ram);
+    if (RCX_ERROR(result)) {
+        fprintf(STDERR, "Error: download failed\n");
+    } else {
+        fprintf(STDERR, "Success\n");
+    }
 
     return result;
 }
@@ -1129,6 +1166,8 @@ void PrintUsage()
     fprintf(stdout,"   -watch <time> | now: set RCX time\n");
     fprintf(stdout,"   -firmware <filename>: download firmware\n");
     fprintf(stdout,"   -firmfast <filename>: download firmware at quad speed\n");
+    fprintf(stdout,"   -getversion: report current firmware version\n");
+    fprintf(stdout,"   -batterylevel: report battery level in volts\n");
     fprintf(stdout,"   -sleep <timeout>: set RCX sleep timeout\n");
     fprintf(stdout,"   -msg <number>: send IR message to RCX\n");
     fprintf(stdout,"   -raw <data>: format data as a packet and send to RCX\n");
