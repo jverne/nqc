@@ -2,6 +2,9 @@
 *.rcx
 bin/*
 
+# Object files
+*.o
+
 # Language parser intermediates
 compiler/lexer.cpp
 compiler/parse.cpp

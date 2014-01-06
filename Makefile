@@ -91,10 +91,11 @@ ifneq (,$(strip $(findstring $(OSTYPE), FreeBSD)))
   USBOBJ = rcxlib/RCX_USBTowerPipe_fbsd.o
   DEFAULT_SERIAL_NAME = "/dev/cuad0"
   CFLAGS += -Wno-deprecated
+else
 ifneq (,$(strip $(findstring $(OSTYPE), OpenBSD)))
   # OpenBSD i386 with COM1, no USB
   DEFAULT_SERIAL_NAME = "/dev/cua00"
-  CFLAGS += -Wno-deprecated -O2
+  CFLAGS += -std=gnu++98 -Wall -O2
 else
   # default Unix build without USB support
   CFLAGS += -O2
@@ -261,3 +262,13 @@ install: all
 	cp -r bin/* $(BINDIR)
 	test -d $(MANDIR)  || mkdir -p $(MANDIR)
 	cp nqc-man-2.1r1-0.man $(MANDIR)/nqc.$(MANEXT)
+
+info:
+
+	@echo Building for: $(OSTYPE)
+	@echo CXX=$(CXX)
+	@echo CFLAGS=$(CFLAGS)
+	@echo YACC=$(YACC)
+	@echo FLEX=$(FLEX)
+	@echo LIBS=$(LIBS)
+	@echo PREFIX=$(PREFIX)
