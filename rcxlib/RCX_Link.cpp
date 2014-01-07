@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cctype>
+#include <unistd.h>
 
 #include "RCX_Link.h"
 #include "RCX_Cmd.h"
@@ -140,14 +141,23 @@ RCX_Result RCX_Link::Sync()
     RCX_Cmd cmd;
     RCX_Result result;
 
+    // We are already synced.
     if (fSynced) return kRCX_OK;
 
     // always start with a ping
-    result = Send(cmd.MakePing());
-
-    // if error, try a second time
-    if (result == kRCX_ReplyError)
-        result = Send(&cmd);
+    int retries = 0;
+    while (true) {
+        result = Send(cmd.MakePing());
+        if (result == kRCX_ReplyError) {
+            // Retry on error, sleeping between each retry, up
+            // to a maximum of 3 retries.
+            if (retries++ >= 3) break;
+            fprintf(stderr, "Retrying...\n");
+            usleep(1000 * retries);
+            continue;
+        }
+        break;
+    }
 
     if (RCX_ERROR(result)) return result;
 
