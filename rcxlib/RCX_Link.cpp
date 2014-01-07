@@ -152,7 +152,7 @@ RCX_Result RCX_Link::Sync()
             // Retry on error, sleeping between each retry, up
             // to a maximum of 3 retries.
             if (retries++ >= 3) break;
-            fprintf(stderr, "Retrying...\n");
+            fprintf(stderr, "!");
             usleep(10000 * retries);
             continue;
         }
