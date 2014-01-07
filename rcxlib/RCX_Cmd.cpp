@@ -28,9 +28,10 @@ RCX_ValueType GetRcxValueType(int v)
     RCX_ValueType result = RCX_VALUE_TYPE(v);
     if (result == kRCX_VariableType || result == kRCX_IndirectType) {
         const RCX_Target *t = gProgram->GetTarget();
-        if (t->fType == kRCX_SwanTarget)
+        if (t->fType == kRCX_SwanTarget) {
             result = (result == kRCX_VariableType)
                 ? kRCX_GlobalVariableType : kRCX_IndirectGlobalVarType;
+        }
     }
     return result;
 }

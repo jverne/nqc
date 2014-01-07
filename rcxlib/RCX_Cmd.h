@@ -80,7 +80,7 @@ public:
 	}
 
 	// inputs
-	RCX_Cmd*	MakeInputMode(UByte input, RCX_InputMode mode){ 
+	RCX_Cmd* MakeInputMode(UByte input, RCX_InputMode mode) { 
 		return Set(kRCX_InputModeOp, input, mode);
 	}
 	RCX_Cmd* MakeInputType(UByte input, RCX_InputType type) {

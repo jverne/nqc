@@ -704,7 +704,7 @@ RCX_Result Download(RCX_Image *image)
     return kRCX_OK;
 
 ErrorReturn:
-    fprintf(STDERR, " Error: Download failed.\n");
+    fprintf(STDERR, "Error: Download failed.\n");
     return result;
 }
 
