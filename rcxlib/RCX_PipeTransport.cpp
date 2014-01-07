@@ -25,8 +25,8 @@ using std::printf;
 #define DEBUG_TIMEOUT
 #endif
 
-#define kMaxTxData	(int)(2*RCX_Link::kMaxCmdLength + 6)
-#define kMaxRxData	(int)(kMaxTxData + 2*RCX_Link::kMaxReplyLength + 5)
+#define kMaxTxData	((int)(2*RCX_Link::kMaxCmdLength + 6))
+#define kMaxRxData	((int)(kMaxTxData + 2*RCX_Link::kMaxReplyLength + 5))
 
 #define	kDefaultRetryCount 4
 

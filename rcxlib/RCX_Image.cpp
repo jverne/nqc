@@ -478,9 +478,9 @@ void GetChunkTypeName(char *dst, RCX_ChunkType type)
                 case kRCX_AnimationChunk:
                         strcpy(dst, "Animation");
                         break;
-//                case kRCX_DataChunk:
-//                        strcpy(dst, "Data");
-//                        break;
+//              case kRCX_DataChunk:
+//                      strcpy(dst, "Data");
+//                      break;
                 default:
                         sprintf(dst, "Res %d", type);
                         break;
@@ -508,8 +508,7 @@ void HexDump(RCX_Printer *dst, bool genLASM, string name,
 
         int offset = 0;
 
-        if (genLASM)
-        {
+        if (genLASM) {
           // output the header
           sprintf(line, ";%s\n", name.c_str());
           dst->Print(line);
@@ -537,7 +536,9 @@ void HexDump(RCX_Printer *dst, bool genLASM, string name,
               // print the last byte
               sprintf(ptr, "%d", *data++);
               ptr += strlen(ptr);
-              strcat(ptr, "\n");
+              if (strlcat(ptr, "\n", sizeof(ptr)) >= sizeof(ptr) {
+			fprintf(stderr, "Truncation!");
+		}
               dst->Print(line);
           }
           else
@@ -562,7 +563,10 @@ void HexDump(RCX_Printer *dst, bool genLASM, string name,
                           ptr += strlen(ptr);
                   }
 
-                  strcat(ptr, "\n");
+              //    strcat(ptr, "\n");
+              if (strlcat(ptr, "\n", sizeof(ptr)) >= sizeof(ptr)) {
+			fprintf(stderr, "Truncation!");
+		}
                   dst->Print(line);
 
                   count -= n;

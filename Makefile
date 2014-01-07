@@ -57,7 +57,7 @@ MV?=mv -f
 RM?=rm -f
 DOXYGEN=doxygen
 
-# CFLAGS
+# Compiler flags
 #CFLAGS = -pipe -Iplatform -Ircxlib -Inqc -Icompiler -Wall -Wstrict-prototypes -Wmissing-prototypes
 CFLAGS += -Iplatform -Ircxlib -Inqc -Icompiler -Wall
 
@@ -72,6 +72,7 @@ ifneq (,$(strip $(findstring $(OSTYPE), Darwin)))
   # Mac OSX
   LIBS += -framework IOKit -framework CoreFoundation
   USBOBJ = rcxlib/RCX_USBTowerPipe_osx.o
+  DEFAULT_SERIAL_NAME = "usb"
   # May as well use the default Clang on OS X
   CXX = c++
   CFLAGS += -O3 -std=c++11
@@ -95,7 +96,7 @@ else
 ifneq (,$(strip $(findstring $(OSTYPE), OpenBSD)))
   # OpenBSD i386 with COM1, no USB
   DEFAULT_SERIAL_NAME = "/dev/cua00"
-  CFLAGS += -std=gnu++98 -Wall -O2
+  CFLAGS += -std=gnu++98 -Wall -O2 -pipe
 else
   # default Unix build without USB support
   CFLAGS += -O2
@@ -107,7 +108,8 @@ endif
 
 # Debug builds for most Clang/GCC environments.
 # This implies DEBUG_TIMEOUT
-#CFLAGS += -DDEBUG -g -O0
+# TODO: sort out all the DEBUG defines 
+CFLAGS += -DDEBUG -DPDEBUG -g -O0
 
 # this must happen after the platform tweaks just in case the platform
 # wants to redefine the default serial name
@@ -129,7 +131,7 @@ RCXOBJ = rcxlib/RCX_Cmd.o rcxlib/RCX_Disasm.o rcxlib/RCX_Image.o \
 	$(USBOBJ)
 
 POBJ = platform/PStream.o platform/PSerial_unix.o \
-	platform/PHashTable.o platform/PListS.o
+	platform/PHashTable.o platform/PListS.o platform/PDebug.o
 
 COBJ = compiler/AsmStmt.o compiler/AssignStmt.o compiler/BlockStmt.o compiler/Bytecode.o \
 	compiler/Conditional.o compiler/CondParser.o compiler/DoStmt.o \
@@ -161,14 +163,13 @@ all : bin nqh nub bin/nqc
 # Create the bin directory in the Makefile because it is not part
 # of the original distribution.  This prevents the need to tell the user
 # to do it.
-
 bin:
 	$(MKDIR) bin
 
-bin/nqc : compiler/parse.cpp $(OBJ)
+bin/nqc: compiler/parse.cpp $(OBJ)
 	$(CXX) -o $@ $(OBJ) $(LIBS)
 
-bin/mkdata : mkdata/mkdata.cpp nqc/SRecord.cpp
+bin/mkdata: mkdata/mkdata.cpp nqc/SRecord.cpp
 	$(CXX) -o bin/mkdata -Inqc/ -Iplatform/ mkdata/mkdata.cpp nqc/SRecord.cpp
 
 #
@@ -264,8 +265,8 @@ install: all
 	cp nqc-man-2.1r1-0.man $(MANDIR)/nqc.$(MANEXT)
 
 info:
-
 	@echo Building for: $(OSTYPE)
+	@echo USBOBJ=$(USBOBJ)
 	@echo CXX=$(CXX)
 	@echo CFLAGS=$(CFLAGS)
 	@echo YACC=$(YACC)

@@ -38,6 +38,7 @@
 #include "Compiler.h"
 #include "CmdLine.h"
 #include "version.h"
+#include "PDebug.h"
 
 using std::fopen;
 using std::printf;

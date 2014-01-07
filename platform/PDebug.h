@@ -22,7 +22,7 @@ extern "C" {
 #if TARGET_API_MAC_OS8==1
 	#define _p_debugstr(msg)	debugstr(msg)
 #else
-	extern void	_p_debugstr(char *text);
+	extern void	_p_debugstr(const char *text);
 #endif	// macintosh
 
 	// normal debugging

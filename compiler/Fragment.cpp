@@ -193,8 +193,8 @@ bool ParentChecker::operator()(Stmt *s)
 	{
 		if (c->GetParent() != s)
 		{
-			printf("%s  %08x\n", typeid(*s).name(), s);
-			printf("Parent mistmatch: Found %08x expected %08x\n", c->GetParent(), s);
+			printf("%s  %08x\n", typeid(*s).name(), (unsigned)s);
+			printf("Parent mistmatch: Found %08x expected %08x\n", (unsigned)c->GetParent(), (unsigned)s);
 		}
 	}
 

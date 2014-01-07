@@ -24,7 +24,7 @@ void _p_assert(const char* file, int line)
 	char buffer[512];
 	sprintf(buffer, "PASSERT() failed line #%d in file %s", line, get_leafname(file));
 
-	_p_debugstr(buffer);
+	_p_debugstr(const_cast<char *>(buffer));
 }
 
 void _p_require(const char* file, int line, const char* label)
@@ -32,7 +32,7 @@ void _p_require(const char* file, int line, const char* label)
 	char buffer[512];
 	sprintf(buffer, "PREQUIRE %s failed line #%d in file %s", label, line, get_leafname(file));
 
-	_p_debugstr(buffer);
+	_p_debugstr(const_cast<char *>(buffer));
 }
 
 
@@ -42,7 +42,7 @@ void _p_requirenot(const char* file, int line, int val, const char* label)
 	sprintf(buffer, "PREQUIRENOT %s failed line #%d in file %s, value = %d",
 		label, line, get_leafname(file), val);
 
-	_p_debugstr(buffer);
+	_p_debugstr(const_cast<char *>(buffer));
 }
 
 
@@ -63,7 +63,7 @@ const char *get_leafname(const char *filename)
 
 #ifndef _p_debugstr
 
-void _p_debugstr(char *text)
+void _p_debugstr(const char *text)
 {
 	printf("%s\n", text);
 }

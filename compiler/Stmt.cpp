@@ -131,7 +131,7 @@ void DumpStmt(Stmt *s, int tab)
 {
 	for(int i=0; i<tab; i++)
 		putchar(' ');
-	printf("%s  %08x\n", typeid(*s).name(), s);
+	printf("%s  %08x\n", typeid(*s).name(), (unsigned)s);
 
 	for(Stmt*c = s->GetChildren(); c; c=c->GetNext())
 	{
