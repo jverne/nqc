@@ -52,79 +52,78 @@ class RCX_SourceTag;
 class RCX_Disasm
 {
 public:
-	RCX_Disasm(RCX_TargetType targetType);
+    RCX_Disasm(RCX_TargetType targetType);
 
-	void	Print(RCX_Printer *dst, bool genLASM, string name,
-          RCX_ChunkType type, int ChunkNum, const UByte *code, int length);
+    void Print(RCX_Printer *dst, bool genLASM, string name,
+        RCX_ChunkType type, int ChunkNum, const UByte *code, int length);
 
-	void	Print(RCX_Printer *dst, bool genLASM, string name,
-          RCX_ChunkType type, int ChunkNum, const UByte *code, int length,
-          RCX_SourceFiles *sf, const RCX_SourceTag *tags, int tagCount);
+    void Print(RCX_Printer *dst, bool genLASM, string name,
+        RCX_ChunkType type, int ChunkNum, const UByte *code, int length,
+        RCX_SourceFiles *sf, const RCX_SourceTag *tags, int tagCount);
 
-	RCX_Result	Print1(RCX_Printer *dst, const UByte *code, int length, UShort pc);
-        RCX_Result	SPrint1(char *text, const UByte *code, int length, UShort pc);
+    RCX_Result Print1(RCX_Printer *dst, const UByte *code, int length, UShort pc);
+    RCX_Result SPrint1(char *text, const UByte *code, int length, UShort pc);
 
 
-	// format of internal instruction information
-	// the declaration is public so that a global table may be defined
-	struct Instruction
-	{
-		const char*	fName;
-		UByte		fOpcode;
-		ULong		fArgs;
-	};
+    // format of internal instruction information
+    // the declaration is public so that a global table may be defined
+    struct Instruction {
+        const char* fName;
+        UByte       fOpcode;
+        ULong       fArgs;
+    };
 
 private:
-	void		DefineInstructions(const Instruction** OpArray, const Instruction *inst);
-	void 		SPrintValue(char *text, int type, short data);
-	void 		SPrintArg(char *text, ULong format, const UByte *code, UShort pc);
-	void		SPrintCondition(char *text, const UByte *code);
-	const char*	GetTypeName(int type);
+    void        DefineInstructions(const Instruction** OpArray, const Instruction *inst);
+    void        SPrintValue(char *text, int type, short data);
+    void        SPrintArg(char *text, ULong format, const UByte *code, UShort pc);
+    void        SPrintCondition(char *text, const UByte *code);
+    const char* GetTypeName(int type);
 
-        RCX_Result	FindLabel(const UByte *code, int length, UShort pc);
-        void		FindLabelArg(ULong format, const UByte *code, UShort pc);
-	void		LASMOutputHeader(RCX_Printer *dst, string name, RCX_ChunkType type, int ChunkNum);
-	void		LASMOutputFooter(RCX_Printer *dst, RCX_ChunkType type, UShort pc);
+    RCX_Result  FindLabel(const UByte *code, int length, UShort pc);
+    void        FindLabelArg(ULong format, const UByte *code, UShort pc);
+    void        LASMOutputHeader(RCX_Printer *dst, string name, RCX_ChunkType type, int ChunkNum);
+    void        LASMOutputFooter(RCX_Printer *dst, RCX_ChunkType type, UShort pc);
 
 
-	const Instruction*	fOpDispatch[256];
-	const Instruction*	fResOpDisp[256];
+    const Instruction*  fOpDispatch[256];
+    const Instruction*  fResOpDisp[256];
 
-        labels_type	fLabels;
-	RCX_TargetType	fTarget;
-        bool		fGenLASM;
-        RCX_ChunkType	fCurType;
-        int		fCurNum;
+    labels_type     fLabels;
+    RCX_TargetType  fTarget;
+    bool            fGenLASM;
+    RCX_ChunkType   fCurType;
+    int             fCurNum;
 };
 
 
 class RCX_Printer
 {
 public:
-	virtual ~RCX_Printer() {}
-	virtual	void Print(const char *text);
-	virtual void Print(const char *text, int length) = 0;
+    virtual ~RCX_Printer() {}
+    virtual void Print(const char *text);
+    virtual void Print(const char *text, int length) = 0;
 };
 
 class RCX_StdioPrinter : public RCX_Printer
 {
 public:
-	RCX_StdioPrinter(FILE *fp)	{ fFile = fp; }
-	~RCX_StdioPrinter() {}
+    RCX_StdioPrinter(FILE *fp) { fFile = fp; }
+    ~RCX_StdioPrinter() {}
 
-	virtual void Print(const char *text)				{ fputs(text, fFile); }
-	virtual void Print(const char *text, int length)	{ fwrite(text, length, 1, fFile); }
+    virtual void Print(const char *text)                { fputs(text, fFile); }
+    virtual void Print(const char *text, int length)    { fwrite(text, length, 1, fFile); }
 
 private:
-	FILE*	fFile;
+    FILE*   fFile;
 };
 
 
 class RCX_SourceFiles
 {
 public:
-	virtual ~RCX_SourceFiles() {}
-	virtual long Print(RCX_Printer *printer, short index, long start, long end) = 0;
+    virtual ~RCX_SourceFiles() {}
+    virtual long Print(RCX_Printer *printer, short index, long start, long end) = 0;
 };
 
 

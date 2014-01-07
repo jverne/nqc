@@ -15,35 +15,33 @@
 
 bool PStream::ReadLine(char *ptr, int max)
 {
-	bool ok = false;
+    bool ok = false;
 
-	while(max > 1)
-	{
-		if (Read(ptr, 1) != 1) break;
-		max--;
-		if (*ptr == '\n')
-		{
-			ptr++;
-			ok = true;
-			break;
-		}
-		ptr++;
-	}
+    while(max > 1) {
+        if (Read(ptr, 1) != 1) break;
+        max--;
+        if (*ptr == '\n') {
+            ptr++;
+            ok = true;
+            break;
+        }
+        ptr++;
+    }
 
-	*ptr = 0;
-	return ok;
+    *ptr = 0;
+    return ok;
 }
 
 
 bool PStream::SetTimeout(long timeout_ms)
 {
-	return (timeout_ms == kPStream_NeverTimeout);
+    return (timeout_ms == kPStream_NeverTimeout);
 }
 
 
 bool PStream::SetBlocking(bool blocking)
 {
-	return SetTimeout(blocking ? kPStream_NeverTimeout : 0);
+    return SetTimeout(blocking ? kPStream_NeverTimeout : 0);
 }
 
 

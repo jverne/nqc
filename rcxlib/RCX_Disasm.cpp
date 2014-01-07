@@ -33,12 +33,16 @@ static int ArgsLength(ULong args);
 static void SPrintOutputNames(char *argText, const UByte outs);
 static int ComputeOffset(UByte b1, UByte b2=0, bool lowFirst = true);
 
-#define LOOKUP(i,a)	(((unsigned)(i)<sizeof(a)/sizeof(char*)) ? a[i] : "?")
-#define WORD(ptr)	((short)((((ptr)[1]) << 8) + ((ptr)[0])))
-#define HLWORD(ptr)	((short)((((ptr)[0]) << 8) + ((ptr)[1])))
+#define LOOKUP(i,a) (((unsigned)(i)<sizeof(a)/sizeof(char*)) ? a[i] : "?")
+#define WORD(ptr)   ((short)((((ptr)[1]) << 8) + ((ptr)[0])))
+#define HLWORD(ptr) ((short)((((ptr)[0]) << 8) + ((ptr)[1])))
 
-static const char *inputTypeNames[] = { "None", "Switch", "Temp", "Light", "Angle" };
-static const char *inputModeNames[] = { "Raw", "Boolean", "Edge", "Pulse", "Percent", "Celcius", "Fahrenheit", "Angle" };
+static const char *inputTypeNames[] = {
+    "None", "Switch", "Temp", "Light", "Angle"
+};
+static const char *inputModeNames[] = {
+    "Raw", "Boolean", "Edge", "Pulse", "Percent", "Celcius", "Fahrenheit", "Angle"
+};
 static const char *outputDirName[] = { "Rev", "Flip", "Fwd" };
 static const char *outputModeName[] = { "Float", "Off", "On" };
 static const char *relNames[] = { "<=", ">=", "!=", "==" };
@@ -79,61 +83,67 @@ static const char *swanTypeNames[] = {
 
 enum DataFormat
 {
-	kAF_None = 0,
-	kAF_Skip8,
-	kAF_Skip16,
-	kAF_Raw8,
-	kAF_Raw16,
-	kAF_Value8,
-	kAF_Value16,
-	kAF_Var,
-        kAF_SrcRelThresh,
+    kAF_None = 0,
+    kAF_Skip8,
+    kAF_Skip16,
+    kAF_Raw8,
+    kAF_Raw16,
+    kAF_Value8,
+    kAF_Value16,
+    kAF_Var,
+    kAF_SrcRelThresh,
 
-	kAF_Outputs,
-	kAF_OutputMode,
-	kAF_OutputDir,
-	kAF_InputType,
-	kAF_InputMode,
+    kAF_Outputs,
+    kAF_OutputMode,
+    kAF_OutputDir,
+    kAF_InputType,
+    kAF_InputMode,
 
-	kAF_Condition,
-	kAF_Jump8,
-	kAF_Jump16,
-	kAF_Offset8,
-	kAF_Offset16,
+    kAF_Condition,
+    kAF_Jump8,
+    kAF_Jump16,
+    kAF_Offset8,
+    kAF_Offset16,
 
-        kAF_GVar,
-        kAF_HLRaw16,
-        kAF_CondV2V2,
-        kAF_HLOffset16,
-        kAF_CondV1V1,
-        kAF_CondC1V1,
-        kAF_CondV1C1,
-        kAF_CondV2C2,
-        kAF_CondC2V2
+    kAF_GVar,
+    kAF_HLRaw16,
+    kAF_CondV2V2,
+    kAF_HLOffset16,
+    kAF_CondV1V1,
+    kAF_CondC1V1,
+    kAF_CondV1C1,
+    kAF_CondV2C2,
+    kAF_CondC2V2
 };
 
 static const int argFormatLengths[]={
-	0, 1, 2, 1, 2, 2, 3, 1, 4,
-	1, 1, 1, 1, 1,
-	5, 1, 2, 1, 2,
-        1, 2, 6, 2, 4, 4, 4, 6, 6
+    0, 1, 2, 1, 2, 2, 3, 1, 4,
+    1, 1, 1, 1, 1,
+    5, 1, 2, 1, 2,
+    1, 2, 6, 2, 4, 4, 4, 6, 6
 };
 
 
 #define kArgFormatWidth 5
-#define kArgFormatMask	((1 << kArgFormatWidth) - 1)
+#define kArgFormatMask  ((1 << kArgFormatWidth) - 1)
 
-#define ARG(index, format)	((format) << (index) * kArgFormatWidth)
+#define ARG(index, format)  ((format) << (index) * kArgFormatWidth)
 
-#define ARGS1(f0)				(ARG(0,f0))
-#define ARGS2(f0,f1)			(ARG(0,f0) + ARG(1,f1))
-#define ARGS3(f0,f1,f2)			(ARG(0,f0) + ARG(1,f1) + ARG(2,f2))
-#define ARGS4(f0,f1,f2,f3)		(ARG(0,f0) + ARG(1,f1) + ARG(2,f2) + ARG(3,f3))
-#define ARGS5(f0,f1,f2,f3,f4)		(ARG(0,f0) + ARG(1,f1) + ARG(2,f2) + ARG(3,f3) + ARG(4,f4))
-#define ARGS6(f0,f1,f2,f3,f4,f5)	(ARG(0,f0) + ARG(1,f1) + ARG(2,f2) + ARG(3,f3) + ARG(4,f4) + ARG(5,f5))
-#define ARGS7(f0,f1,f2,f3,f4,f5,f6)	(ARG(0,f0) + ARG(1,f1) + ARG(2,f2) + ARG(3,f3) + ARG(4,f4) + ARG(5,f5) + ARG(6,f6))
-#define ARGS8(f0,f1,f2,f3,f4,f5,f6,f7)	(ARG(0,f0) + ARG(1,f1) + ARG(2,f2) + ARG(3,f3) + ARG(4,f4) + ARG(5,f5) + ARG(6,f6) + ARG(7,f7))
-#define ARGS9(f0,f1,f2,f3,f4,f5,f6,f7,f8)	(ARG(0,f0) + ARG(1,f1) + ARG(2,f2) + ARG(3,f3) + ARG(4,f4) + ARG(5,f5) + ARG(6,f6) + ARG(7,f7) + ARG(8,f8))
+#define ARGS1(f0) (ARG(0,f0))
+#define ARGS2(f0,f1) (ARG(0,f0) + ARG(1,f1))
+#define ARGS3(f0,f1,f2) (ARG(0,f0) + ARG(1,f1) + ARG(2,f2))
+#define ARGS4(f0,f1,f2,f3) (ARG(0,f0) + ARG(1,f1) + ARG(2,f2) \
+    + ARG(3,f3))
+#define ARGS5(f0,f1,f2,f3,f4) (ARG(0,f0) + ARG(1,f1) + ARG(2,f2) \
+    + ARG(3,f3) + ARG(4,f4))
+#define ARGS6(f0,f1,f2,f3,f4,f5) (ARG(0,f0) + ARG(1,f1) + ARG(2,f2) \
+    + ARG(3,f3) + ARG(4,f4) + ARG(5,f5))
+#define ARGS7(f0,f1,f2,f3,f4,f5,f6) (ARG(0,f0) + ARG(1,f1) + ARG(2,f2) \
+    + ARG(3,f3) + ARG(4,f4) + ARG(5,f5) + ARG(6,f6))
+#define ARGS8(f0,f1,f2,f3,f4,f5,f6,f7) (ARG(0,f0) + ARG(1,f1) + ARG(2,f2) \
+    + ARG(3,f3) + ARG(4,f4) + ARG(5,f5) + ARG(6,f6) + ARG(7,f7))
+#define ARGS9(f0,f1,f2,f3,f4,f5,f6,f7,f8) (ARG(0,f0) + ARG(1,f1) + ARG(2,f2) \
+    + ARG(3,f3) + ARG(4,f4) + ARG(5,f5) + ARG(6,f6) + ARG(7,f7) + ARG(8,f8))
 
 // this list should contain all instructions that are multi-platform (generally RCX2)
 static RCX_Disasm::Instruction sGenericInstructions[] = {
@@ -155,7 +165,7 @@ static RCX_Disasm::Instruction sGenericInstructions[] = {
 { "divv", 0x44, ARGS2(kAF_Var, kAF_Value16) },
 { "mulv", 0x54, ARGS2(kAF_Var, kAF_Value16) },
 { "andv", 0x84, ARGS2(kAF_Var, kAF_Value16) },
-{ "orv", 0x94, ARGS2(kAF_Var, kAF_Value16) },
+{ "orv", 0x94, ARGS2(kAF_Var, kAF_Value16)  },
 { "absv", 0x74, ARGS2(kAF_Var, kAF_Value16) },
 { "sgnv", 0x64, ARGS2(kAF_Var, kAF_Value16) },
 
@@ -477,9 +487,9 @@ static RCX_Disasm::Instruction sSwanInstructions[] = {
 class SrcListState
 {
 public:
-	bool	fEnabled;
-	short	fIndex;
-	long	fOffset;
+    bool    fEnabled;
+    short   fIndex;
+    long    fOffset;
 };
 
 // Swan support code
@@ -517,8 +527,7 @@ typedef ubyte * pUbyte;
 
 void calculateInstructionLengths()
 {
-  typedef struct
-  {
+  typedef struct {
     ubyte theOpcode;
     ubyte  theLength;
   } TOpcodeLengths;
@@ -668,14 +677,13 @@ void calculateInstructionLengths()
 
     register ubyte index;
 
-    for (index = 0; ; ++index)
-    {
+    for (index = 0; ; ++index) {
       register TRCXop theOpcode;
 
       theOpcode = (TRCXop) OpcodeLengths[index].theOpcode;
       if (theOpcode == (TRCXop) 0)
         break;
-      * (pUbyte) &nSwanInstructionLength[(ubyte) theOpcode] = OpcodeLengths[index].theLength;
+      *(pUbyte) &nSwanInstructionLength[(ubyte) theOpcode] = OpcodeLengths[index].theLength;
     }
   }
 
@@ -701,8 +709,7 @@ void calculateInstructionLengths()
 
     register ubyte index;
 
-    for (index = 0;  ; ++index)
-    {
+    for (index = 0;  ; ++index) {
       register TRCXop theOpcode;
       register ubyte  theLength;
       register ubyte idx;
@@ -711,9 +718,8 @@ void calculateInstructionLengths()
       if (theOpcode == (TRCXop) 0)
         break;
       theLength = ArithLengths[index].theLength;
-      for (idx = arithOffsetAddTo; idx <= arithOffsetModuloTo; ++idx)
-      {
-        * (pUbyte) &nSwanInstructionLength[(ubyte) (((ubyte) theOpcode) + (ubyte) idx)] = theLength;
+      for (idx = arithOffsetAddTo; idx <= arithOffsetModuloTo; ++idx) {
+        *(pUbyte) &nSwanInstructionLength[(ubyte) (((ubyte) theOpcode) + (ubyte) idx)] = theLength;
       }
     }
   }
@@ -724,42 +730,42 @@ void calculateInstructionLengths()
 
 RCX_Disasm::RCX_Disasm(RCX_TargetType targetType) : fTarget(targetType)
 {
-	unsigned i;
+    unsigned i;
 
-	for(i=0; i<256; ++i) {
-		fOpDispatch[i] = 0;
-	}
+    for(i=0; i<256; ++i) {
+        fOpDispatch[i] = 0;
+    }
 
-	for(i=0; i<256; ++i) {
-	        fResOpDisp[i] = 0;
-	}
+    for(i=0; i<256; ++i) {
+            fResOpDisp[i] = 0;
+    }
 
         if (targetType == kRCX_SwanTarget)
           calculateInstructionLengths();
 
-	DefineInstructions(fOpDispatch, sGenericInstructions);
+    DefineInstructions(fOpDispatch, sGenericInstructions);
 
-	switch(targetType) {
-		case kRCX_CMTarget:
-			DefineInstructions(fOpDispatch, sCMInstructions);
-			break;
+    switch(targetType) {
+        case kRCX_CMTarget:
+            DefineInstructions(fOpDispatch, sCMInstructions);
+            break;
 
-		case kRCX_ScoutTarget:
-			DefineInstructions(fOpDispatch, sScoutInstructions);
-			break;
+        case kRCX_ScoutTarget:
+            DefineInstructions(fOpDispatch, sScoutInstructions);
+            break;
 
-		case kRCX_SpyboticsTarget:
-			DefineInstructions(fOpDispatch, sSpyboticsInstructions);
-			DefineInstructions(fResOpDisp, sSpyboticsResourceInstructions);
-			break;
+        case kRCX_SpyboticsTarget:
+            DefineInstructions(fOpDispatch, sSpyboticsInstructions);
+            DefineInstructions(fResOpDisp, sSpyboticsResourceInstructions);
+            break;
 
                 case kRCX_SwanTarget:
                         DefineInstructions(fOpDispatch, sSwanInstructions);
                         break;
 
-		default:
-			break;
-	}
+        default:
+            break;
+    }
 }
 
 
@@ -767,8 +773,7 @@ void RCX_Disasm::LASMOutputHeader(RCX_Printer *dst, string name, RCX_ChunkType t
 {
   char line[256];
   char typeName[10];
-  switch(type)
-  {
+  switch(type) {
     case kRCX_TaskChunk  : strcpy(typeName, "task"); break;
     case kRCX_SubChunk   : strcpy(typeName, "sub"); break;
     case kRCX_SoundChunk : strcpy(typeName, "sound"); break;
@@ -786,16 +791,14 @@ void RCX_Disasm::LASMOutputFooter(RCX_Printer *dst, RCX_ChunkType type, UShort p
 
   // output the last label
   labels_type::iterator p = fLabels.find((int)pc);
-  if (p != fLabels.end())
-  {
+  if (p != fLabels.end()) {
       string tmp = (*p).second;
       sprintf(line, "%s:\n", tmp.c_str());
       dst->Print(line);
   }
 
   char typeName[10];
-  switch(type)
-  {
+  switch(type) {
     case kRCX_TaskChunk  : strcpy(typeName, "endt"); break;
     case kRCX_SubChunk   :
     case kRCX_SoundChunk : strcpy(typeName, "ends"); break;
@@ -810,120 +813,115 @@ void RCX_Disasm::LASMOutputFooter(RCX_Printer *dst, RCX_ChunkType type, UShort p
 void RCX_Disasm::Print(RCX_Printer *dst, bool genLASM, string name,
   RCX_ChunkType type, int ChunkNum, const UByte *code, int length)
 {
-	Print(dst, genLASM, name, type, ChunkNum, code, length, 0, 0, 0);
+    Print(dst, genLASM, name, type, ChunkNum, code, length, 0, 0, 0);
 }
 
 void RCX_Disasm::Print(RCX_Printer *dst, bool genLASM, string name,
   RCX_ChunkType type, int ChunkNum, const UByte *code, int length,
   RCX_SourceFiles *sf, const RCX_SourceTag *tags, int tagCount)
 {
-        fGenLASM = genLASM;
-        fCurType = type;
-        fCurNum  = ChunkNum;
+    fGenLASM = genLASM;
+    fCurType = type;
+    fCurNum  = ChunkNum;
 
-	UShort pc = 0;
-        int tmpLen = length;
-        const UByte *tmpCode = code;
-	RCX_Result result;
-	stack<SrcListState> stateStack;
+    UShort pc = 0;
+    int tmpLen = length;
+    const UByte *tmpCode = code;
+    RCX_Result result;
+    stack<SrcListState> stateStack;
 
-        // start with an empty set of labels
-        fLabels.clear();
+    // start with an empty set of labels
+    fLabels.clear();
 
-	// ignore tags if no source files
-	if (!sf) tagCount = 0;
+    // ignore tags if no source files
+    if (!sf) tagCount = 0;
 
-//	if (genLASM) tagCount = 0; // no source listing in LASM compatible output
+//  if (genLASM) tagCount = 0; // no source listing in LASM compatible output
 
-	if (genLASM)
-        {
-          LASMOutputHeader(dst, name, type, ChunkNum);
+    if (genLASM) {
+        LASMOutputHeader(dst, name, type, ChunkNum);
 
-          // run through the entire chunk once to get a list of required labels
-          while(true)
-          {
-              if (tmpLen <= 0) break;
-
-              result = FindLabel(tmpCode, tmpLen, pc);
-              pc += result;
-              tmpCode += result;
-              tmpLen -= result;
-          }
-        }
-
-        pc = 0;
-        tmpLen = length;
-        tmpCode = code;
-
-        // now do it all again to print the listing
-
-        while(true)
-        {
-            // tag processing happens before length check to allow
-            // fragment end tags (which have a pc at the end of
-            // the fragment) to be processed
-            while (tagCount && (tags->fAddress <= pc) )
-            {
-                    switch(tags->fType)
-                    {
-                            case RCX_SourceTag::kBegin:
-                            case RCX_SourceTag::kBeginNoList:
-                            {
-                                    SrcListState ns;
-                                    ns.fEnabled = (tags->fType == RCX_SourceTag::kBegin);
-                                    ns.fIndex = tags->fSrcIndex;
-                                    ns.fOffset = tags->fSrcOffset;
-                                    stateStack.push(ns);
-                                    break;
-                            }
-                            case RCX_SourceTag::kNormal:
-                            {
-                                    if (stateStack.empty()) break;
-                                    SrcListState &s = stateStack.top();
-                                    if (tags->fSrcIndex != s.fIndex) break;
-                                    if (s.fEnabled)
-                                            s.fOffset = sf->Print(dst, s.fIndex, s.fOffset, tags->fSrcOffset) + 1;
-                                    break;
-                            }
-                            case RCX_SourceTag::kEnd:
-                            {
-                                    if (stateStack.empty()) break;
-                                    SrcListState &s = stateStack.top();
-                                    if (s.fEnabled)
-                                            sf->Print(dst, s.fIndex, s.fOffset, tags->fSrcOffset);
-                                    stateStack.pop();
-                                    break;
-                            }
-                    }
-
-                    tags++;
-                    tagCount--;
-            }
-
+        // run through the entire chunk once to get a list of required labels
+        while(true) {
             if (tmpLen <= 0) break;
 
-            result = Print1(dst, tmpCode, tmpLen, pc);
+            result = FindLabel(tmpCode, tmpLen, pc);
             pc += result;
             tmpCode += result;
             tmpLen -= result;
         }
-        if (genLASM)
-          LASMOutputFooter(dst, type, pc);
+    }
+
+    pc = 0;
+    tmpLen = length;
+    tmpCode = code;
+
+    // now do it all again to print the listing
+
+    while(true) {
+        // tag processing happens before length check to allow
+        // fragment end tags (which have a pc at the end of
+        // the fragment) to be processed
+        while (tagCount && (tags->fAddress <= pc) ) {
+            switch(tags->fType) {
+                case RCX_SourceTag::kBegin:
+                case RCX_SourceTag::kBeginNoList:
+                {
+                    SrcListState ns;
+                    ns.fEnabled = (tags->fType == RCX_SourceTag::kBegin);
+                    ns.fIndex = tags->fSrcIndex;
+                    ns.fOffset = tags->fSrcOffset;
+                    stateStack.push(ns);
+                    break;
+                }
+                case RCX_SourceTag::kNormal:
+                {
+                    if (stateStack.empty()) break;
+                    SrcListState &s = stateStack.top();
+                    if (tags->fSrcIndex != s.fIndex) break;
+                    if (s.fEnabled)
+                        s.fOffset = sf->Print(dst, s.fIndex, s.fOffset, tags->fSrcOffset) + 1;
+                    break;
+                }
+                case RCX_SourceTag::kEnd:
+                {
+                    if (stateStack.empty()) break;
+                    SrcListState &s = stateStack.top();
+                    if (s.fEnabled)
+                        sf->Print(dst, s.fIndex, s.fOffset, tags->fSrcOffset);
+                    stateStack.pop();
+                    break;
+                }
+            }
+
+            tags++;
+            tagCount--;
+        }
+
+        if (tmpLen <= 0) break;
+
+        result = Print1(dst, tmpCode, tmpLen, pc);
+        pc += result;
+        tmpCode += result;
+        tmpLen -= result;
+    }
+    if (genLASM)
+        LASMOutputFooter(dst, type, pc);
 }
 
 
 RCX_Result RCX_Disasm::Print1(RCX_Printer *dst, const UByte *code, int length, UShort pc)
 {
-	char text[256];
-	char line[256];
+    char text[256];
+    char line[256];
 
-	RCX_Result result = SPrint1(text, code, length, pc);
+    RCX_Result result = SPrint1(text, code, length, pc);
 
-	if (result < 1)
-	{
-		result = 1;
-		sprintf(text, "?");
-	}
+    if (result < 1)
+    {
+        result = 1;
+        sprintf(text, "?");
+    }
 
         if (fGenLASM)
         {
@@ -943,8 +941,8 @@ RCX_Result RCX_Disasm::Print1(RCX_Printer *dst, const UByte *code, int length, U
             }
         }
         else
-	    sprintf(line, "%03d %-42s ", pc, text);
-	dst->Print(line);
+        sprintf(line, "%03d %-42s ", pc, text);
+    dst->Print(line);
 
         if (!fGenLASM)
         {
@@ -955,64 +953,64 @@ RCX_Result RCX_Disasm::Print1(RCX_Printer *dst, const UByte *code, int length, U
             }
         }
 
-      	sprintf(line, "\n");
-	dst->Print(line);
+        sprintf(line, "\n");
+    dst->Print(line);
 
 
-	return result;
+    return result;
 }
 
 
 
 void RCX_Disasm::SPrintArg(char *text, ULong format, const UByte *code, UShort pc)
 {
-	char buf[32];
+    char buf[32];
 
-	switch(format)
-	{
-		case kAF_Raw8:
-			sprintf(text, "%d", code[0]);
-			break;
-		case kAF_Raw16:
-			sprintf(text, "%d", (short)WORD(code));
-			break;
-		case kAF_Value8:
-			SPrintValue(text, code[0], code[1]);
-			break;
-		case kAF_Value16:
-			SPrintValue(text, code[0], (short)WORD(code+1));
-			break;
-		case kAF_Var:
-			if (fGenLASM)
-				sprintf(text, "%d", code[0]);
-			else
-				sprintf(text, "var[%d]", code[0]);
-			break;
-		case kAF_SrcRelThresh:
-			if (fGenLASM)
-				sprintf(text, "%d, %d, %d, %d", code[0], (code[1] >> 6) & 3, code[1] & 0x3f, (short)WORD(code+2));
-			else
+    switch(format)
+    {
+        case kAF_Raw8:
+            sprintf(text, "%d", code[0]);
+            break;
+        case kAF_Raw16:
+            sprintf(text, "%d", (short)WORD(code));
+            break;
+        case kAF_Value8:
+            SPrintValue(text, code[0], code[1]);
+            break;
+        case kAF_Value16:
+            SPrintValue(text, code[0], (short)WORD(code+1));
+            break;
+        case kAF_Var:
+            if (fGenLASM)
+                sprintf(text, "%d", code[0]);
+            else
+                sprintf(text, "var[%d]", code[0]);
+            break;
+        case kAF_SrcRelThresh:
+            if (fGenLASM)
+                sprintf(text, "%d, %d, %d, %d", code[0], (code[1] >> 6) & 3, code[1] & 0x3f, (short)WORD(code+2));
+            else
                         {
-				SPrintValue(buf, code[1] & 0x3f, (short)WORD(code+2));
-				sprintf(text, "%s %s %s", GetTypeName(code[0]), LOOKUP((code[1] >> 6) & 3, findRelNames), buf);
+                SPrintValue(buf, code[1] & 0x3f, (short)WORD(code+2));
+                sprintf(text, "%s %s %s", GetTypeName(code[0]), LOOKUP((code[1] >> 6) & 3, findRelNames), buf);
                         }
-			break;
-		case kAF_Outputs:
+            break;
+        case kAF_Outputs:
                         if (fGenLASM)
                           sprintf(text, "%d", code[0] & 7);
                         else
-			  SPrintOutputNames(text, code[0] & 7);
-			break;
-		case kAF_OutputMode:
-			if (fGenLASM)
-				sprintf(text, "%d, %d", code[0] & 7, (code[0] >> 6) & 3);
-			else
-			{
-				SPrintOutputNames(buf, code[0] & 7);
-				sprintf(text, "%s, %s", buf, LOOKUP((code[0] >> 6) & 3, outputModeName));
-			}
-			break;
-		case kAF_OutputDir:
+              SPrintOutputNames(text, code[0] & 7);
+            break;
+        case kAF_OutputMode:
+            if (fGenLASM)
+                sprintf(text, "%d, %d", code[0] & 7, (code[0] >> 6) & 3);
+            else
+            {
+                SPrintOutputNames(buf, code[0] & 7);
+                sprintf(text, "%s, %s", buf, LOOKUP((code[0] >> 6) & 3, outputModeName));
+            }
+            break;
+        case kAF_OutputDir:
                         if (fGenLASM)
                           sprintf(text, "%d, %d", (code[0] >> 6) & 3, code[0] & 7);
                         else
@@ -1020,23 +1018,23 @@ void RCX_Disasm::SPrintArg(char *text, ULong format, const UByte *code, UShort p
                           SPrintOutputNames(buf, code[0] & 7);
                           sprintf(text, "%s, %s", buf, LOOKUP((code[0] >> 6) & 3, outputDirName));
                         }
-			break;
-		case kAF_InputType:
+            break;
+        case kAF_InputType:
                         if (fGenLASM)
                           sprintf(text, "%d", code[0]);
                         else
-			  sprintf(text, "%s", LOOKUP(code[0], inputTypeNames));
-			break;
-		case kAF_InputMode:
+              sprintf(text, "%s", LOOKUP(code[0], inputTypeNames));
+            break;
+        case kAF_InputMode:
                         if (fGenLASM)
                           sprintf(text, "%d, %d", (code[0] >> 5) & 7, (code[0] & 31));
                         else
-			  sprintf(text, "%s", LOOKUP((code[0] >> 5) & 7, inputModeNames));
-			break;
-		case kAF_Condition:
-			SPrintCondition(text, code);
-			break;
-		case kAF_Jump8:
+              sprintf(text, "%s", LOOKUP((code[0] >> 5) & 7, inputModeNames));
+            break;
+        case kAF_Condition:
+            SPrintCondition(text, code);
+            break;
+        case kAF_Jump8:
                         if (fGenLASM)
                         {
                             labels_type::iterator p = fLabels.find((int)(pc + ComputeOffset(code[0], 0)));
@@ -1049,9 +1047,9 @@ void RCX_Disasm::SPrintArg(char *text, ULong format, const UByte *code, UShort p
                                 sprintf(text, "%d", pc + ComputeOffset(code[0], 0));
                         }
                         else
-			    sprintf(text, "%d", pc + ComputeOffset(code[0], 0));
-			break;
-		case kAF_Jump16:
+                sprintf(text, "%d", pc + ComputeOffset(code[0], 0));
+            break;
+        case kAF_Jump16:
                         if (fGenLASM)
                         {
                             labels_type::iterator p = fLabels.find((int)(pc + ComputeOffset(code[0], code[1])));
@@ -1065,8 +1063,8 @@ void RCX_Disasm::SPrintArg(char *text, ULong format, const UByte *code, UShort p
                         }
                         else
                             sprintf(text, "%d", pc + ComputeOffset(code[0], code[1]));
-			break;
-		case kAF_Offset8:
+            break;
+        case kAF_Offset8:
                         if (fGenLASM)
                         {
                             labels_type::iterator p = fLabels.find((int)(pc + (signed char)code[0]));
@@ -1079,9 +1077,9 @@ void RCX_Disasm::SPrintArg(char *text, ULong format, const UByte *code, UShort p
                                 sprintf(text, "%d", pc + (signed char)code[0]);
                         }
                         else
-			    sprintf(text, "%d", pc + (signed char)code[0]);
-			break;
-		case kAF_Offset16:
+                sprintf(text, "%d", pc + (signed char)code[0]);
+            break;
+        case kAF_Offset16:
                         if (fGenLASM)
                         {
                             labels_type::iterator p = fLabels.find((int)(pc + (short)WORD(code)));
@@ -1094,8 +1092,8 @@ void RCX_Disasm::SPrintArg(char *text, ULong format, const UByte *code, UShort p
                                 sprintf(text, "%d", pc + (short)WORD(code));
                         }
                         else
-			    sprintf(text, "%d", pc + (short)WORD(code));
-			break;
+                sprintf(text, "%d", pc + (short)WORD(code));
+            break;
                 case kAF_GVar:
                         if (fGenLASM)
                           sprintf(text, "%d", code[0]);
@@ -1105,13 +1103,13 @@ void RCX_Disasm::SPrintArg(char *text, ULong format, const UByte *code, UShort p
                 case kAF_HLRaw16:
                         sprintf(text, "%d", (short)HLWORD(code));
                         break;
-		case kAF_None:
-		case kAF_Skip8:
-		case kAF_Skip16:
-		default:
-			text[0] = 0;
-			break;
-	}
+        case kAF_None:
+        case kAF_Skip8:
+        case kAF_Skip16:
+        default:
+            text[0] = 0;
+            break;
+    }
 }
 
 bool ResourceType(RCX_ChunkType type)
@@ -1121,141 +1119,141 @@ bool ResourceType(RCX_ChunkType type)
 
 void RCX_Disasm::FindLabelArg(ULong format, const UByte *code, UShort pc)
 {
-	char text[256];
-	char buf[256];
-	int value;
-	switch(format)
-	{
-		case kAF_Jump8:
-			value = pc + ComputeOffset(code[0], 0);
-			break;
-		case kAF_Jump16:
-			value = pc + ComputeOffset(code[0], code[1]);
-			break;
-		case kAF_Offset8:
-			value = pc + (signed char)code[0];
-			break;
-		case kAF_Offset16:
-			value = pc + (short)WORD(code);
-			break;
-		default:
-			value = -1;
-			break;
-	}
+    char text[256];
+    char buf[256];
+    int value;
+    switch(format)
+    {
+        case kAF_Jump8:
+            value = pc + ComputeOffset(code[0], 0);
+            break;
+        case kAF_Jump16:
+            value = pc + ComputeOffset(code[0], code[1]);
+            break;
+        case kAF_Offset8:
+            value = pc + (signed char)code[0];
+            break;
+        case kAF_Offset16:
+            value = pc + (short)WORD(code);
+            break;
+        default:
+            value = -1;
+            break;
+    }
 
-	if (value != -1)
-	{
-		switch(fCurType)
-		{
-			case kRCX_TaskChunk : sprintf(buf, "t%03d", fCurNum); break;
-			case kRCX_SubChunk : sprintf(buf, "s%03d", fCurNum); break;
-			default : sprintf(buf, "l%03d", fCurNum); break;
-		}
-		sprintf(text, "%s%04d", buf, value);
-		fLabels.insert(value_type(value, string(text)));
-	}
+    if (value != -1)
+    {
+        switch(fCurType)
+        {
+            case kRCX_TaskChunk : sprintf(buf, "t%03d", fCurNum); break;
+            case kRCX_SubChunk : sprintf(buf, "s%03d", fCurNum); break;
+            default : sprintf(buf, "l%03d", fCurNum); break;
+        }
+        sprintf(text, "%s%04d", buf, value);
+        fLabels.insert(value_type(value, string(text)));
+    }
 }
 
 RCX_Result RCX_Disasm::FindLabel(const UByte *code, int length, UShort pc)
 {
-	int iLength;
-	const Instruction *inst;
-	UByte op;
-	ULong args;
-	const UByte *ptr;
+    int iLength;
+    const Instruction *inst;
+    UByte op;
+    ULong args;
+    const UByte *ptr;
 
-	// lookup the instruction
-	if (length < 1) return -1;
-	op = *code;
-	if (ResourceType(fCurType))
-		inst = fResOpDisp[op];
-	else
-		inst = fOpDispatch[op];
-	if (!inst) return -1;
+    // lookup the instruction
+    if (length < 1) return -1;
+    op = *code;
+    if (ResourceType(fCurType))
+        inst = fResOpDisp[op];
+    else
+        inst = fOpDispatch[op];
+    if (!inst) return -1;
 
-	// make sure there's enough code for entire instruction
-	iLength = ArgsLength(inst->fArgs) + 1;
-	if (length < iLength) return -1;
+    // make sure there's enough code for entire instruction
+    iLength = ArgsLength(inst->fArgs) + 1;
+    if (length < iLength) return -1;
 
-	ptr = code+1;
-	for(args = inst->fArgs; args; args>>=kArgFormatWidth)
-	{
-		int af = args & kArgFormatMask;
-		FindLabelArg(af, ptr, pc + (ptr - code));
-		ptr += argFormatLengths[af];
-	}
+    ptr = code+1;
+    for(args = inst->fArgs; args; args>>=kArgFormatWidth)
+    {
+        int af = args & kArgFormatMask;
+        FindLabelArg(af, ptr, pc + (ptr - code));
+        ptr += argFormatLengths[af];
+    }
 
-	return iLength;
+    return iLength;
 }
 
 RCX_Result RCX_Disasm::SPrint1(char *text, const UByte *code, int length, UShort pc)
 {
-	int iLength;
-	const Instruction *inst;
-	char argText[256];
-	UByte op;
-	ULong args;
-	bool argPrinted = false;
-	const UByte *ptr;
+    int iLength;
+    const Instruction *inst;
+    char argText[256];
+    UByte op;
+    ULong args;
+    bool argPrinted = false;
+    const UByte *ptr;
 
-	// lookup the instruction
-	if (length < 1) return -1;
-	op = *code;
+    // lookup the instruction
+    if (length < 1) return -1;
+    op = *code;
         if (ResourceType(fCurType))
           inst = fResOpDisp[op];
         else
-	  inst = fOpDispatch[op];
-	if (!inst) return -1;
+      inst = fOpDispatch[op];
+    if (!inst) return -1;
 
-	// make sure there's enough code for entire instruction
-	iLength = ArgsLength(inst->fArgs) + 1;
-	if (length < iLength) return -1;
+    // make sure there's enough code for entire instruction
+    iLength = ArgsLength(inst->fArgs) + 1;
+    if (length < iLength) return -1;
 
-	// print the instruction name
+    // print the instruction name
         if (fGenLASM)
             sprintf(text,"%s\t", inst->fName);
         else
             sprintf(text,"%-8s ", inst->fName);
-	text += strlen(text);
+    text += strlen(text);
 
-	// print the args
-	ptr = code+1;
-	for(args = inst->fArgs; args; args>>=kArgFormatWidth)
-	{
-		int af = args & kArgFormatMask;
+    // print the args
+    ptr = code+1;
+    for(args = inst->fArgs; args; args>>=kArgFormatWidth)
+    {
+        int af = args & kArgFormatMask;
 
-		SPrintArg(argText, af, ptr, pc + (ptr - code));
-		if (argText[0])
-		{
-			sprintf(text, "%s%s", argPrinted ? ", " : "", argText);
-			text += strlen(text);
-			argPrinted = true;
-		}
+        SPrintArg(argText, af, ptr, pc + (ptr - code));
+        if (argText[0])
+        {
+            sprintf(text, "%s%s", argPrinted ? ", " : "", argText);
+            text += strlen(text);
+            argPrinted = true;
+        }
 
-		ptr += argFormatLengths[af];
-	}
+        ptr += argFormatLengths[af];
+    }
 
-	return iLength;
+    return iLength;
 }
 
 
 void RCX_Disasm::DefineInstructions(const Instruction** OpArray, const Instruction *inst)
 {
-	while(inst->fName)
-	{
-		int op = inst->fOpcode;
+    while(inst->fName)
+    {
+        int op = inst->fOpcode;
 
-		#ifdef DEBUG
-		if (OpArray[op] != 0)
-			printf("opcode 0x%02x already defined\n", op);
-		#endif
+        #ifdef DEBUG
+        if (OpArray[op] != 0)
+            printf("opcode 0x%02x already defined\n", op);
+        #endif
 
                 if (fTarget != kRCX_SwanTarget)
-		  OpArray[op ^ 0x8] = inst; // swan breaks this rule
-		OpArray[op] = inst;
+          OpArray[op ^ 0x8] = inst; // swan breaks this rule
+        OpArray[op] = inst;
 
 
-		#ifdef CHECK_LENGTHS
+        #ifdef CHECK_LENGTHS
                 // check length
                 int argLen = op & 7;
                 if (argLen > 5) argLen -= 6;
@@ -1270,41 +1268,41 @@ void RCX_Disasm::DefineInstructions(const Instruction** OpArray, const Instructi
 
                 if (computedLen != argLen)
                         printf("opcode 0x%02x: possible wrong length of %d, should be %d\n", op, computedLen, argLen);
-		#endif
+        #endif
 
-		++inst;
-	}
+        ++inst;
+    }
 }
 
 
 void SPrintOutputNames(char *argText, const UByte outs)
 {
-	char *ptr = argText;
+    char *ptr = argText;
 
-	if (outs)
-	{
-		// list outputs
-		for(int i=0; i<3; i++)
-			if (outs & (1 << i))
-				*ptr++ = (char)('A' + i);
-	}
-	else
-		*ptr++ = '0';
+    if (outs)
+    {
+        // list outputs
+        for(int i=0; i<3; i++)
+            if (outs & (1 << i))
+                *ptr++ = (char)('A' + i);
+    }
+    else
+        *ptr++ = '0';
 
-	*ptr = 0;
+    *ptr = 0;
 }
 
 
 int ArgsLength(ULong args)
 {
-	int length = 0;
+    int length = 0;
 
-	for( ; args; args >>= kArgFormatWidth)
-	{
-		length += argFormatLengths[args & kArgFormatMask];
-	}
+    for( ; args; args >>= kArgFormatWidth)
+    {
+        length += argFormatLengths[args & kArgFormatMask];
+    }
 
-	return length;
+    return length;
 }
 
 
@@ -1352,15 +1350,15 @@ void RCX_Disasm::SPrintValue(char *text, int type, short data)
 
 const char *RCX_Disasm::GetTypeName(int type)
 {
-	if (fTarget == kRCX_ScoutTarget) {
-		switch(type) {
-			case 18: return "ScoutRules";
-			case 19: return "SensorParam";
-			case 20: return "TimerLimit";
+    if (fTarget == kRCX_ScoutTarget) {
+        switch(type) {
+            case 18: return "ScoutRules";
+            case 19: return "SensorParam";
+            case 20: return "TimerLimit";
                         case 22: return "CounterLimit";
                         case 24: return "EventFeedback";
-		}
-	}
+        }
+    }
         else if (fTarget == kRCX_CMTarget) {
                 switch(type) {
                         case  5: return "TachoCount";
@@ -1392,17 +1390,17 @@ const char *RCX_Disasm::GetTypeName(int type)
         if (fTarget == kRCX_SwanTarget)
           return LOOKUP(type, swanTypeNames);
         else
-	  return LOOKUP(type, typeNames);
+      return LOOKUP(type, typeNames);
 }
 
 
 void RCX_Disasm::SPrintCondition(char *text, const UByte *code)
 {
-	char v1Text[16];
-	char v2Text[16];
+    char v1Text[16];
+    char v2Text[16];
 
-	SPrintValue(v1Text, (code[0] & 0x3f), (short)WORD(code+2));
-	SPrintValue(v2Text, (code[1] & 0x3f), code[4]);
+    SPrintValue(v1Text, (code[0] & 0x3f), (short)WORD(code+2));
+    SPrintValue(v2Text, (code[1] & 0x3f), code[4]);
         if (fGenLASM)
           sprintf(text, "%s, %d, %s", v1Text, (code[0]>>6) & 3, v2Text);
         else
@@ -1433,5 +1431,5 @@ int ComputeOffset(UByte b1, UByte b2, bool lowFirst)
 
 void RCX_Printer::Print(const char *text)
 {
-	Print(text, strlen(text));
+    Print(text, strlen(text));
 }
