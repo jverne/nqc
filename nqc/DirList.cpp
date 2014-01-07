@@ -12,6 +12,7 @@
  *
  */
 #include <cstring>
+#include <strlutil.h>
 
 #if defined(__MWERKS__) && (!__MACH__)
 #include <stat.h>
@@ -51,16 +52,21 @@ bool DirList::Find(const char *filename, char *pathname)
 {
     struct stat stat_buf;
 
-    // TODO: strlcpy and friends?
-    strcpy(pathname, filename);
+    size_t len = sizeof(pathname);
+    if (strlcpy(pathname, filename, len) >= len) {
+        return false;
+    }
+
     if (stat(pathname, &stat_buf) == 0)
         return true;
 
     for(Entry *e = fEntries.GetHead(); e; e=e->GetNext()) {
-        strcpy(pathname, e->GetPath());
-        strcat(pathname, filename);
-        if (stat(pathname, &stat_buf) == 0) {
-            return true;
+        if (strlcpy(pathname, e->GetPath(), len) < len) {
+            if (strlcat(pathname, filename, len) < len) {
+                if (stat(pathname, &stat_buf) == 0) {
+                    return true;
+                }
+            }
         }
     }
 

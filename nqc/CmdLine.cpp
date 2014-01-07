@@ -30,11 +30,11 @@ CmdLine::~CmdLine()
  */
 void CmdLine::Add(const char *a)
 {
-    char *s;
+    if (!a) {
+        return;
+    }
 
-    if (!a) return;
-
-    s = new char[strlen(a) + 1];
+    char *s = new char[strlen(a) + 1];
     strcpy(s, a);
     fArgs.push_back(s);
 }

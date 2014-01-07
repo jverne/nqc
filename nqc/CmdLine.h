@@ -27,13 +27,13 @@ public:
     ~CmdLine();
 
     void Add(const char *a); // make copy and add to arglist
-    void Add(int argc, const char * const *argv);    // add multiple args
+    void Add(int argc, const char * const *argv);   // add multiple args
 
-    void Parse(const char *line, int skip = 0);  // parse line and add args
+    void Parse(const char *line, int skip = 0);     // parse line and add args
 
-    int Remain() const  { return fArgs.size() - fPos; }
-    const char *Next()          { return fArgs[fPos++]; }
-    int NextInt()       { return atoi(Next()); }
+    int Remain() const { return fArgs.size() - fPos; }
+    const char *Next() { return fArgs[fPos++]; }
+    int NextInt() { return atoi(Next()); }
 
 private:
     vector<char*> fArgs;
