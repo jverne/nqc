@@ -22,30 +22,29 @@ class DirList
 {
 public:
 
-	enum
-	{
-		kMaxPathname = 1024
-	};
+    enum {
+        kMaxPathname = 1024
+    };
 
-			~DirList();
+    ~DirList();
 
-	void	Add(const char *dirspec);
-	bool	Find(const char *filename, char *pathname);
+    void Add(const char *dirspec);
+    bool Find(const char *filename, char *pathname);
 
 private:
-	class Entry : public PLinkS<Entry>
-	{
-	public:
-			Entry(const char *path);
-			~Entry();
+    class Entry : public PLinkS<Entry>
+    {
+    public:
+        Entry(const char *path);
+        ~Entry();
 
-	const char *	GetPath() const	{ return fPath; }
+        const char* GetPath() const { return fPath; }
 
-	private:
-		char*	fPath;
-	};
+    private:
+        char* fPath;
+    };
 
-	PListS<Entry>	fEntries;
+    PListS<Entry> fEntries;
 };
 
 
@@ -56,14 +55,14 @@ private:
  */
 
 #if !defined(DIR_DELIMITER)
-	#if defined(macintosh)
-		#define DIR_DELIMITER ':'
-	#elif defined(WIN32)
-		#define DIR_DELIMITER '\\'
-	#else
-		// assume unix
-		#define DIR_DELIMITER '/'
-	#endif
+    #if defined(macintosh)
+        #define DIR_DELIMITER ':'
+    #elif defined(WIN32)
+        #define DIR_DELIMITER '\\'
+    #else
+        // assume unix
+        #define DIR_DELIMITER '/'
+    #endif
 #endif
 
 

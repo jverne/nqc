@@ -25,21 +25,21 @@ using std::FILE;
 class SRecord
 {
 public:
-					SRecord() : fLength(0), fStart(0), fData(0) {}
-					~SRecord()	{ delete [] fData; }
+    SRecord() : fLength(0), fStart(0), fData(0) {}
+    ~SRecord()  { delete [] fData; }
 
-	int				GetLength() const	{ return fLength; }
-	const UByte*	GetData() const		{ return fData; }
-	int				GetStart() const	{ return fStart; }
+    int GetLength() const   { return fLength; }
+    const UByte* GetData() const     { return fData; }
+    int GetStart() const    { return fStart; }
 
-	bool			Read(FILE *fp, int maxLength);
+    bool Read(FILE *fp, int maxLength);
 
-	static int		ReadHexByte(const char *ptr);
+    static int ReadHexByte(const char *ptr);
 
 private:
-	int		fLength;
-	int		fStart;
-	UByte*	fData;
+    int fLength;
+    int fStart;
+    UByte* fData;
 };
 
 #endif

@@ -22,14 +22,12 @@ using std::isspace;
 
 #define kMaxLine	256
 
-typedef struct
-{
+typedef struct {
   int length;
   int offset;
 } segment_t;
 
-typedef struct
-{
+typedef struct {
   unsigned short entry;
   segment_t *segments;
 } image_t;
@@ -89,12 +87,10 @@ static signed char ctab[256] = {
 static int ltab[10] = {4,4,6,8,0,4,0,8,6,4};
 
 /* Macros */
-
 #define C1(l,p)    (ctab[l[p]])
 #define C2(l,p)    ((C1(l,p)<<4)|C1(l,p+1))
 
 /* Static functions */
-
 int srec_decode(srec_t *srec, char *_line)
 {
     int len, pos, count, alen, sum = 0;
@@ -164,7 +160,8 @@ int srec_decode(srec_t *srec, char *_line)
     return SREC_OK;
 }
 
-int srec_load (FILE *file, UByte *image, int maxlen, image_t *image_def, int numimage_def)
+int srec_load (FILE *file, UByte *image, int maxlen, image_t *image_def,
+    int numimage_def)
 {
     char buf[256];
     srec_t srec;

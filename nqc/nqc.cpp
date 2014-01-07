@@ -699,12 +699,12 @@ RCX_Result Download(RCX_Image *image)
     result = image->Download(&gLink);
     if (result != kRCX_OK) goto ErrorReturn;
 
-    fprintf(STDERR, "Complete\n");
+    fprintf(STDERR, " Complete\n");
 
     return kRCX_OK;
 
 ErrorReturn:
-    fprintf(STDERR, "error\n");
+    fprintf(STDERR, " Error: Download failed.\n");
     return result;
 }
 

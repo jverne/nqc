@@ -30,63 +30,60 @@ using std::strcpy;
 
 DirList::~DirList()
 {
-	Entry *e;
+    Entry *e;
 
-	while((e=fEntries.RemoveHead()) != 0)
-		delete e;
+    while((e=fEntries.RemoveHead()) != 0)
+        delete e;
 }
 
 
 void DirList::Add(const char *path)
 {
-	// ignore NULL or empty path
-	if (path==0 || *path==0) return;
+    // ignore NULL or empty path
+    if (path==0 || *path==0) return;
 
-	Entry *e = new Entry(path);
-	fEntries.InsertTail(e);
+    Entry *e = new Entry(path);
+    fEntries.InsertTail(e);
 }
 
 
 bool DirList::Find(const char *filename, char *pathname)
 {
-	struct stat stat_buf;
+    struct stat stat_buf;
 
-	strcpy(pathname, filename);
-	if (stat(pathname, &stat_buf) == 0)
-		return true;
+    // TODO: strlcpy and friends?
+    strcpy(pathname, filename);
+    if (stat(pathname, &stat_buf) == 0)
+        return true;
 
-	for(Entry *e = fEntries.GetHead(); e; e=e->GetNext())
-	{
-		strcpy(pathname, e->GetPath());
-		strcat(pathname, filename);
-		if (stat(pathname, &stat_buf) == 0)
-		{
-			return true;
-		}
-	}
+    for(Entry *e = fEntries.GetHead(); e; e=e->GetNext()) {
+        strcpy(pathname, e->GetPath());
+        strcat(pathname, filename);
+        if (stat(pathname, &stat_buf) == 0) {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 
 DirList::Entry::Entry(const char *path)
 {
-	size_t length = strlen(path);
+    size_t length = strlen(path);
 
-	fPath = new char[length+2]; // leave room for terminating delimiter
-	strcpy(fPath, path);
+    fPath = new char[length+2]; // leave room for terminating delimiter
+    strcpy(fPath, path);
 
-	// should we append the delimiter?
-	if (path[length-1] != DIR_DELIMITER)
-	{
-		fPath[length] = DIR_DELIMITER;
-		fPath[length+1] = 0;
-	}
+    // should we append the delimiter?
+    if (path[length-1] != DIR_DELIMITER) {
+        fPath[length] = DIR_DELIMITER;
+        fPath[length+1] = 0;
+    }
 }
 
 
 DirList::Entry::~Entry()
 {
-	delete [] fPath;
+    delete [] fPath;
 }
-
