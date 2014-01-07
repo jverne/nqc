@@ -129,8 +129,7 @@ RCXOBJ = rcxlib/RCX_Cmd.o rcxlib/RCX_Disasm.o rcxlib/RCX_Image.o \
 	$(USBOBJ)
 
 POBJ = platform/PStream.o platform/PSerial_unix.o \
-	platform/PHashTable.o platform/PListS.o \
-	platform/strlutil.o
+	platform/PHashTable.o platform/PListS.o
 
 COBJ = compiler/AsmStmt.o compiler/AssignStmt.o compiler/BlockStmt.o compiler/Bytecode.o \
 	compiler/Conditional.o compiler/CondParser.o compiler/DoStmt.o \

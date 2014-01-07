@@ -12,7 +12,7 @@
  *
  */
 #include <cstring>
-#include <strlutil.h>
+#include <string.h>
 
 #if defined(__MWERKS__) && (!__MACH__)
 #include <stat.h>
