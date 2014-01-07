@@ -349,7 +349,7 @@ RCX_Cmd* RCX_Cmd::MakeDownload(UShort seq, const UByte *data, UShort length)
     *ptr++ = LO_BYTE(length);
     *ptr++ = HI_BYTE(length);
 
-    while(length--) {
+    while (length--) {
         UByte b = *data++;
         checksum += b;
         *ptr++ = b;
