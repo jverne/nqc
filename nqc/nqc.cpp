@@ -110,9 +110,9 @@ private:
 
 
 #define kMaxFirmware 65536
-#define kOldIncludePathEnv  "NQCC_INCLUDE"
-#define kNewIncludePathEnv  "NQC_INCLUDE"
-#define kOptionsEnv         "NQC_OPTIONS"
+#define kOldIncludePathEnv "NQCC_INCLUDE"
+#define kNewIncludePathEnv "NQC_INCLUDE"
+#define kOptionsEnv "NQC_OPTIONS"
 #define kLowBattery 6600
 #define kLow45Battery 3300
 
@@ -158,14 +158,13 @@ static const char *sActionNames[] = {
 
 // these MUST be in the same order as the RCX_TargetType values
 static const char *sTargetNames[] = {
-    "rcx",
-    "cm",
-    "scout",
-    "rcx2",
-    "spy",
-    "swan"
+    "RCX",
+    "CM",
+    "Scout",
+    "RCX2",
+    "Spy",
+    "Swan"
 };
-
 
 struct Request {
     const char *fSourceFile;
@@ -213,7 +212,9 @@ static bool SameString(const char *s1, const char *s2);
 static void PrintVersion();
 
 AutoLink gLink;
-RCX_TargetType gTargetType = kRCX_RCXTarget;
+
+// I assume everyone is running 0328 or later.
+RCX_TargetType gTargetType = kRCX_RCX2Target;
 bool gVerbose = false;
 int gTimeout = 0;
 bool gQuiet = false;
@@ -338,10 +339,6 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
                 case 'x':
                     gLink.SetOmitHeader(true);
                     break;
-//              case 'p':
-//                  if  (*(a+2)=='\0') return kUsageError;
-//                      gLink.SetRCXProgramChunkSize(atoi(a+2));
-//                  break;
                 case 'f':
                     if  (*(a+2)=='\0') return kUsageError;
                         gLink.SetRCXFirmwareChunkSize(atoi(a+2));
@@ -355,6 +352,7 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
                     Compiler::Get()->Undefine(a+2);
                     break;
                 case 'd':
+                case 'u':
                     req.fDownload = true;
                     break;
                 case 'l':
@@ -491,7 +489,14 @@ void PrintApi(bool compatMode)
     delete b;
 }
 
-
+/**
+ * Set the target type of the brick for this action.
+ *
+ * @param name the case-insensitive name of the target brick as a string
+ * @return kRCX_OK if we successfully set the target type based on the name, kUsageError if not
+ * @see sTargetNames
+ * @see RCX_TargetType
+ */
 RCX_Result SetTarget(const char *name)
 {
     for (unsigned i=0; i < sizeof(sTargetNames) / sizeof(const char *); ++i) {
@@ -1081,15 +1086,22 @@ void PrintVersion()
 
 void PrintUsage()
 {
+    string s (sTargetNames[gTargetType]);
+    const char* targetName = s.c_str();
+
     PrintVersion();
     fprintf(stdout,"Usage: nqc [options] [actions] [ - | filename ] [actions]\n");
     fprintf(stdout,"   - : read from stdin instead of a source_file\n");
     fprintf(stdout,"Options:\n");
-    fprintf(stdout,"   -T<target>: target can be one of RCX, CM, Scout, RCX2, Spy, or Swan\n");
-    fprintf(stdout,"   -d: download program\n");
-    fprintf(stdout,"   -n: prevent the system file (rcx.nqh) from being included\n");
-    fprintf(stdout,"   -b: treat input file as a binary file (don't compile it)\n");
+    fprintf(stdout,"   -T<target>: target is one of:");
+    for (unsigned i=0; i < sizeof(sTargetNames) / sizeof(const char *); ++i) {
+        fprintf(stdout, " %s", sTargetNames[i]);
+    }
+    fprintf(stdout, " (target=%s)\n", targetName);
+    fprintf(stdout,"   -u: send program to \%s\n", targetName);
+    fprintf(stdout,"   -n: prevent the API header file from being included\n");
     fprintf(stdout,"   -D<sym>[=<value>] : define macro <sym>\n");
+    fprintf(stdout,"   -U<sym>: undefine macro <sym>\n");
     fprintf(stdout,"   -E[<filename>] : write compiler errors to <filename> (or stdout)\n");
     fprintf(stdout,"   -R<filename> : redirect text output (datalog, etc) to <filename>\n");
     fprintf(stdout,"   -I<path>: search <path> for include files\n");
@@ -1097,32 +1109,30 @@ void PrintUsage()
     fprintf(stdout,"   -s: include source code in listings if possible\n");
     fprintf(stdout,"   -c: generate LASM compatible listings\n");
     fprintf(stdout,"   -v: verbose\n");
-    fprintf(stdout,"   -q: quiet\n");
-    fprintf(stdout,"   -x: omit packet header (RCX only)\n");
+    fprintf(stdout,"   -q: quiet; suppress action sounds\n");
+    fprintf(stdout,"   -x: omit packet header (RCX, RCX2 targets only)\n");
     fprintf(stdout,"   -f<size>: set firmware chunk size in bytes\n");
-    fprintf(stdout,"   -w<ms>: set the download wait timeout in millis\n");
-//  fprintf(stdout,"   -p<size>: set program chunk size\n");
-//  fprintf(stdout,"   -X<factor>: set USB tower speed factor (<100=faster, >100=slower)\n");
+    fprintf(stdout,"   -w<ms>: set the download wait timeout in milliseconds\n");
     fprintf(stdout,"   -O<outfile>: specify output file\n");
-    fprintf(stdout,"   -S<portname>: specify serial port\n");
-    fprintf(stdout,"   -U<sym>: undefine macro <sym>\n");
+    fprintf(stdout,"   -S<portname>: specify tower serial port\n");
+    fprintf(stdout,"   -b: treat input file as a binary file (don't compile it)\n");
+    fprintf(stdout,"   -1: use NQC API 1.x compatibility mode\n");
     fprintf(stdout,"Actions:\n");
     fprintf(stdout,"   -run: run current program\n");
     fprintf(stdout,"   -pgm <number>: select program number\n");
-    fprintf(stdout,"   -datalog | -datalog_full: upload datalog\n");
-    fprintf(stdout,"   -near: set IR to near mode\n");
-    fprintf(stdout,"   -far: set IR to far mode\n");
-    fprintf(stdout,"   -watch <time> | now: set RCX time\n");
-    fprintf(stdout,"   -firmware <filename>: download firmware\n");
-    fprintf(stdout,"   -firmfast <filename>: download firmware at quad speed\n");
-    fprintf(stdout,"   -getversion: report current firmware version\n");
+    fprintf(stdout,"   -datalog | -datalog_full: fetch datalog from %s\n", targetName);
+    fprintf(stdout,"   -near | -far: set IR tower to near or far mode\n");
+    fprintf(stdout,"   -watch <hhmm> | now: set %s clock to <hhmm> or system time\n", targetName);
+    fprintf(stdout,"   -firmware <filename>: send firmware to %s\n", targetName);
+    fprintf(stdout,"   -firmfast <filename>: send firmware to %s at quad speed\n", targetName);
+    fprintf(stdout,"   -getversion: report %s firmware version\n", targetName);
     fprintf(stdout,"   -batterylevel: report battery level in volts\n");
-    fprintf(stdout,"   -sleep <timeout>: set RCX sleep timeout\n");
-    fprintf(stdout,"   -msg <number>: send IR message to RCX\n");
-    fprintf(stdout,"   -raw <data>: format data as a packet and send to RCX\n");
-    fprintf(stdout,"   -remote <value> <repeat>: send a remote command to the RCX\n");
-    fprintf(stdout,"   -clear: erase all programs and datalog in RCX\n");
-    fprintf(stdout,"   -api: dump the standard api file (e.g. rcx.nqh) to stdout\n");
+    fprintf(stdout,"   -sleep <timeout>: set %s sleep timeout in minutes\n", targetName);
+    fprintf(stdout,"   -msg <number>: send IR message to %s\n", targetName);
+    fprintf(stdout,"   -raw <data>: format data as a packet and send to %s\n", targetName);
+    fprintf(stdout,"   -remote <value> <repeat>: invoke a remote command on the %s\n", targetName);
+    fprintf(stdout,"   -clear: erase all programs and datalog on %s\n", targetName);
+    fprintf(stdout,"   -api: dump the standard API header file to stdout\n");
     fprintf(stdout,"   -help: display command line options\n");
 }
 

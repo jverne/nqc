@@ -18,43 +18,42 @@
 #include "RCX_Constants.h"
 #endif
 
-typedef enum
-{
-	kRCX_RCXTarget = 0,	// original RCX
-	kRCX_CMTarget,		// CyberMaster
-	kRCX_ScoutTarget,	// Scout
-	kRCX_RCX2Target,	// RCX 2.0
-	kRCX_SpyboticsTarget,	// Spybotics
-        kRCX_SwanTarget         // Dick Swan's alternate firmware
+typedef enum {
+    kRCX_RCXTarget = 0,     // Original RCX
+    kRCX_CMTarget,          // CyberMaster
+    kRCX_ScoutTarget,       // Scout
+    kRCX_RCX2Target,        // RCX 2.0
+    kRCX_SpyboticsTarget,   // Spybotics
+    kRCX_SwanTarget         // Dick Swan's alternate firmware
 } RCX_TargetType;
 
 
 class RCX_Target
 {
 public:
-	struct Range {
-		int	fBase;
-		int	fCount;
-	};
+    struct Range {
+        int fBase;
+        int fCount;
+    };
 
-	RCX_TargetType	fType;
-	const char*	fName;
-	const char*	fDefine;
-	const char*	fDefValue;
+    RCX_TargetType fType;
+    const char* fName;
+    const char* fDefine;
+    const char* fDefValue;
 
-	Range		fRanges[kRCX_ChunkTypeCount];
+    Range fRanges[kRCX_ChunkTypeCount];
 
-	int		fMaxGlobalVars;
-	int		fMaxTaskVars;
-	bool		fResources;
-	bool		fEvents;
-	bool		fArrays;
-        bool		fRestrictedMath;
-        bool		fSubParams;
-        bool		fHasExtendedMathOps;
+    int fMaxGlobalVars;
+    int fMaxTaskVars;
+    bool fResources;
+    bool fEvents;
+    bool fArrays;
+    bool fRestrictedMath;
+    bool fSubParams;
+    bool fHasExtendedMathOps;
 
-	bool		SourceWritable(int source) const;
-	int		GetChunkLimit(RCX_ChunkType type) const;
+    bool SourceWritable(int source) const;
+    int GetChunkLimit(RCX_ChunkType type) const;
 };
 
 
