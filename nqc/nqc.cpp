@@ -20,6 +20,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <ctime>
+#include <cerrno>
 
 #include "Program.h"
 #include "RCX_Image.h"
@@ -55,7 +56,6 @@ using std::tm;
 //#define TEST_LEXER    2   // test lexer and pre-processor
 
 
-
 #ifdef CHECK_LEAKS
 #include <DebugNew.h>
 #endif
@@ -79,17 +79,17 @@ public:
     AutoLink() : fSerialPort(0), fOpen(false) {}
     ~AutoLink() { Close(); }
 
-    RCX_Result  Open();
-    void        Close();
-    RCX_Result  Send(const RCX_Cmd *cmd, bool retry=true);
+    RCX_Result Open();
+    void Close();
+    RCX_Result Send(const RCX_Cmd *cmd, bool retry=true);
 
-    void        SetSerialPort(const char *sp)   { fSerialPort = sp; }
+    void SetSerialPort(const char *sp)   { fSerialPort = sp; }
 
-    bool        DownloadProgress(int soFar, int total);
+    bool DownloadProgress(int soFar, int total);
 
 private:
     const char* fSerialPort;
-    bool        fOpen;
+    bool fOpen;
 };
 
 
@@ -97,29 +97,27 @@ private:
 class MyCompiler : public Compiler, public ErrorHandler
 {
 public:
-    MyCompiler()     {}
+    MyCompiler() {}
 
     Buffer *CreateBuffer(const char *name);
 
-    void    AddError(const Error &e, const LexLocation *loc);
-    void    AddDir(const char *dirspec) { fDirs.Add(dirspec); }
+    void AddError(const Error &e, const LexLocation *loc);
+    void AddDir(const char *dirspec) { fDirs.Add(dirspec); }
 
 private:
     DirList fDirs;
 } gMyCompiler;
 
 
-
 #define kMaxFirmware 65536
 #define kOldIncludePathEnv  "NQCC_INCLUDE"
 #define kNewIncludePathEnv  "NQC_INCLUDE"
 #define kOptionsEnv         "NQC_OPTIONS"
-#define kLowBattery     6600
-#define kLow45Battery   3300
+#define kLowBattery 6600
+#define kLow45Battery 3300
 
 #define kRCXFileExtension ".rcx"
 #define kNQCFileExtension ".nqc"
-
 
 
 // error codes in addition to RCX_Result codes
@@ -127,8 +125,7 @@ private:
 #define kQuietError (kRCX_LastError - 2)
 
 // codes for the actions
-enum
-{
+enum {
     kFirstActionCode = 256,
     kDatalogCode = kFirstActionCode,
     kDatalogFullCode,
@@ -160,8 +157,7 @@ static const char *sActionNames[] = {
 };
 
 // these MUST be in the same order as the RCX_TargetType values
-static const char *sTargetNames[] =
-{
+static const char *sTargetNames[] = {
     "rcx",
     "cm",
     "scout",
@@ -171,16 +167,15 @@ static const char *sTargetNames[] =
 };
 
 
-struct Request
-{
+struct Request {
     const char *fSourceFile;
     const char *fOutputFile;
     const char *fListFile;
-    bool    fListing;
-    bool    fSourceListing;
-    bool    fDownload;
-    bool    fBinary;
-        bool    fGenLASM;
+    bool fListing;
+    bool fSourceListing;
+    bool fDownload;
+    bool fBinary;
+    bool fGenLASM;
     int fFlags;
 };
 
@@ -327,7 +322,7 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
                     break;
                 case 'c':
                     req.fGenLASM = true;
-                                        break;
+                    break;
                 case 'O':
                     if  (*(a+2)=='\0') return kUsageError;
                     req.fOutputFile = a+2;
@@ -452,11 +447,9 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
                         result = SendRemote(event, repeat);
                     }
                     break;
-
                 case kApiCode:
                     PrintApi(req.fFlags & Compiler::kCompat_Flag);
                     break;
-
                 case kHelpCode:
                     PrintUsage();
                     break;
@@ -501,34 +494,13 @@ void PrintApi(bool compatMode)
 
 RCX_Result SetTarget(const char *name)
 {
-    for (unsigned int i=0; i < sizeof(sTargetNames) / sizeof(const char *); ++i) {
+    for (unsigned i=0; i < sizeof(sTargetNames) / sizeof(const char *); ++i) {
         if (SameString(name, sTargetNames[i])) {
             gTargetType = (RCX_TargetType)i;
             return kRCX_OK;
         }
     }
-
-    fprintf(STDERR, "Warning: use of abbreviated target names has been deprecated\n");
-
-    switch(name[0])
-    {
-        case 'r':
-        case 'R':
-            gTargetType = kRCX_RCXTarget;
-            break;
-        case 'c':
-        case 'C':
-            gTargetType = kRCX_CMTarget;
-            break;
-        case 's':
-        case 'S':
-            gTargetType = kRCX_ScoutTarget;
-            break;
-        default:
-            return kUsageError;
-    }
-
-    return kRCX_OK;
+    return kUsageError;
 }
 
 
@@ -538,8 +510,7 @@ RCX_Result SetWatch(const char *timeSpec)
     int minute;
     RCX_Cmd cmd;
 
-    if (strcmp(timeSpec, "now")==0)
-    {
+    if (strcmp(timeSpec, "now")==0) {
         time_t t;
         struct tm *tmp;
 
@@ -548,8 +519,7 @@ RCX_Result SetWatch(const char *timeSpec)
         hour = tmp->tm_hour;
         minute = tmp->tm_min;
     }
-    else
-    {
+    else {
         int t = atoi(timeSpec);
         hour = t / 100;
         minute = t % 100;
@@ -566,26 +536,21 @@ RCX_Result ProcessFile(const char *sourceFile, const Request &req)
     bool ok = true;
     bool compiled = false;
 
-    if (sourceFile && (req.fBinary || CheckExtension(sourceFile, kRCXFileExtension)))
-    {
+    if (sourceFile && (req.fBinary || CheckExtension(sourceFile, kRCXFileExtension))) {
         // load RCX image file
         image = new RCX_Image();
         result = image->Read(sourceFile);
-        if (RCX_ERROR(result))
-        {
+        if (RCX_ERROR(result)) {
             PrintError(result, sourceFile);
             delete image;
             return kQuietError;
         }
-    }
-    else
-    {
+    } else {
         // compile file
         compiled = true;
         image = Compile(sourceFile, req.fFlags);
 
-        if (!image)
-        {
+        if (!image) {
             int errors = ErrorHandler::Get()->GetErrorCount();
 
             if (errors)
@@ -596,14 +561,17 @@ RCX_Result ProcessFile(const char *sourceFile, const Request &req)
         const char *outputFile = req.fOutputFile;
         char *newFilename = 0;
 
-        if (!req.fDownload && !req.fListing && !req.fOutputFile && sourceFile)
-            outputFile = newFilename = CreateFilename(LeafName(sourceFile), kNQCFileExtension, kRCXFileExtension);
+        if (!req.fDownload && !req.fListing && !req.fOutputFile && sourceFile) {
+            outputFile =
+            newFilename = 
+                CreateFilename(LeafName(sourceFile),
+                    kNQCFileExtension, kRCXFileExtension);
+        }
 
-        if (outputFile)
-        {
-            if (!image->Write(outputFile))
-            {
-                fprintf(gErrorStream, "Error: could not create output file \"%s\"\n", outputFile);
+        if (outputFile) {
+            errno = 0;
+            if (!image->Write(outputFile)) {
+                fprintf(gErrorStream, "Error: could not create output file \"%s\" (%d)\n", outputFile, errno);
                 ok = false;
             }
         }
@@ -613,8 +581,7 @@ RCX_Result ProcessFile(const char *sourceFile, const Request &req)
     }
 
     // generate the listing
-    if (req.fListing)
-    {
+    if (req.fListing) {
         if (!GenerateListing(image, req.fListFile, compiled && req.fSourceListing, req.fGenLASM))
             ok = false;
     }
@@ -624,8 +591,7 @@ RCX_Result ProcessFile(const char *sourceFile, const Request &req)
     if (compiled)
         Compiler::Get()->Reset();
 
-    if (req.fDownload)
-    {
+    if (req.fDownload) {
         result = Download(image);
     }
 
@@ -641,21 +607,19 @@ RCX_Result ProcessFile(const char *sourceFile, const Request &req)
 }
 
 
-bool GenerateListing(RCX_Image *image, const char *filename, bool includeSource, bool generateLASM)
+bool GenerateListing(RCX_Image *image, const char *fileName, bool includeSource, bool generateLASM)
 {
     FILE *fp;
 
-    if (filename)
-    {
-        fp = fopen(filename, "w");
-        if (!fp)
-        {
-            fprintf(STDERR, "Error: could not generate listing to file %s\n", filename);
+    if (fileName) {
+        fp = fopen(fileName, "w");
+        if (!fp) {
+            fprintf(STDERR, "Error: could not open file \"%s\" (%d)\n", fileName, errno);
             return false;
         }
-    }
-    else
+    } else {
         fp = stdout;
+    }
 
     RCX_StdioPrinter dst(fp);
     image->Print(&dst, includeSource ? Compiler::Get() : 0, generateLASM);
@@ -693,19 +657,21 @@ RCX_Result Download(RCX_Image *image)
     RCX_Result result;
     RCX_Cmd cmd;
 
-    fprintf(STDERR, "Downloading Program: ");
+    fprintf(STDERR, "Downloading program:");
+
     result = gLink.Open();
     if (result != kRCX_OK) goto ErrorReturn;
 
     result = image->Download(&gLink);
+    fputc('\n', STDERR);
     if (result != kRCX_OK) goto ErrorReturn;
 
-    fprintf(STDERR, " Complete\n");
+    fprintf(STDERR, "Ok\n");
 
     return kRCX_OK;
 
 ErrorReturn:
-    fprintf(STDERR, "Error: Download failed.\n");
+    fprintf(STDERR, "Error: firmware download failed (%d)\n", result);
     return result;
 }
 
@@ -714,12 +680,10 @@ RCX_Image *Compile(const char *sourceFile, int flags)
 {
     Buffer *mainBuf;
 
-    if (sourceFile)
-    {
+    if (sourceFile) {
         FILE *fp  = fopen(sourceFile, "rb");
-        if (!fp)
-        {
-            fprintf(gErrorStream, "Error: could not open file \"%s\"\n", sourceFile);
+        if (!fp) {
+            fprintf(gErrorStream, "Error: could not open file \"%s\" (%d)\n", sourceFile, errno);
             return nil;
         }
 
@@ -727,8 +691,7 @@ RCX_Image *Compile(const char *sourceFile, int flags)
         mainBuf->Create(sourceFile, fp);
         fclose(fp);
     }
-    else
-    {
+    else {
         mainBuf = new Buffer();
         mainBuf->Create("<stdin>", stdin);
     }
@@ -741,11 +704,10 @@ RCX_Image *Compile(const char *sourceFile, int flags)
     LexLocation loc;
 
 #if TEST_LEXER > 1
-    while((t=gPreProc->Get(v)) != 0)
+    while((t=gPreProc->Get(v)) != 0) {
 #else
-    while((t=yylex(v)) != 0)
+    while((t=yylex(v)) != 0) {
 #endif
-    {
         LexCurrentLocation(loc);
         printf("%3d (%2d) : ", loc.fOffset, loc.fLength);
         PrintToken(t, v);
@@ -778,10 +740,9 @@ RCX_Result UploadDatalog(bool verbose)
     result = log.Upload(&gLink);
     if (RCX_ERROR(result)) return result;
 
-    fprintf(STDERR, "\n");
+    fputc('\n', STDERR);
 
-    for(i=0; i<log.GetLength(); i++)
-    {
+    for (i=0; i<log.GetLength(); i++) {
         char line[256];
         log.SPrintEntry(line, i, verbose);
         printf("%s\n", line);
@@ -800,8 +761,7 @@ RCX_Result ClearMemory()
     result = gLink.Send(cmd.Set(kRCX_StopAllOp));
     if (RCX_ERROR(result)) return result;
 
-    for(UByte p=0; p<5; p++)
-    {
+    for (UByte p=0; p<5; p++) {
         // select and delete program
         result = gLink.Send(cmd.Set(kRCX_SelectProgramOp, p));
         if (RCX_ERROR(result)) return result;
@@ -841,8 +801,7 @@ RCX_Result DownloadFirmware(const char *filename, bool fast)
     RCX_Result result;
 
     fp = fopen(filename, "rb");
-    if (!fp)
-    {
+    if (!fp) {
         fprintf(STDERR, "Error: could not open file \'%s\'\n", filename);
         return kQuietError;
     }
@@ -850,26 +809,25 @@ RCX_Result DownloadFirmware(const char *filename, bool fast)
     ok = srec.Read(fp, kMaxFirmware);
     fclose(fp);
 
-    if (!ok)
-    {
+    if (!ok) {
         fprintf(STDERR, "Error: \'%s\' is not a valid S-Record file\n", filename);
         return kQuietError;
     }
 
-    result = gLink.Open();
-    if (RCX_ERROR(result)) return result;
+    fprintf(STDERR, "Downloading firmware:");
 
-    fprintf(STDERR, "Downloading firmware: ");
-    fflush(STDERR);
+    result = gLink.Open();
+    if (RCX_ERROR(result)) goto ErrorReturn;
+
     result = gLink.DownloadFirmware(srec.GetData(), srec.GetLength(), srec.GetStart(), fast);
     fputc('\n', STDERR);
+    if (RCX_ERROR(result)) goto ErrorReturn;
 
-    if (RCX_ERROR(result)) {
-        fprintf(STDERR, "Error: download failed\n");
-    } else {
-        fprintf(STDERR, "Success\n");
-    }
+    fprintf(STDERR, "Ok\n");
+    return kRCX_OK;
 
+ErrorReturn:
+    fprintf(STDERR, "Error: firmware download failed (%d)\n", result);
     return result;
 }
 
@@ -887,8 +845,7 @@ RCX_Result SendRawCommand(const char *text, bool retry)
     length /= 2;
     cmd.SetLength(length);
 
-    for(int i=0; i<length; i++)
-    {
+    for (int i=0; i<length; i++) {
         int byte = SRecord::ReadHexByte(text);
         if (byte == -1) return kUsageError;
         cmd[i] = (UByte) byte;
@@ -897,9 +854,8 @@ RCX_Result SendRawCommand(const char *text, bool retry)
 
     result = gLink.Send(&cmd, retry);
 
-    if (result > 0)
-    {
-        for(int i=0; i<result; i++)
+    if (result > 0) {
+        for (int i=0; i<result; i++)
             printf("%02x ", gLink.GetReplyByte(i));
         printf("\n");
     }
@@ -925,8 +881,7 @@ RCX_Result SendRemote(const char *event, int repeat)
 
     cmd.Set(kRCX_Remote, low, high);
 
-    while(repeat--)
-    {
+    while(repeat--) {
         gLink.Send(&cmd, false);
     }
 
@@ -959,8 +914,11 @@ int CheckExtension(const char *s1, const char *ext)
 
     if (slen < plen) return 0;
 
-    for(i=0; i<plen; i++)
-        if (tolower(s1[slen-plen+i]) != tolower(ext[i])) return 0;
+    for (i=0; i<plen; i++) {
+        if (tolower(s1[slen-plen+i]) != tolower(ext[i])) {
+            return 0;
+        }
+    }
 
     return 1;
 }
@@ -974,16 +932,13 @@ const char *LeafName(const char *filename)
     ptr = filename + strlen(filename) - 1;
 
     // test each character (including first one)
-    while(ptr >= filename)
-    {
+    while(ptr >= filename) {
         // check for delimiter
         if (*ptr == DIR_DELIMITER) break;
-
 #ifdef WIN32
         // extra check for ':' in paths for Windows
         if (*ptr == ':') break;
 #endif
-
         --ptr;
     }
 
@@ -997,15 +952,13 @@ RCX_Result SetErrorFile(const char *filename)
 {
     FILE *fp;
 
-    if (*filename==0)
-    {
+    if (*filename==0) {
         gErrorStream = stdout;
         return kRCX_OK;
     }
 
     fp = fopen(filename, "w");
-    if (!fp)
-    {
+    if (!fp) {
         fprintf(STDERR, "Error: could not open error file \'%s\'\n", filename);
         return kQuietError;
     }
@@ -1017,14 +970,12 @@ RCX_Result SetErrorFile(const char *filename)
 
 RCX_Result RedirectOutput(const char *filename)
 {
-    if (*filename==0)
-    {
+    if (*filename==0) {
         fprintf(STDERR, "Error: -R requires a filename\n");
         return kQuietError;
     }
 
-    if (!freopen(filename, "w", stdout))
-    {
+    if (!freopen(filename, "w", stdout)) {
         fprintf(STDERR, "Error: could not open output file \'%s\'\n", filename);
         return kQuietError;
     }
@@ -1037,8 +988,7 @@ void DefineMacro(const char *text)
 {
     const char *body;
     body = strchr(text, '=');
-    if (body)
-    {
+    if (body) {
         // create a copy of the symbol name
         int length = body - text;
         char *name = new char[length+1];
@@ -1049,8 +999,7 @@ void DefineMacro(const char *text)
 
         delete [] name;
     }
-    else
-    {
+    else {
         Compiler::Get()->Define(text);
     }
 }
@@ -1058,7 +1007,7 @@ void DefineMacro(const char *text)
 
 int GetActionCode(const char *arg)
 {
-    for(int i=0; i< (int)(sizeof(sActionNames)/sizeof(const char *)); ++i)
+    for (int i=0; i< (int)(sizeof(sActionNames)/sizeof(const char *)); ++i)
         if (strcmp(sActionNames[i], arg)==0) return i+kFirstActionCode;
 
     return 0;
@@ -1072,8 +1021,7 @@ void PrintError(RCX_Result error, const char *filename)
 
     if (error >= 0) return;
 
-    switch(error)
-    {
+    switch(error) {
         case kRCX_RequestError:
             fprintf(STDERR, "Request error\n");
             break;
@@ -1137,7 +1085,7 @@ void PrintUsage()
     fprintf(stdout,"Usage: nqc [options] [actions] [ - | filename ] [actions]\n");
     fprintf(stdout,"   - : read from stdin instead of a source_file\n");
     fprintf(stdout,"Options:\n");
-    fprintf(stdout,"   -T<target>: target can be RCX, CM, Scout, RCX2, Spy, or Swan\n");
+    fprintf(stdout,"   -T<target>: target can be one of RCX, CM, Scout, RCX2, Spy, or Swan\n");
     fprintf(stdout,"   -d: download program\n");
     fprintf(stdout,"   -n: prevent the system file (rcx.nqh) from being included\n");
     fprintf(stdout,"   -b: treat input file as a binary file (don't compile it)\n");
@@ -1183,8 +1131,7 @@ RCX_Result AutoLink::Open()
 {
     RCX_Result result;
 
-    if (!fOpen)
-    {
+    if (!fOpen) {
         ULong options = gTimeout & RCX_Link::kRxTimeoutMask;
         if (gVerbose) options |= RCX_Link::kVerboseMode;
 
@@ -1199,8 +1146,7 @@ RCX_Result AutoLink::Open()
 
 void AutoLink::Close()
 {
-    if (fOpen)
-    {
+    if (fOpen) {
         RCX_Link::Close();
         fOpen = false;
     }
@@ -1214,8 +1160,7 @@ RCX_Result AutoLink::Send(const RCX_Cmd *cmd, bool retry)
     result = Open();
     if (RCX_ERROR(result)) return result;
 
-    if (retry)
-    {
+    if (retry) {
         result = Sync();
         if (RCX_ERROR(result)) return result;
     }
@@ -1234,7 +1179,6 @@ bool AutoLink::DownloadProgress(int /* soFar */, int /* total */)
 }
 
 
-
 void MyCompiler::AddError(const Error &e, const LexLocation *loc)
 {
     // check the error count
@@ -1242,8 +1186,7 @@ void MyCompiler::AddError(const Error &e, const LexLocation *loc)
     {
         int errorCount = ErrorHandler::Get()->GetErrorCount();
         // only print the first few errors
-        if (errorCount > kMaxPrintedErrors)
-        {
+        if (errorCount > kMaxPrintedErrors) {
             if (errorCount == kMaxPrintedErrors+1)
                 fprintf(gErrorStream, "Too many errors - only first %d reported\n", kMaxPrintedErrors);
             return;
@@ -1256,8 +1199,7 @@ void MyCompiler::AddError(const Error &e, const LexLocation *loc)
     const char *errorType = e.IsWarning() ? "Warning" : "Error";
     fprintf(gErrorStream, "# %s: %s\n", errorType, msg);
 
-    if (loc && loc->fIndex!=kIllegalSrcIndex)
-    {
+    if (loc && loc->fIndex!=kIllegalSrcIndex) {
         Buffer *b = Compiler::Get()->GetBuffer(loc->fIndex);
         int lineStart = loc->fOffset;
         int line = b->FindLine(lineStart);
@@ -1269,16 +1211,15 @@ void MyCompiler::AddError(const Error &e, const LexLocation *loc)
 
         // print the code line
         fprintf(gErrorStream, "# ");
-        for(ptr=b->GetData() + lineStart; *ptr != '\n'; ++ptr)
-        {
+        for (ptr=b->GetData() + lineStart; *ptr != '\n'; ++ptr) {
             putc((*ptr == '\t') ? ' ' : *ptr, gErrorStream);
         }
 
         // mark the token
         fprintf(gErrorStream,"\n# ");
-        for(i=0; i<(loc->fOffset-lineStart); i++)
+        for (i=0; i<(loc->fOffset-lineStart); i++)
             putc(' ', gErrorStream);
-        for(i=0; i<loc->fLength; i++)
+        for (i=0; i<loc->fLength; i++)
             putc('^', gErrorStream);
         fprintf(gErrorStream,"\n");
     }
@@ -1299,10 +1240,10 @@ Buffer *MyCompiler::CreateBuffer(const char *name)
 
     Buffer *buf = new Buffer();
 
-    if (buf->Create(name, pathname))
+    if (buf->Create(name, pathname)) {
         return buf;
-    else
-    {
+    }
+    else {
         delete buf;
         return 0;
     }
@@ -1313,25 +1254,27 @@ Buffer *MyCompiler::CreateBuffer(const char *name)
 void PrintToken(int t, TokenVal v)
 {
     printf("%3d / ", t);
-    if (t < 256)
+    if (t < 256) {
         printf("%c", t);
-    else switch(t)
-    {
-        case ID:
-            printf("%s",v.fSymbol->GetKey());
-            break;
-        case NUMBER:
-            printf("%d", v.fInt);
-            break;
-        case IF:
-            printf("if");
-            break;
-        case STRING:
-            printf("%s", v.fString);
-            break;
-        default:
-            printf("0x%08x", v.fInt);
-            break;
+    }
+    else {
+        switch(t) {
+            case ID:
+                printf("%s",v.fSymbol->GetKey());
+                break;
+            case NUMBER:
+                printf("%d", v.fInt);
+                break;
+            case IF:
+                printf("if");
+                break;
+            case STRING:
+                printf("%s", v.fString);
+                break;
+            default:
+                printf("0x%08x", v.fInt);
+                break;
+        }
     }
 
     printf("\n");
@@ -1343,8 +1286,7 @@ bool SameString(const char *s1, const char *s2)
 {
     char c1, c2;
 
-    while(true)
-    {
+    while(true) {
         c1 = *s1++;
         c2 = *s2++;
 

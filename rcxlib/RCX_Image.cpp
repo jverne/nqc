@@ -330,8 +330,7 @@ bool RCX_Image::Write(const char *filename)
         putc(0, fp);
 
         // write fragments
-        for(int i=0; i<(int)fChunks.size(); i++)
-        {
+        for (int i=0; i<(int)fChunks.size(); i++) {
                 f = fChunks[i];
                 putc(f->fType, fp);	// this assumes that internal fragment types match the file format
                 putc(f->fNumber, fp);
@@ -344,15 +343,13 @@ bool RCX_Image::Write(const char *filename)
         }
 
         // write code symbols
-        for(int i=0; i<(int)fChunks.size(); i++)
-        {
+        for (int i=0; i<(int)fChunks.size(); i++) {
                 f = fChunks[i];
                 WriteSymbol(f->fType, f->fNumber, f->fName.c_str(), fp); // this assumes that internal fragment types match the file format
         }
 
         // write var symbols
-        for(size_t i=0; i<fVars.size(); i++)
-        {
+        for (size_t i=0; i<fVars.size(); i++) {
                 WriteSymbol(kRCXI_VarSymbol, fVars[i].fIndex, fVars[i].fName.c_str(), fp);
         }
 
@@ -366,7 +363,7 @@ int RCX_Image::GetSize() const
         int size = 0;
         int i;
 
-        for(i=0; i<(int)fChunks.size(); ++i)
+        for (i=0; i<(int)fChunks.size(); ++i)
                 size += fChunks[i]->fLength;
 
         return size;
