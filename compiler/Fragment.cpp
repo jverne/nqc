@@ -33,15 +33,15 @@
 
 Fragment::Fragment(bool isTask, Symbol *name, Stmt *body)
 {
-	fIsTask = isTask;
-	fName = name;
-	fBody = body;
+    fIsTask = isTask;
+    fName = name;
+    fBody = body;
 
-	fNumber = gProgram->AddFragment(this);
-	fTaskID = isTask ? fNumber : kNoTaskID;
+    fNumber = gProgram->AddFragment(this);
+    fTaskID = isTask ? fNumber : kNoTaskID;
 
-	fStart.fIndex = kIllegalSrcIndex;
-	fEnd.fIndex = kIllegalSrcIndex;
+    fStart.fIndex = kIllegalSrcIndex;
+    fEnd.fIndex = kIllegalSrcIndex;
 }
 
 Fragment::Fragment(bool isTask) : fName(0), fBody(0)
@@ -55,7 +55,7 @@ Fragment::Fragment(bool isTask) : fName(0), fBody(0)
 
 Fragment::~Fragment()
 {
-	delete fBody;
+    delete fBody;
 }
 
 
@@ -76,9 +76,10 @@ bool Fragment::AddArg(const Symbol *name, FunctionDef::ArgType type)
 {
         Arg a;
 
-        for(size_t i=0; i<fArgs.size(); i++)
-        {
-                if (fArgs[i].fName == name) return false;
+        for(size_t i=0; i<fArgs.size(); i++) {
+                if (fArgs[i].fName == name) {
+                    return false;
+                }
         }
 
         a.fName = name;
@@ -90,89 +91,88 @@ bool Fragment::AddArg(const Symbol *name, FunctionDef::ArgType type)
 
 void Fragment::CreateArgVars()
 {
-        // if a fragment has arguments then it must be
-        // a target which supports the stack so
-        // get the variable off the stack
-        for(size_t i=0; i<fArgs.size(); i++)
-        {
-                int var;
+    // if a fragment has arguments then it must be
+    // a target which supports the stack so
+    // get the variable off the stack
+    for(size_t i=0; i<fArgs.size(); i++) {
+        int var;
 
-                var = gProgram->NextVirtualVar();
+         var = gProgram->NextVirtualVar();
 
-                switch(fArgs[i].fType)
-                {
-                        case FunctionDef::kConstantArg:
-                                var |= kVirtualConstantFlag | kVirtualReadOnlyFlag;
-                                break;
-                        case FunctionDef::kConstRefArg:
-                        case FunctionDef::kSensorArg:
-                                var |= kVirtualReadOnlyFlag;
-                                break;
-                        case FunctionDef::kPointerArg:
-                                var |= kPointerFlag;
-                                break;
-                        case FunctionDef::kConstPtrArg:
-                                var |= kVirtualReadOnlyFlag | kPointerFlag;
-                                break;
-                        default:
-                                break;
-                }
-
-                fArgs[i].fVar = var;
-                gProgram->DefineVar(fArgs[i].fName, var, false,
-                  ((fArgs[i].fType == FunctionDef::kPointerArg) ||
-                   (fArgs[i].fType == FunctionDef::kConstPtrArg)),
-                  true);
+        switch(fArgs[i].fType) {
+            case FunctionDef::kConstantArg:
+                var |= kVirtualConstantFlag | kVirtualReadOnlyFlag;
+                break;
+            case FunctionDef::kConstRefArg:
+            case FunctionDef::kSensorArg:
+                var |= kVirtualReadOnlyFlag;
+                break;
+            case FunctionDef::kPointerArg:
+                var |= kPointerFlag;
+                break;
+            case FunctionDef::kConstPtrArg:
+                var |= kVirtualReadOnlyFlag | kPointerFlag;
+                break;
+            default:
+                break;
         }
+
+        fArgs[i].fVar = var;
+        gProgram->DefineVar(fArgs[i].fName, var, false,
+            ((fArgs[i].fType == FunctionDef::kPointerArg) ||
+                (fArgs[i].fType == FunctionDef::kConstPtrArg)),
+                    true);
+    }
 }
+
 
 void Fragment::SetLocations(LocationNode *start, LocationNode *end)
 {
-	fStart = start->GetLoc();
-	delete start;
+    fStart = start->GetLoc();
+    delete start;
 
-	fEnd = end->GetLoc();
-	delete end;
+    fEnd = end->GetLoc();
+    delete end;
 }
 
 
 void Fragment::AssignTaskID(int n)
 {
-	if (n == fTaskID) return;
+    if (n == fTaskID) return;
 
-	if (fTaskID == kNoTaskID)
-		fTaskID = n;
-	else
-		fTaskID = kMultiTaskID;
+    if (fTaskID == kNoTaskID)
+        fTaskID = n;
+    else
+        fTaskID = kMultiTaskID;
 }
 
 
 void Fragment::Emit(Bytecode &b)
 {
-	b.AddSourceTag(RCX_SourceTag::kBegin, fStart);
+    b.AddSourceTag(RCX_SourceTag::kBegin, fStart);
 
-	// bind TaskIdExprs to the actual task id
-	// this must be done in Emit() rather than
-	// Check() since subroutine trace isn't
-	// complete until all fragments are checked
-	TaskIdExpr::Patcher p(fTaskID);
-	Apply(fBody, p);
+    // bind TaskIdExprs to the actual task id
+    // this must be done in Emit() rather than
+    // Check() since subroutine trace isn't
+    // complete until all fragments are checked
+    TaskIdExpr::Patcher p(fTaskID);
+    Apply(fBody, p);
 
 
-	// resolve gotos - must be done in Emit() rather than
-	// Check() since bytecode labels need to be generated
-	GotoStmt::ResolveGotos(fBody, b);
+    // resolve gotos - must be done in Emit() rather than
+    // Check() since bytecode labels need to be generated
+    GotoStmt::ResolveGotos(fBody, b);
 
-	int rLabel = b.PushFlow(Bytecode::kReturnFlow);
+    int rLabel = b.PushFlow(Bytecode::kReturnFlow);
 
-	fBody->Emit(b);
+    fBody->Emit(b);
 
-	b.SetLabel(rLabel);
-	b.PopFlow(Bytecode::kReturnFlow);
+    b.SetLabel(rLabel);
+    b.PopFlow(Bytecode::kReturnFlow);
 
-	b.ApplyFixups();
+    b.ApplyFixups();
 
-	b.AddSourceTag(RCX_SourceTag::kEnd, fEnd);
+    b.AddSourceTag(RCX_SourceTag::kEnd, fEnd);
 }
 
 
@@ -183,49 +183,46 @@ using std::printf;
 class ParentChecker
 {
 public:
-	bool operator()(Stmt *s);
+    bool operator()(Stmt *s);
 };
 
+// Just eat the warnings about format specifiers in DEBUG mode.
+#pragma GCC diagnostic ignored "-Wformat"
 bool ParentChecker::operator()(Stmt *s)
 {
-	Stmt *c;
-	for(c=s->GetChildren(); c; c=c->GetNext())
-	{
-		if (c->GetParent() != s)
-		{
-			printf("%s  %08x\n", typeid(*s).name(), (unsigned)s);
-			printf("Parent mistmatch: Found %08x expected %08x\n", (unsigned)c->GetParent(), (unsigned)s);
-		}
-	}
+    Stmt *c;
+    for(c=s->GetChildren(); c; c=c->GetNext()) {
+        if (c->GetParent() != s) {
+            printf("%s  %08x\n", typeid(*s).name(), s);
+            printf("Parent mistmatch: Found %08x expected %08x\n",
+                c->GetParent(), s);
+        }
+    }
 
-	return true;
+    return true;
 }
 #endif
-
-
 
 
 void Fragment::Check()
 {
 #ifdef DEBUG_DUMP_FRAGMENT
-	DumpStmt(fBody);
+    DumpStmt(fBody);
 #endif
 
-	CallStmt::Expander e(this);
-	Apply(fBody, e);
+    CallStmt::Expander e(this);
+    Apply(fBody, e);
 
-	DeclareStmt::Binder b(0);
-	Apply(fBody, b);
+    DeclareStmt::Binder b(0);
+    Apply(fBody, b);
 
 
 #ifdef DEBUG
-	ParentChecker p;
-	Apply(fBody, p);
+    ParentChecker p;
+    Apply(fBody, p);
 #endif
 
 #ifdef DEBUG_DUMP_FRAGMENT
-	DumpStmt(fBody);
+    DumpStmt(fBody);
 #endif
 }
-
-
