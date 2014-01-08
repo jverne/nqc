@@ -72,7 +72,6 @@ ifneq (,$(strip $(findstring $(OSTYPE), Darwin)))
   # Mac OSX
   LIBS += -framework IOKit -framework CoreFoundation
   USBOBJ = rcxlib/RCX_USBTowerPipe_osx.o
-  DEFAULT_SERIAL_NAME = "usb"
   # May as well use the default Clang on OS X
   CXX = c++
   CFLAGS += -O3 -std=c++11
