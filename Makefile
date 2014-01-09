@@ -26,7 +26,7 @@
 # Pick your C++ compiler.
 #
 CXX ?= ${CXX}
-# CXX ?= gcc
+# CXX ?= g++
 
 #
 # Pick your YACC processor
@@ -36,127 +36,132 @@ YACC ?= bison -y
 
 #
 # Define the FLEX processor
-#    note - lex will not work
+# NOTE: lex will not work
 #
 FLEX ?= flex
 
+#
 # Link in any necessary C++ libraries
 #
 LIBS ?= -lstdc++
 
 # installation information
-PREFIX?=/usr/local
-BINDIR?=${PREFIX}/bin
-MANDIR?=${PREFIX}/man/man1
-MANEXT?=1
+PREFIX ?= /usr/local
+BINDIR ?= ${PREFIX}/bin
+MANDIR ?= ${PREFIX}/man/man1
+MANEXT ?= 1
 
 # other commands
-CP?=cp -f
-MKDIR?=mkdir
-MV?=mv -f
-RM?=rm -f
-DOXYGEN=doxygen
+CP ?= cp -f
+MKDIR ?= mkdir
+MV ?= mv -f
+RM ?= rm -f
+DOXYGEN ?= doxygen
 
-# Compiler flags
-#CFLAGS = -pipe -Iplatform -Ircxlib -Inqc -Icompiler -Wall -Wstrict-prototypes -Wmissing-prototypes
-CFLAGS += -Iplatform -Ircxlib -Inqc -Icompiler -Wall
+# Common local include directories
+INCLUDE_DIRS = platform rcxlib nqc compiler
+INCLUDES = $(addprefix -I, $(INCLUDE_DIRS))
 
-USBOBJ = rcxlib/RCX_USBTowerPipe_none.o
+# Common compiler flags
+CFLAGS += $(INCLUDES) -Wall
+
+# Default to NO USB tower support. USB support can be enabled
+# via the platform specific settings, below.
+USBOBJ = RCX_USBTowerPipe_none
+
+# Set this to define the serial port for serial IR towers.
+# If unset, "/dev/ttyS0" will be the default port.
+#DEFAULT_SERIAL_NAME = "/dev/ttyS0"
 
 #
-# Platform specific tweaks
+# Platform specific settings
 #
 OSTYPE := $(strip $(shell uname -s))
 
 ifneq (,$(strip $(findstring $(OSTYPE), Darwin)))
-  # Mac OSX
-  LIBS += -framework IOKit -framework CoreFoundation
-  USBOBJ = rcxlib/RCX_USBTowerPipe_osx.o
-  # May as well use the default Clang on OS X
-  CXX = c++
-  CFLAGS += -O3 -std=c++11
+	# Mac OS X
+	LIBS += -framework IOKit -framework CoreFoundation
+  	USBOBJ = RCX_USBTowerPipe_osx
+  	CXX = c++
+  	CFLAGS += -O3 -std=c++11
 else
 ifneq (,$(strip $(findstring $(OSTYPE), Linux)))
-  # Linux
-# uncomment this next line if you have the USB tower library installed
-#  USBOBJ = rcxlib/RCX_USBTowerPipe_linux.o
-  CFLAGS += -I/usr/local/include/LegoUSB -Wno-deprecated
+	# Linux
+	# uncomment this next line if you have the USB tower library installed
+	#USBOBJ = RCX_USBTowerPipe_linux
+	DEFAULT_SERIAL_NAME = "/dev/ttyS0"
+  	CFLAGS += -I/usr/local/include/LegoUSB -Wno-deprecated
 else
 ifneq (,$(findstring $(OSTYPE), SunOS))
-  # Solaris
-  CFLAGS += -DSOLARIS
+  	# Solaris
+  	CFLAGS += -DSOLARIS
 else
 ifneq (,$(strip $(findstring $(OSTYPE), FreeBSD)))
-  # FreeBSD
-  USBOBJ = rcxlib/RCX_USBTowerPipe_fbsd.o
-  DEFAULT_SERIAL_NAME = "/dev/cuad0"
-  CFLAGS += -Wno-deprecated
+  	# FreeBSD
+  	USBOBJ = RCX_USBTowerPipe_fbsd
+  	DEFAULT_SERIAL_NAME = "/dev/cuad0"
+  	CFLAGS += -Wno-deprecated
 else
 ifneq (,$(strip $(findstring $(OSTYPE), OpenBSD)))
-  # OpenBSD i386 with COM1, no USB
-  DEFAULT_SERIAL_NAME = "/dev/cua00"
-  CFLAGS += -std=gnu++98 -Wall -O2 -pipe
+  	# OpenBSD i386
+  	DEFAULT_SERIAL_NAME = "/dev/cua00"
+  	CFLAGS += -O2 -std=gnu++98 -pipe
 else
-  # default Unix build without USB support
-  CFLAGS += -O2
+  	# default Unix build without USB support
+  	CFLAGS += -O2
 endif
 endif
 endif
 endif
 endif
 
-# Debug builds for most Clang/GCC environments.
-# This implies DEBUG_TIMEOUT
-# TODO: sort out all the DEBUG defines 
-CFLAGS += -DDEBUG -DPDEBUG -g -O0
-
-# this must happen after the platform tweaks just in case the platform
-# wants to redefine the default serial name
 #
-ifndef DEFAULT_SERIAL_NAME
-  DEFAULT_SERIAL_NAME = "/dev/ttyS0"
+# If the serial port is explicitly set, use it.
+#
+ifneq ($(strip $(DEFAULT_SERIAL_NAME)),)
+	CFLAGS += -DDEFAULT_SERIAL_NAME='$(DEFAULT_SERIAL_NAME)'
 endif
-CFLAGS += -DDEFAULT_SERIAL_NAME='$(DEFAULT_SERIAL_NAME)'
+
+#
+# Debug builds for most Clang/GCC environments.
+# This implies -DDEBUG_TIMEOUT
+#
+CFLAGS += -DDEBUG -DPDEBUG -g -O0
 
 #
 # Object files
 #
 OBJ = $(NQCOBJ) $(COBJ) $(RCXOBJ) $(POBJ)
 
-RCXOBJ = rcxlib/RCX_Cmd.o rcxlib/RCX_Disasm.o rcxlib/RCX_Image.o \
-	rcxlib/RCX_Link.o rcxlib/RCX_Log.o rcxlib/RCX_Target.o \
-	rcxlib/RCX_Pipe.o rcxlib/RCX_PipeTransport.o rcxlib/RCX_Transport.o \
-	rcxlib/RCX_SpyboticsLinker.o rcxlib/RCX_SerialPipe.o \
+RCXOBJS = RCX_Cmd RCX_Disasm RCX_Image RCX_Link RCX_Log \
+	RCX_Target RCX_Pipe RCX_PipeTransport RCX_Transport \
+	RCX_SpyboticsLinker RCX_SerialPipe \
 	$(USBOBJ)
+RCXOBJ = $(addprefix rcxlib/, $(addsuffix .o, $(RCXOBJS)))
 
-POBJ = platform/PStream.o platform/PSerial_unix.o \
-	platform/PHashTable.o platform/PListS.o platform/PDebug.o
+POBJS = PStream PSerial_unix PHashTable PListS PDebug
+POBJ = $(addprefix platform/, $(addsuffix .o, $(POBJS)))
 
-COBJ = compiler/AsmStmt.o compiler/AssignStmt.o compiler/BlockStmt.o compiler/Bytecode.o \
-	compiler/Conditional.o compiler/CondParser.o compiler/DoStmt.o \
-	compiler/Expansion.o compiler/Fragment.o compiler/IfStmt.o compiler/JumpStmt.o \
-	compiler/lexer.o compiler/Macro.o compiler/parse.o \
-	compiler/PreProc.o compiler/Program.o compiler/RepeatStmt.o compiler/AssignMathStmt.o \
-	compiler/Stmt.o compiler/Symbol.o compiler/TaskStmt.o compiler/WhileStmt.o compiler/Error.o \
-	compiler/AutoFree.o compiler/parse_util.o compiler/Expr.o \
-	compiler/GosubStmt.o compiler/Scope.o compiler/InlineStmt.o compiler/CallStmt.o \
-	compiler/CaseStmt.o compiler/SwitchStmt.o compiler/MonitorStmt.o compiler/AcquireStmt.o \
-	compiler/DeclareStmt.o compiler/ScopeStmt.o compiler/ForStmt.o compiler/CatchStmt.o\
-	compiler/LabelStmt.o compiler/GotoStmt.o \
-	compiler/Compiler.o compiler/Buffer.o compiler/Mapping.o \
-	compiler/FunctionDef.o compiler/ExprStmt.o compiler/AtomExpr.o compiler/IncDecExpr.o \
-	compiler/BinaryExpr.o compiler/UnaryExpr.o compiler/ValueExpr.o compiler/TypeExpr.o \
-	compiler/ModExpr.o compiler/EventSrcExpr.o compiler/SensorExpr.o \
-	compiler/ArrayExpr.o compiler/TaskIdExpr.o compiler/RelExpr.o compiler/LogicalExpr.o \
-	compiler/NegateExpr.o compiler/IndirectExpr.o compiler/NodeExpr.o compiler/ShiftExpr.o compiler/TernaryExpr.o \
-	compiler/VarAllocator.o compiler/VarTranslator.o compiler/Resource.o \
-	compiler/AddrOfExpr.o compiler/DerefExpr.o compiler/GosubParamStmt.o
+COBJS = AsmStmt AssignStmt BlockStmt Bytecode Conditional \
+	CondParser DoStmt Expansion Fragment IfStmt JumpStmt \
+	lexer Macro parse PreProc Program RepeatStmt \
+	AssignMathStmt Stmt Symbol TaskStmt WhileStmt Error \
+	AutoFree parse_util Expr GosubStmt Scope InlineStmt \
+	CallStmt CaseStmt SwitchStmt MonitorStmt AcquireStmt \
+	DeclareStmt ScopeStmt ForStmt CatchStmt LabelStmt \
+	GotoStmt Compiler Buffer Mapping FunctionDef ExprStmt \
+	AtomExpr IncDecExpr BinaryExpr UnaryExpr ValueExpr \
+	TypeExpr ModExpr EventSrcExpr SensorExpr ArrayExpr \
+	TaskIdExpr RelExpr LogicalExpr NegateExpr IndirectExpr \
+	NodeExpr ShiftExpr TernaryExpr VarAllocator VarTranslator \
+	Resource AddrOfExpr DerefExpr GosubParamStmt
+COBJ = $(addprefix compiler/, $(addsuffix .o, $(COBJS)))
 
-NQCOBJ = nqc/nqc.o nqc/SRecord.o nqc/DirList.o nqc/CmdLine.o
+NQCOBJS = nqc SRecord DirList CmdLine
+NQCOBJ = $(addprefix nqc/, $(addsuffix .o, $(NQCOBJS)))
 
 # We need a 'bin' directory because the names of the binaries clash
 # with existing directory names.
-
 all : bin nqh nub bin/nqc
 
 # Create the bin directory in the Makefile because it is not part
@@ -169,7 +174,7 @@ bin/nqc: compiler/parse.cpp $(OBJ)
 	$(CXX) -o $@ $(OBJ) $(LIBS)
 
 bin/mkdata: mkdata/mkdata.cpp nqc/SRecord.cpp
-	$(CXX) -o bin/mkdata -Inqc/ -Iplatform/ mkdata/mkdata.cpp nqc/SRecord.cpp
+	$(CXX) -o $@ $(INCLUDES) $^
 
 #
 # clean up stuff
@@ -177,44 +182,47 @@ bin/mkdata: mkdata/mkdata.cpp nqc/SRecord.cpp
 clean: clean-parser clean-lexer clean-obj clean-nqh clean-nub
 
 clean-obj:
-	$(RM) bin/*
-	$(RM) */*.o
+	-$(RM) bin/*
+	-$(RM) */*.o
 
 clean-parser:
-	$(RM) compiler/parse.cpp compiler/parse.tab.h
+	-$(RM) compiler/parse.cpp compiler/parse.tab.h
 
 clean-lexer:
-	$(RM) compiler/lexer.cpp
+	-$(RM) compiler/lexer.cpp
 
 clean-nqh:
-	$(RM) compiler/rcx1_nqh.h compiler/rcx2_nqh.h
+	-$(RM) compiler/rcx1_nqh.h compiler/rcx2_nqh.h
 
 clean-nub:
-	$(RM) rcxlib/rcxnub.h
+	-$(RM) rcxlib/rcxnub.h
 
 #
 # create the parser files (parse.cpp and parse.tab.h)
 #
 compiler/parse.cpp: compiler/parse.y
-	(cd compiler ; $(YACC) -d parse.y ; \
-	$(MV) y.tab.c parse.cpp ; $(MV) y.tab.h parse.tab.h )
+	cd compiler ; \
+	$(YACC) -d parse.y ; \
+	$(MV) y.tab.c parse.cpp ; \
+	$(MV) y.tab.h parse.tab.h
 
 #
 # create the lexer file (lexer.cpp)
 #
 compiler/lexer.cpp: compiler/lex.l
-	(cd compiler ; $(FLEX) lex.l )
+	cd compiler ; \
+	$(FLEX) lex.l
 
 #
 # NQH files
 #
-nqh : compiler/rcx1_nqh.h compiler/rcx2_nqh.h
+nqh: compiler/rcx1_nqh.h compiler/rcx2_nqh.h
 
 compiler/rcx1_nqh.h: compiler/rcx1.nqh bin/mkdata
-	bin/mkdata compiler/rcx1.nqh compiler/rcx1_nqh.h rcx1_nqh
+	bin/mkdata $< $@ rcx1_nqh
 
 compiler/rcx2_nqh.h: compiler/rcx2.nqh bin/mkdata
-	bin/mkdata compiler/rcx2.nqh compiler/rcx2_nqh.h rcx2_nqh
+	bin/mkdata $< $@ rcx2_nqh
 
 #
 # rcxnub.h
@@ -222,7 +230,7 @@ compiler/rcx2_nqh.h: compiler/rcx2.nqh bin/mkdata
 nub: rcxlib/rcxnub.h
 
 rcxlib/rcxnub.h: rcxlib/fastdl.srec bin/mkdata
-	bin/mkdata -s rcxlib/fastdl.srec rcxlib/rcxnub.h rcxnub
+	bin/mkdata -s $< $@ rcxnub
 
 #
 # general rule for compiling
@@ -251,6 +259,9 @@ default-snapshot: default $(DEF_FILES)
 default:
 	$(MKDIR) default
 
+#
+# Generate API docs. Not part of a port.
+#
 docs:
 	@$(DOXYGEN) Doxyfile
 
@@ -263,12 +274,16 @@ install: all
 	test -d $(MANDIR)  || mkdir -p $(MANDIR)
 	cp nqc-man-2.1r1-0.man $(MANDIR)/nqc.$(MANEXT)
 
+#
+# Print some info about the environment
+#
 info:
-	@echo Building for: $(OSTYPE)
-	@echo USBOBJ=$(USBOBJ)
+	@echo "Building for: $(OSTYPE)"
 	@echo CXX=$(CXX)
 	@echo CFLAGS=$(CFLAGS)
 	@echo YACC=$(YACC)
 	@echo FLEX=$(FLEX)
 	@echo LIBS=$(LIBS)
+	@echo OBJ=$(OBJ)
+	@echo USBOBJ=$(USBOBJ)
 	@echo PREFIX=$(PREFIX)
