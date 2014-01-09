@@ -11,7 +11,6 @@
  * All Rights Reserved.
  *
  */
-
 #ifndef __AddrOfExpr_h
 #define __AddrOfExpr_h
 
@@ -26,23 +25,22 @@
 class AddrOfExpr : public Expr, public Translatable
 {
 public:
-                AddrOfExpr(int value, int offset, const LexLocation &loc);
+    AddrOfExpr(int value, int offset, const LexLocation &loc);
 
+    virtual bool        PromiseConstant() const;
 
-        virtual bool		PromiseConstant() const;
+    virtual bool        Evaluate(int &value) const;
+    virtual Expr*       Clone(Mapping *b) const;
 
-        virtual bool		Evaluate(int &value) const;
-        virtual Expr*		Clone(Mapping *b) const;
+    virtual bool        Contains(int var) const;
+    virtual RCX_Value   EmitAny_(Bytecode &b) const;
+    virtual RCX_Value   GetStaticEA_() const;
+    virtual bool        LValueIsPointer() const;
 
-        virtual bool		Contains(int var) const;
-        virtual RCX_Value	EmitAny_(Bytecode &b) const;
-        virtual RCX_Value	GetStaticEA_() const;
-        virtual bool            LValueIsPointer() const;
-
-        void				Translate(int from, int to);
+    void                Translate(int from, int to);
 private:
-        int				fValue;
-        int                             foffset;
+    int                 fValue;
+    int                 foffset;
 };
 
 

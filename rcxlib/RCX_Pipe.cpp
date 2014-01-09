@@ -11,6 +11,11 @@
  * All Rights Reserved.
  *
  */
+ /**
+  * @file RCX_Pipe.cpp
+  * @brief Superclass implementation of LEGO IR USB tower pipe
+  */
+
 #include "RCX_Pipe.h"
 
 void RCX_Pipe::FlushRead(int delay)

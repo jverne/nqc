@@ -14,22 +14,22 @@
 #ifndef __RCX_SourceTag_h
 #define __RCX_SourceTag_h
 
-// a single tag that relates bytecode offset to source file/offset
+/// A single tag that relates bytecode offset to source file/offset
 class RCX_SourceTag
 {
 public:
-	// types of source tags
-	enum {
-		kBegin,		// start of fragment source
-		kBeginNoList,	// begin a no-list fragment
-		kNormal,	// most tags are this type
-		kEnd		// end of fragment source
-	};
+    /// Types of source tags
+    enum {
+        kBegin,         ///< start of fragment source
+        kBeginNoList,   ///< begin a no-list fragment
+        kNormal,        ///< most tags are this type
+        kEnd            ///< end of fragment source
+    };
 
-	int		fType;
-	short	fAddress;
-	short	fSrcIndex;
-	long	fSrcOffset;
+    int     fType;
+    short   fAddress;
+    short   fSrcIndex;
+    long    fSrcOffset;
 };
 
 

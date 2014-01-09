@@ -26,7 +26,7 @@ public:
     CmdLine() : fPos(0) {};
     ~CmdLine();
 
-    void Add(const char *a); // make copy and add to arglist
+    void Add(const char *a);    // make copy and add to arglist
     void Add(int argc, const char * const *argv);   // add multiple args
 
     void Parse(const char *line, int skip = 0);     // parse line and add args

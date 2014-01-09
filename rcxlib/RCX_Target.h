@@ -18,16 +18,22 @@
 #include "RCX_Constants.h"
 #endif
 
+/**
+ * @file RCX_Target.h
+ * @brief LEGO brick target type definition
+ */
+
+/// Enumeration of all supported programmable brick targets
 typedef enum {
-    kRCX_RCXTarget = 0,     // Original RCX
-    kRCX_CMTarget,          // CyberMaster
-    kRCX_ScoutTarget,       // Scout
-    kRCX_RCX2Target,        // RCX 2.0
-    kRCX_SpyboticsTarget,   // Spybotics
-    kRCX_SwanTarget         // Dick Swan's alternate firmware
+    kRCX_RCXTarget = 0,     ///< Original RCX (i.e., RCX bricks with v.0309 or earlier firmwares)
+    kRCX_CMTarget,          ///< CyberMaster
+    kRCX_ScoutTarget,       ///< Scout
+    kRCX_RCX2Target,        ///< RCX 2.0 (i.e., RCX bricks with v.0328 or later firmwares)
+    kRCX_SpyboticsTarget,   ///< Spybotics
+    kRCX_SwanTarget         ///< Dick Swan's alternate firmware
 } RCX_TargetType;
 
-
+/// LEGO brick target type definition
 class RCX_Target
 {
 public:
@@ -55,7 +61,6 @@ public:
     bool SourceWritable(int source) const;
     int GetChunkLimit(RCX_ChunkType type) const;
 };
-
 
 extern const RCX_Target *getTarget(RCX_TargetType type);
 

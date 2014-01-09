@@ -20,7 +20,7 @@ using std::strncmp;
 using std::memcpy;
 using std::isspace;
 
-#define kMaxLine	256
+#define kMaxLine 256
 
 typedef struct {
   int length;
@@ -63,7 +63,7 @@ typedef struct {
 #define IMAGE_MAXLEN    0x8000
 #define TRANSFER_SIZE   200
 
-#define SEGMENT_BREAK	1024
+#define SEGMENT_BREAK   1024
 
 static signed char ctab[256] = {
     -1,-1,-1,-1,-1,-1,-1,-1,  -1,-1,-1,-1,-1,-1,-1,-1,
@@ -201,15 +201,13 @@ int srec_load (FILE *file, UByte *image, int maxlen, image_t *image_def,
                 /* Start of a new segment? */
                 if (srec.addr - prevAddr >= SEGMENT_BREAK) {
                     segIndex++;
-                    if (segIndex >= numimage_def)
-                    {
+                    if (segIndex >= numimage_def) {
                       return 0;
                     }
-
-                        image_def->segments[segIndex].length = 0;
-                        segStartAddr = srec.addr;
-                        prevAddr = srec.addr - prevCount;
-                        image_def->segments[segIndex].offset = imageIndex + prevCount;
+                    image_def->segments[segIndex].length = 0;
+                    segStartAddr = srec.addr;
+                    prevAddr = srec.addr - prevCount;
+                    image_def->segments[segIndex].offset = imageIndex + prevCount;
                 }
 
             if (srec.addr < IMAGE_START ||
@@ -242,8 +240,9 @@ int srec_load (FILE *file, UByte *image, int maxlen, image_t *image_def,
                 image_def->segments[segIndex].length = pos+1;
     }
 
-        for (i = 0; i <= segIndex; i++)
-                length += image_def->segments[segIndex].length;
+    for (i = 0; i <= segIndex; i++) {
+        length += image_def->segments[segIndex].length;
+    }
 
     if (length == 0) {
       return 0;
@@ -254,13 +253,8 @@ int srec_load (FILE *file, UByte *image, int maxlen, image_t *image_def,
 
 bool SRecord::Read(FILE *fp, int maxLength)
 {
-	//char line[kMaxLine];
-	//char *ptr;
-	//int dataLen;
-	//int byte;
-
-	delete [] fData;
-	fData = new UByte[maxLength];
+    delete [] fData;
+    fData = new UByte[maxLength];
 
         segment_t segments[2];
         image_t image_def = { 0, &segments[0] };
@@ -277,26 +271,25 @@ bool SRecord::Read(FILE *fp, int maxLength)
 
 int SRecord::ReadHexByte(const char *ptr)
 {
-	int i;
-	int v = 0;
-	char c;
-	int n;
+    int i;
+    int v = 0;
+    char c;
+    int n;
 
-	for(i=0; i<2; i++)
-	{
-		c = *ptr++;
+    for (i=0; i<2; i++) {
+        c = *ptr++;
 
-		if (c >= '0' && c <= '9')
-			n = c - '0';
-		else if (c >= 'A' && c <= 'F')
-			n = c - 'A' + 10;
-		else if (c >= 'a' && c <= 'f')
-			n = c - 'a' + 10;
-		else
-			return -1;
+        if (c >= '0' && c <= '9')
+            n = c - '0';
+        else if (c >= 'A' && c <= 'F')
+            n = c - 'A' + 10;
+        else if (c >= 'a' && c <= 'f')
+            n = c - 'a' + 10;
+        else
+            return -1;
 
-		v = (v << 4) + n;
-	}
+        v = (v << 4) + n;
+    }
 
-	return v;
+    return v;
 }

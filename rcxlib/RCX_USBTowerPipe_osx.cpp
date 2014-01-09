@@ -11,6 +11,11 @@
  * All Rights Reserved.
  *
  */
+
+ /**
+  * @file RCX_USBTowerPipe_osx.cpp
+  * @brief USB tower pipe for OS X
+  */
 extern "C"
 {
 #include <mach/mach.h>
@@ -26,11 +31,11 @@ extern "C"
 
 #include "PDebug.h"
 
-#define kVendorID 1684
-#define kProductID 1
-#define kConfiguration 0
-#define kReadPipe 1
-#define kWritePipe 2
+#define kVendorID       1684
+#define kProductID      1
+#define kConfiguration  0
+#define kReadPipe       1
+#define kWritePipe      2
 
 // these should come from a LEGO include
 #define LTW_REQ_GET_PARM    1
@@ -48,11 +53,13 @@ extern "C"
 
 #define LTW_REQ_SET_TX_CARRIER_FREQUENCY    0xF4
 
-
+/** 
+ * LEGO tower reply header
+ */
 typedef struct LTW_REQ_REPLY_HEADER {
-    UInt16 wNoOfBytes;      // Number of bytes in the reply
-    UInt8 bErrCode;         // Request return code
-    UInt8 bValue;           // Request return value
+    UInt16 wNoOfBytes;      ///< Number of bytes in the reply
+    UInt8 bErrCode;         ///< Request return code
+    UInt8 bValue;           ///< Request return value
 } LTW_REQ_REPLY_HEADER;
 
 typedef LTW_REQ_REPLY_HEADER LTW_REQ_GET_SET_PARM_REPLY;

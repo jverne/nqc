@@ -20,13 +20,11 @@ using std::putchar;
 
 void RCX_Transport::DumpData(const UByte *ptr, int length)
 {
-	int i;
+    int i;
 
-	for(i=0; i<length; i++)
-	{
-		printf("%02x ", *ptr++);
-//		if ((i%16)==15) putchar('\n');
-	}
+    for (i=0; i<length; i++) {
+        printf("%02x ", *ptr++);
+    }
 
-	putchar('\n');
+    putchar('\n');
 }

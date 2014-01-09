@@ -11,6 +11,12 @@
  * All Rights Reserved.
  *
  */
+
+ /**
+  * @file RCX_Constants.h
+  * @brief LEGO brick opcodes, IO definitions, and constant values
+  */
+
 #ifndef __RCX_Constants_h
 #define __RCX_Constants_h
 

@@ -1055,21 +1055,18 @@ void PrintError(RCX_Result error, const char *filename)
             break;
         case kUsageError:
             PrintVersion();
-            fprintf(STDERR,"Usage error: try \'nqc -help\' to display options\n");
+            fprintf(STDERR, "Usage error: try \'nqc -help\' to display options\n");
             break;
         case kQuietError:
             break;
-
         case kRCX_PipeModeError:
-            fprintf(STDERR,"USB driver does not support -firmfast, CyberMaster, or Spybotics\n");
+            fprintf(STDERR, "USB driver does not support -firmfast, CyberMaster, or Spybotics\n");
             break;
-
         case kRCX_USBUnsupportedError:
-            fprintf(STDERR,"USB Tower not supported\n");
+            fprintf(STDERR, "USB Tower not supported\n");
             break;
-
         case kRCX_GhostNotFoundError:
-            fprintf(STDERR,"Ghost libraries are not installed properly\n");
+            fprintf(STDERR," Ghost libraries are not installed properly\n");
             break;
         default:
             fprintf(STDERR, "Error #%d\n", -error);
@@ -1086,8 +1083,7 @@ void PrintVersion()
 
 void PrintUsage()
 {
-    string s (sTargetNames[gTargetType]);
-    const char* targetName = s.c_str();
+    const char *targetName = getTarget(gTargetType)->fName;
 
     PrintVersion();
     fprintf(stdout,"Usage: nqc [options] [actions] [ - | filename ] [actions]\n");

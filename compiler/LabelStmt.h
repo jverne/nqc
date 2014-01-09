@@ -12,7 +12,7 @@
  *
  */
 
-/*
+/**
  * LabelStmts are used to bind a label to another statement.  The
  * LabelStmt isn't really a statement itself - just a wrapper for
  * a single child statement.

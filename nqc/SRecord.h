@@ -26,11 +26,11 @@ class SRecord
 {
 public:
     SRecord() : fLength(0), fStart(0), fData(0) {}
-    ~SRecord()  { delete [] fData; }
+    ~SRecord() { delete [] fData; }
 
-    int GetLength() const   { return fLength; }
-    const UByte* GetData() const     { return fData; }
-    int GetStart() const    { return fStart; }
+    int GetLength() const { return fLength; }
+    const UByte* GetData() const { return fData; }
+    int GetStart() const { return fStart; }
 
     bool Read(FILE *fp, int maxLength);
 

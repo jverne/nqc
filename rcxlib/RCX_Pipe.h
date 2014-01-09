@@ -11,6 +11,12 @@
  * All Rights Reserved.
  *
  */
+ /**
+  * @file RCX_Pipe.h
+  * @brief Virtual superclass for all platform specific USB IR tower pipe
+  * implementations
+  */
+
 #ifndef __RCX_Pipe_h
 #define __RCX_Pipe_h
 
@@ -20,42 +26,45 @@
 
 #include "PTypes.h"
 
+/** 
+ * Superclass for all platform specific USB IR tower pipes
+ */
 class RCX_Pipe
 {
 public:
-	// modes and flags
-	enum {
-		kNormalIrMode =		1 << 0,	// 2400 baud, odd parity, etc
-		kFastIrMode =		1 << 1,	// 4800 baud (odd or no parity)
-		kCyberMasterMode =	1 << 2,	// normal IR + DTR/RTS for CyberMaster
-		kSpyboticsMode = 	1 << 3,	// 4800 baud, odd parity, DTR/RTS
+    /// modes and flags
+    enum {
+        kNormalIrMode = 1 << 0,         ///< 2400 baud, odd parity, etc
+        kFastIrMode = 1 << 1,           ///< 4800 baud (odd or no parity)
+        kCyberMasterMode = 1 << 2,      ///< normal IR + DTR/RTS for CyberMaster
+        kSpyboticsMode = 1 << 3,        ///< 4800 baud, odd parity, DTR/RTS
 
-		kFastOddParityFlag = 1 << 28,	// set if kFastIrMode uses odd parity
-		kTxEchoFlag = 1 << 29,		// set if Tx data gets echoed
-		kAbsorb55Flag =  1 << 30	// set if pipe absorbs leading 0x55
-	};
+        kFastOddParityFlag = 1 << 28,   ///< set if kFastIrMode uses odd parity
+        kTxEchoFlag = 1 << 29,          ///< set if Tx data gets echoed
+        kAbsorb55Flag = 1 << 30         ///< set if pipe absorbs leading 0x55
+    };
 
-        RCX_Pipe() {}
-	virtual ~RCX_Pipe() {}
+    RCX_Pipe() {}
+    virtual ~RCX_Pipe() {}
 
 
-	virtual RCX_Result	Open(const char *name, int mode) = 0;
-	virtual void		Close() = 0;
+    virtual RCX_Result Open(const char *name, int mode) = 0;
+    virtual void Close() = 0;
 
-	virtual int		GetCapabilities() const = 0;
-	virtual RCX_Result	SetMode(int mode) = 0;
+    virtual int GetCapabilities() const = 0;
+    virtual RCX_Result SetMode(int mode) = 0;
 
-	virtual long		Read(void *ptr, long count, long timeout_ms) = 0;
-	virtual long		Write(const void *ptr, long count) = 0;
-        virtual void            FlushRead(int delay);
-        virtual bool            IsUSB() const { return false; }
+    virtual long Read(void *ptr, long count, long timeout_ms) = 0;
+    virtual long Write(const void *ptr, long count) = 0;
+    virtual void FlushRead(int delay);
+    virtual bool IsUSB() const { return false; }
 
 protected:
 private:
 };
 
 
-/*
+/**
  * This is an operating system dependent factory method for creating
  * a pipe for a USB IR tower.
  */
