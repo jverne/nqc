@@ -18,24 +18,23 @@
 #include "Stmt.h"
 #endif
 
-/*
- * The purpose of the InlineStmt class is to be the root of an
- * expanded inline function.  Its only true funciton is to setup
- * the return label so that return statements within the expanded
- * function will exit to the correct place.
- */
 
 class FunctionDef;
 
+/**
+ * The root of an expanded inline function\. Its only true function
+ * is to setup the return label so that return statements within the
+ * expanded function will exit to the correct place.
+ */
 class InlineStmt : public ChainStmt
 {
 public:
-			InlineStmt(Stmt *s, FunctionDef *f) : ChainStmt(s), fFunction(f) { }
-	void	EmitActual(Bytecode &b);
-	Stmt*	CloneActual(Mapping *b) const;
+            InlineStmt(Stmt *s, FunctionDef *f) : ChainStmt(s), fFunction(f) { }
+    void    EmitActual(Bytecode &b);
+    Stmt*   CloneActual(Mapping *b) const;
 
 private:
-	FunctionDef*	fFunction;
+    FunctionDef*    fFunction;
 };
 
 

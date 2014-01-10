@@ -35,62 +35,62 @@ class CheckState;
 class Mapping;
 class Expr;
 
-/*
- * Stmt is the abstract base class for all program statements
+/**
+ * Stmt is the abstract base class for all program statements.
  */
-
-class Stmt :  public PLinkS<Stmt>, public AutoFree
+class Stmt :
+    public PLinkS<Stmt>,
+    public AutoFree
 {
 public:
-					Stmt();
-	virtual 		~Stmt();
+    Stmt();
+    virtual ~Stmt();
 
-	void SetLocation(LocationNode *node);
-	const LexLocation&	GetLoc() const { return fLoc; }
+    void SetLocation(LocationNode *node);
+    const LexLocation&  GetLoc() const { return fLoc; }
 
-	Stmt*	GetParent() const { return fParent; }
-	bool	IsDescendantOf(const Stmt* ancestor) const;
+    Stmt* GetParent() const { return fParent; }
+    bool IsDescendantOf(const Stmt* ancestor) const;
 
-	virtual Stmt*		GetChildren() = 0;
+    virtual Stmt* GetChildren() = 0;
 
-			// flag used to force statement to be emitted (not optimized out)
-	bool	GetMustEmit() const	{ return fMustEmit; }
-	void	SetMustEmit(bool b)	{ fMustEmit = b; }
+    /// Flag used to force statement to be emitted (not optimized out)
+    bool GetMustEmit() const { return fMustEmit; }
+    void SetMustEmit(bool b) { fMustEmit = b; }
 
-			// overall emit which will call the virtual EmitActual
-			void	Emit(Bytecode &b);
+    /// Overall emit which will call the virtual EmitActual
+    void Emit(Bytecode &b);
 
-	virtual void	EmitActual(Bytecode &b) = 0;
+    virtual void EmitActual(Bytecode &b) = 0;
 
-			Stmt*	Clone(Mapping *b) const;
-	virtual Stmt*	CloneActual(Mapping *b) const = 0;
+    Stmt* Clone(Mapping *b) const;
+    virtual Stmt* CloneActual(Mapping *b) const = 0;
 
-	// append sub-expressions into vector and return number added
-	virtual void	GetExprs(vector<Expr*> & /* v */) const { }
+    /// Append sub-expressions into vector and return number added
+    virtual void GetExprs(vector<Expr*> & /* v */) const { }
 
 
 protected:
-	void	Adopt(Stmt *c)	{ if (c) c->fParent = this; }
+    void Adopt(Stmt *c)  { if (c) c->fParent = this; }
 
-	LexLocation	fLoc;
-	Stmt*		fParent;
-	bool		fMustEmit;
+    LexLocation fLoc;
+    Stmt* fParent;
+    bool fMustEmit;
 };
 
 
-/*
+/**
  * LeafStmt is an abstract base class for statements that do not
  * contain any other statements as children.
  */
-
 class LeafStmt : public Stmt
 {
 public:
-	virtual Stmt*	GetChildren();
+    virtual Stmt* GetChildren();
 };
 
 
-/*
+/**
  * ChainStmt is an abstract base class for statements that contain
  * a single child.
  */
@@ -98,56 +98,55 @@ public:
 class ChainStmt : public Stmt
 {
 public:
-					ChainStmt(Stmt *s=0)	: fBody(s) { Adopt(s); }
-					~ChainStmt();
+    ChainStmt(Stmt *s=0) : fBody(s) { Adopt(s); }
+    ~ChainStmt();
 
-	virtual Stmt*	GetChildren();
+    virtual Stmt* GetChildren();
 
-	Stmt*			GetBody()	{ return fBody; }
-	const Stmt*		GetBody() const	{ return fBody; }
+    Stmt* GetBody()   { return fBody; }
+    const Stmt* GetBody() const { return fBody; }
 
 protected:
-	void			SetBody(Stmt *s)	{ fBody=s; Adopt(s); }
+    void SetBody(Stmt *s) { fBody=s; Adopt(s); }
 
 private:
-	Stmt*			fBody;
+    Stmt* fBody;
 };
 
 
-/*
+/**
  * BinaryStmt is an abstract base class for statements that contain
  * one or two sub-statements (the second one is optional).
  */
-
 class BinaryStmt : public Stmt
 {
 public:
-					BinaryStmt(Stmt *s1, Stmt *s2=0);
-					~BinaryStmt();
+    BinaryStmt(Stmt *s1, Stmt *s2=0);
+    ~BinaryStmt();
 
-	virtual Stmt*	GetChildren();
+    virtual Stmt* GetChildren();
 
 protected:
-	Stmt*			GetPrimary() { return fPrimary; }
-	const Stmt*		GetPrimary() const	{ return fPrimary; }
-	Stmt*			GetSecondary() { return fSecondary; }
-	const Stmt*		GetSecondary() const	{ return fSecondary; }
+    Stmt* GetPrimary() { return fPrimary; }
+    const Stmt* GetPrimary() const  { return fPrimary; }
+    Stmt* GetSecondary() { return fSecondary; }
+    const Stmt* GetSecondary() const    { return fSecondary; }
 
 private:
-	Stmt*			fPrimary;
-	Stmt*			fSecondary;
+    Stmt* fPrimary;
+    Stmt* fSecondary;
 };
 
 
 
 template <class OP> void Apply(Stmt *base, OP &op)
 {
-	Stmt *s;
+    Stmt *s;
 
-	if (!op(base)) return;
+    if (!op(base)) return;
 
-	for(s=base->GetChildren(); s; s=s->GetNext())
-		Apply(s, op);
+    for(s=base->GetChildren(); s; s=s->GetNext())
+        Apply(s, op);
 }
 
 

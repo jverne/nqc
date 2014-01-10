@@ -11,21 +11,19 @@
  * All Rights Reserved.
  *
  */
-/*
+/**
  * Allocation Strategy
+ * -------------------
  *
- * fMode			Allocation
- * ---------------------------
- * kGlobalMode		Low Global
- *
- * kTaskMode		High Local
- *					Low Global
- *
- * kSingleSubMode	Low Local
- *					Low Global
- *
- * kMultiSubMode	Low Local
- *
+ * The relationship between fMode and Allocation:
+ *  - kGlobalMode
+ *          - Low Global
+ *  - kTaskMode
+ *          - High Local | Low Global
+ *  - kSingleSubMode
+ *          - Low Local | Low Global
+ *  - kMultiSubMode
+ *          - Low Local
  *
  * In general local variables are prefered to globals.  The
  * only exception is for true global variables (kGlobalMode)
@@ -36,7 +34,7 @@
  * overflow from the local pool to the global pool.
  *
  * Vars allocated from the global pool may be re-used within the
- * same Begin()/End() session, but then become permanently
+ * same Begin() / End() session, but then become permanently
  * allocated after End().  In contrast, the local pool is refreshed
  * each time Begin() is called - in the case of tasks this is
  * justified by the fact that each task has its own local vars.
@@ -50,7 +48,6 @@
  * the high end, which means that the only time a call to a sub
  * will conflict with the presently allocated task vars is if
  * local space is exhausted.
- *
  */
 
 #include "VarAllocator.h"

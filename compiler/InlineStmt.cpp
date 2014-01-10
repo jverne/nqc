@@ -18,30 +18,29 @@
 
 void InlineStmt::EmitActual(Bytecode &b)
 {
-	b.AddSourceTag(
-		fFunction->GetListingEnabled() ? RCX_SourceTag::kBegin : RCX_SourceTag::kBeginNoList,
-		fFunction->GetStartLoc());
+    b.AddSourceTag(
+        fFunction->GetListingEnabled() ? RCX_SourceTag::kBegin : RCX_SourceTag::kBeginNoList,
+        fFunction->GetStartLoc());
 
-	int rLabel = b.PushFlow(Bytecode::kReturnFlow);
-	b.PushFlow(Bytecode::kContinueFlow, false);
-	b.PushFlow(Bytecode::kBreakFlow, false);
+    int rLabel = b.PushFlow(Bytecode::kReturnFlow);
+    b.PushFlow(Bytecode::kContinueFlow, false);
+    b.PushFlow(Bytecode::kBreakFlow, false);
 
-	GetBody()->Emit(b);
+    GetBody()->Emit(b);
 
-	b.SetLabel(rLabel);
+    b.SetLabel(rLabel);
 
-	b.PopFlow(Bytecode::kContinueFlow);
-	b.PopFlow(Bytecode::kBreakFlow);
-	b.PopFlow(Bytecode::kReturnFlow);
+    b.PopFlow(Bytecode::kContinueFlow);
+    b.PopFlow(Bytecode::kBreakFlow);
+    b.PopFlow(Bytecode::kReturnFlow);
 
-	b.AddSourceTag(RCX_SourceTag::kEnd, fFunction->GetEndLoc());
+    b.AddSourceTag(RCX_SourceTag::kEnd, fFunction->GetEndLoc());
 }
 
 
+/// This never really gets called because cloning happens before
+/// InlineStmts are substituted for CallStmts.
 Stmt* InlineStmt::CloneActual(Mapping *b) const
 {
-	// this never really gets called because cloning happens before
-	// InlineStmts are substituted for CallStmts.
-
-	return new InlineStmt(GetBody()->Clone(b), fFunction);
+    return new InlineStmt(GetBody()->Clone(b), fFunction);
 }

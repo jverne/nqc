@@ -28,24 +28,23 @@ class Expr;
 class Mapping
 {
 public:
-				Mapping();
-				~Mapping();
+                Mapping();
+                ~Mapping();
 
-	void		Add(int var, Expr *value);
-	const Expr*	Get(int var) const;
+    void        Add(int var, Expr *value);
+    const Expr* Get(int var) const;
 
-	int			GetMappedVar(int var) const;
+    int         GetMappedVar(int var) const;
 
 private:
-	struct Pair
-	{
-				Pair(int v, Expr *e) : fVar(v), fValue(e) {}
+    struct Pair {
+        Pair(int v, Expr *e) : fVar(v), fValue(e) {}
 
-		int		fVar;
-		Expr*	fValue;
-	};
+        int     fVar;
+        Expr*   fValue;
+    };
 
-	vector<Pair>	fPairs;
+    vector<Pair> fPairs;
 };
 
 #endif

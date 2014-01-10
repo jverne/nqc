@@ -25,18 +25,18 @@
 class ArrayExpr : public NodeExpr, public Translatable
 {
 public:
-		ArrayExpr(int var, Expr *e) : NodeExpr(e), fVar(var) {}
+    ArrayExpr(int var, Expr *e) : NodeExpr(e), fVar(var) {}
 
-	virtual Expr*		Clone(Mapping *b) const;
-	virtual bool		PromiseConstant() const	 { return false; }
-	virtual bool		PotentialLValue() const	{ return true; }
+    virtual Expr*       Clone(Mapping *b) const;
+    virtual bool        PromiseConstant() const  { return false; }
+    virtual bool        PotentialLValue() const { return true; }
 
-	virtual RCX_Value	EmitAny_(Bytecode &b) const;
+    virtual RCX_Value   EmitAny_(Bytecode &b) const;
 
-	virtual void		Translate(int from, int to);
+    virtual void        Translate(int from, int to);
 
 private:
-	int		fVar;
+    int     fVar;
 };
 
 

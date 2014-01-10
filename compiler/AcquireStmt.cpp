@@ -19,57 +19,55 @@
 #include "Error.h"
 
 AcquireStmt::AcquireStmt(UByte resources, Stmt* body, Stmt *handler, const LexLocation &loc) :
-	BinaryStmt(body, handler), fResources(resources), fLocation(loc)
+    BinaryStmt(body, handler), fResources(resources), fLocation(loc)
 {
 }
 
 
 void AcquireStmt::EmitActual(Bytecode &b)
 {
-	if (!b.GetTarget()->fResources)
-	{
-		Error(kErr_NoTargetResources, b.GetTarget()->fName).Raise(&fLocation);
-		return;
-	}
+    if (!b.GetTarget()->fResources) {
+        Error(kErr_NoTargetResources, b.GetTarget()->fName).Raise(&fLocation);
+        return;
+    }
 
-	if (!b.BeginHandler(Bytecode::kAcquireHandler))
-	{
-		Error(kErr_NoNestedResources).Raise(&fLocation);
-		return;
-	}
+    if (!b.BeginHandler(Bytecode::kAcquireHandler)) {
+        Error(kErr_NoNestedResources).Raise(&fLocation);
+        return;
+    }
 
-	RCX_Cmd cmd;
-	int handlerLabel = b.NewLabel();
-	int endLabel = b.NewLabel();
+    RCX_Cmd cmd;
+    int handlerLabel = b.NewLabel();
+    int endLabel = b.NewLabel();
 
-	// start event monitoring
-	cmd.Set(kRCX_EnterAccessCtrlOp, fResources, 0, 0);
-	b.Add(cmd);
-	b.AddFixup(Bytecode::kSignBitLongFixup, handlerLabel);
+    // start event monitoring
+    cmd.Set(kRCX_EnterAccessCtrlOp, fResources, 0, 0);
+    b.Add(cmd);
+    b.AddFixup(Bytecode::kSignBitLongFixup, handlerLabel);
 
-	GetPrimary()->Emit(b);
+    GetPrimary()->Emit(b);
 
-	// end event monitoring
-	cmd.Set(kRCX_ExitAccessCtrlOp);
-	b.Add(cmd);
+    // end event monitoring
+    cmd.Set(kRCX_ExitAccessCtrlOp);
+    b.Add(cmd);
 
-	if (GetSecondary())
-		b.AddJump(endLabel);
+    if (GetSecondary())
+        b.AddJump(endLabel);
 
-	// here's the handler
-	b.SetLabel(handlerLabel);
+    // here's the handler
+    b.SetLabel(handlerLabel);
 
-	if (GetSecondary())
-		GetSecondary()->Emit(b);
+    if (GetSecondary())
+        GetSecondary()->Emit(b);
 
-	b.SetLabel(endLabel);
+    b.SetLabel(endLabel);
 
-	b.EndHandler(Bytecode::kAcquireHandler);
+    b.EndHandler(Bytecode::kAcquireHandler);
 }
 
 
 Stmt* AcquireStmt::CloneActual(Mapping *b) const
 {
-	Stmt *s = GetSecondary() ? GetSecondary()->Clone(b) : 0;
-	return new AcquireStmt(fResources, GetPrimary()->Clone(b), s, fLocation);
+    Stmt *s = GetSecondary() ? GetSecondary()->Clone(b) : 0;
+    return new AcquireStmt(fResources, GetPrimary()->Clone(b), s, fLocation);
 }

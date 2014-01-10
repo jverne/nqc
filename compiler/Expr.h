@@ -38,27 +38,12 @@ class Bytecode;
 class Mapping;
 class RCX_Target;
 
-/*
+/**
  * The Expr class is the base class for expressions.  It declares
  * several important virtual methods that are used by the rest of
  * the compiler to determine properties and generate code for
  * general expressions.
- *
- * Expr* Clone(Mapping*) - used to clone an expression while making
- *		the substitutions defined by a mapping.  This is primarily
- * 		used during expansion of inline functions (see CallStmt).
- *
- * bool PotentialLValue() - used to determine if an expression is
- *		a potential candidate as an LValue.  This does not guarantee
- *		that the expression is a legal LValue for a given target, but
- *		merely that it obeys the semantic rules for being an LValue.
- *		This includes making sure that variables are non-const and
- *		that the expression is not a calculated value.  Most expressions
- *		are not potential LValues, so the default implementation is to
- *		return false.
- *
  */
-
 class Expr : public AutoFree
 {
 public:
@@ -72,10 +57,25 @@ public:
 	const LexLocation&	GetLoc() const { return fLoc; }
 	void				SetLoc(const LexLocation &loc)	{ fLoc = loc; }
 
+    /*
+     * Used to clone an expression while making
+     * the substitutions defined by a mapping.  This is primarily
+     * used during expansion of inline functions (see CallStmt).
+     */
 	virtual Expr*		Clone(Mapping *) const = 0;
 
 	virtual bool		Evaluate(int & /*value */) const	{ return false; }
 
+    /*
+     * Determine if an expression is
+     * a potential candidate as an LValue.  This does not guarantee
+     * that the expression is a legal LValue for a given target, but
+     * merely that it obeys the semantic rules for being an LValue.
+     * This includes making sure that variables are non-const and
+     * that the expression is not a calculated value.  Most expressions
+     * are not potential LValues, so the default implementation is to
+     * return false.
+     */
 	virtual bool		PotentialLValue() const	{ return false; }
 	virtual int			GetLValue() const	{ return kIllegalVar; }
 			RCX_Value	GetStaticEA() const;
@@ -84,7 +84,7 @@ public:
 	virtual bool		Contains(int /* var */) const { return false; }
         virtual bool            LValueIsPointer() const { return false; }
 
-	// append sub-expressions into vector
+	/// Append sub-expressions into vector
 	virtual void		GetExprs(vector<Expr*> & /* v */) const { }
 
 	// calls to emit code
@@ -105,12 +105,14 @@ protected:
 	virtual RCX_Value	GetStaticEA_() const;
 
 
-	// helper routines for EmitAny_() and EmitTo_() implementations
+	/// Helper routines for EmitAny_() implementation
 	RCX_Value	EmitBoolAny(Bytecode &b) const;
+
+    /// Helper routines for EmitTo_() implementation
 	bool		EmitBoolTo(Bytecode &b, int dst) const;
 
 
-	// utility function
+	/// Utility function
 	int GetTempVar(Bytecode &b, bool canUseLocals=true) const;
 
 private:
@@ -118,11 +120,10 @@ private:
 };
 
 
-// use this to build a typemask for EmitConstrained()
+/// use this to build a typemask for EmitConstrained()
 #define TYPEMASK(t)	(1L << (t))
 
 // masks for EmitConstrained()
-
 #define TEST_MASK	(~(TYPEMASK(kRCX_RandomType) + \
 						TYPEMASK(kRCX_ProgramType) + \
 						TYPEMASK(kRCX_AGCType)))
@@ -131,13 +132,12 @@ private:
 
 template <class OP> void Apply(Expr *base, OP &op)
 {
-	if (op(base))
-	{
+	if (op(base)) {
 		vector<Expr*> v;
 		base->GetExprs(v);
 
 		int n = v.size();
-		for(int i=0; i<n; ++i)
+		for (int i=0; i<n; ++i)
 			Apply(v[i], op);
 	}
 }

@@ -37,50 +37,69 @@ using std::vector;
 class Symbol;
 class Expansion;
 
+ /*
+  * Reads tokens from the Lexer and emits a preprocessed token stream.
+  * The entire process is 'pulled' by calling PreProc::Get(), which in turn calls
+  * down through the layers of the Preprocessor.
+  */
 class PreProc
 {
 public:
-			PreProc();
-			~PreProc();
+            PreProc();
+            ~PreProc();
 
-	// get fully preprocessed token
-	int		Get(TokenVal &v);
+    /**
+     * Get fully preprocessed token.
+     * Dispatches directives (DoInclude(), DoDefine(), etc)
+     * When processing a directive, GetRawToken() is called - in effect, macro
+     * substitution happens on playback, not record.
+     */
+    int     Get(TokenVal &v);
 
-	// get after substitution but before directive processing
-	int		GetReplacedToken(TokenVal &v);
+    /**
+     * Get after substitution but before directive processing.
+     * Matches ID tokens against macros, and pushes the macro
+     * definition when a macro is used.  Use this call when macro calls should
+     * be expanded.
+     */
+    int     GetReplacedToken(TokenVal &v);
 
-	// get next queued token (either from macro or file)
-	int		GetRawToken(TokenVal &v);
+    /**
+     * Get next queued token (either from macro or file).
+     * Maintains the queue of expansions, subsitutes arguments during
+     * expansion, manages the lexer (calls yylex(), maintains fNLRead, etc.)
+     */
+    int     GetRawToken(TokenVal &v);
 
 private:
 
-	bool	DoDefine();
-	bool	DoInclude();
-	int		DoSimpleDefine(Symbol *s);
-	int		DoMacroDefine(Symbol *s);
-	bool	DoIfdef(bool b);
-	bool	DoUndef();
-	bool	DoPragma();
+    bool    DoDefine();
+    bool    DoInclude();
+    int     DoSimpleDefine(Symbol *s);
+    int     DoMacroDefine(Symbol *s);
+    bool    DoIfdef(bool b);
+    bool    DoUndef();
+    bool    DoPragma();
 
-	int		ReadDefineArgs();
-	void	ReadDefineBody();
-	int		MatchArg(const Symbol *s);
+    int     ReadDefineArgs();
+    void    ReadDefineBody();
+    int     MatchArg(const Symbol *s);
 
-	void	DiscardLine();
+    void    DiscardLine();
 
-	bool	BeginExpansion(Symbol *s);
-	bool	ReadExpansionArgs(Expansion *e);
-	bool	ReadExpansionArg(Expansion *e, int i, int delim);
+    bool    BeginExpansion(Symbol *s);
+    bool    ReadExpansionArgs(Expansion *e);
+    bool    ReadExpansionArg(Expansion *e, int i, int delim);
 
-	bool	fNLRead;
+    bool    fNLRead;
 
-	PListS<Expansion>	fExpList;
-	vector<Symbol*>		fArguments;
-	vector<Token>		fTokenBuf;
-	Conditional			fConditional;
-	bool				fActive;
-	CondParser			fParser;
-	bool				fEndOfFiles;
+    PListS<Expansion>   fExpList;
+    vector<Symbol*>     fArguments;
+    vector<Token>       fTokenBuf;
+    Conditional         fConditional;
+    bool                fActive;
+    CondParser          fParser;
+    bool                fEndOfFiles;
 };
 
 

@@ -25,24 +25,26 @@
 class Macro
 {
 public:
-	enum { kNoArgs = -1 };
+    enum {
+        kNoArgs = -1
+    };
 
-			Macro(const Token *tokens, int tokenCount, int argCount);
-			~Macro();
+    Macro(const Token *tokens, int tokenCount, int argCount);
+    ~Macro();
 
-	int		GetTokenCount() const		{ return fTokenCount; }
-	const Token*	GetTokens() const	{ return fTokens; }
-	int		GetArgCount() const			{ return fArgCount; }
+    int GetTokenCount() const { return fTokenCount; }
+    const Token* GetTokens() const { return fTokens; }
+    int GetArgCount() const { return fArgCount; }
 
-	bool	IsMarked() const	{ return fMark; }
-	void	SetMark()			{ fMark = true; }
-	void	ClearMark()			{ fMark = false; }
+    bool IsMarked() const { return fMark; }
+    void SetMark() { fMark = true; }
+    void ClearMark() { fMark = false; }
 
 private:
-	Token*	fTokens;
-	int		fTokenCount;
-	int		fArgCount;
-	bool	fMark;
+    Token* fTokens;
+    int fTokenCount;
+    int fArgCount;
+    bool fMark;
 };
 
 #endif

@@ -12,22 +12,21 @@
  *
  */
 
-/* This class is only partially implemented.  Specifically, evaluation always
- * fails even though in theory the value will be constant.  In order to fix this
- * some other virtual such as Expr::GetEA() would need to be added.
- */
-
-
 #ifndef __EventSrcExpr_h
 #define __EventSrcExpr_h
 
 #include "NodeExpr.h"
 #include "RCX_Target.h"
 
+/**
+ * This class is only partially implemented. Specifically, evaluation always
+ * fails even though in theory the value will be constant. In order to fix this
+ * some other virtual such as Expr::GetEA() would need to be added.
+ */
 class EventSrcExpr : public NodeExpr
 {
 public:
-		EventSrcExpr(Expr *e, RCX_TargetType targetType) : NodeExpr(e), fTargetType(targetType) {}
+	EventSrcExpr(Expr *e, RCX_TargetType targetType) : NodeExpr(e), fTargetType(targetType) {}
 
 	virtual Expr*		Clone(Mapping *b) const;
 

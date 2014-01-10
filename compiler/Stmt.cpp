@@ -15,8 +15,9 @@
 #include "Bytecode.h"
 
 
-Stmt::Stmt()
-    : fParent(0), fMustEmit(false)
+Stmt::Stmt() :
+    fParent(0),
+    fMustEmit(false)
 {
     fLoc.fIndex = kIllegalSrcIndex;
 }
@@ -126,7 +127,9 @@ using std::printf;
 using std::putchar;
 
 // Just eat the warnings about format specifiers in DEBUG mode.
+#ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wformat"
+#endif
 void DumpStmt(Stmt *s, int tab)
 {
     for (int i=0; i<tab; i++) {

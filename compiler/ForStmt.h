@@ -22,25 +22,26 @@
 #include "Expr.h"
 #endif
 
+
 class ForStmt : public Stmt
 {
 public:
-			ForStmt(Stmt *init, Expr *c, Stmt *iterate, Stmt *body);
-			~ForStmt();
+                    ForStmt(Stmt *init, Expr *c, Stmt *iterate, Stmt *body);
+                    ~ForStmt();
 
-	virtual Stmt*	GetChildren()						{ return fChildren.GetHead(); }
-	virtual void	GetExprs(vector<Expr*> & v) const	{ if (fCondition) v.push_back(fCondition); }
+    virtual Stmt*   GetChildren()                       { return fChildren.GetHead(); }
+    virtual void    GetExprs(vector<Expr*> & v) const   { if (fCondition) v.push_back(fCondition); }
 
-	virtual void	EmitActual(Bytecode &b);
-	virtual Stmt*	CloneActual(Mapping *b) const;
+    virtual void    EmitActual(Bytecode &b);
+    virtual Stmt*   CloneActual(Mapping *b) const;
 
 
 private:
-	Stmt*		fInit;
-	Expr*		fCondition;
-	Stmt*		fIterate;
-	Stmt*		fBody;
-	PListSS<Stmt> fChildren;
+    Stmt*           fInit;
+    Expr*           fCondition;
+    Stmt*           fIterate;
+    Stmt*           fBody;
+    PListSS<Stmt>   fChildren;
 };
 
 

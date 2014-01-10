@@ -17,61 +17,57 @@ BlockStmt::BlockStmt()
 {
 }
 
+
 BlockStmt::~BlockStmt()
 {
-	Stmt *s;
+    Stmt *s;
 
-	while((s = fList.RemoveHead()) != nil)
-		delete s;
+    while ((s = fList.RemoveHead()) != nil)
+        delete s;
 }
 
 
 Stmt* BlockStmt::GetChildren()
 {
-	return fList.GetHead();
+    return fList.GetHead();
 }
-
 
 
 void BlockStmt::Add(Stmt *s)
 {
-	if (s)
-	{
-		fList.InsertTail(s);
-		Adopt(s);
-	}
+    if (s) {
+        fList.InsertTail(s);
+        Adopt(s);
+    }
 }
 
 
 void BlockStmt::Prepend(Stmt *s)
 {
-	if (s)
-	{
-		fList.InsertHead(s);
-		Adopt(s);
-	}
+    if (s) {
+        fList.InsertHead(s);
+        Adopt(s);
+    }
 }
 
 
 void BlockStmt::EmitActual(Bytecode &b)
 {
-	for(Stmt *s = fList.GetHead(); s; s=s->GetNext())
-	{
-		s->Emit(b);
-	}
+    for(Stmt *s = fList.GetHead(); s; s = s->GetNext()) {
+        s->Emit(b);
+    }
 }
 
 
 Stmt* BlockStmt::CloneActual(Mapping *b) const
 {
-	BlockStmt *block = new BlockStmt;
+    BlockStmt *block = new BlockStmt;
 
-	for(Stmt *s = fList.GetHead(); s; s=s->GetNext())
-	{
-		Stmt *child = s->Clone(b);
-		block->fList.InsertTail(child);
-		block->Adopt(child);
-	}
+    for(Stmt *s = fList.GetHead(); s; s = s->GetNext()) {
+        Stmt *child = s->Clone(b);
+        block->fList.InsertTail(child);
+        block->Adopt(child);
+    }
 
-	return block;
+    return block;
 }

@@ -187,7 +187,9 @@ public:
 };
 
 // Just eat the warnings about format specifiers in DEBUG mode.
+#ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wformat"
+#endif
 bool ParentChecker::operator()(Stmt *s)
 {
     Stmt *c;

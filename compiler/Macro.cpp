@@ -19,22 +19,22 @@ using std::memcpy;
 
 Macro::Macro(const Token *tokens, int count, int argCount)
 {
-	fTokenCount = count;
+    fTokenCount = count;
 
-	if (count)
-	{
-		fTokens = new Token[count];
-		memcpy(fTokens, tokens, sizeof(Token) * count);
-	}
-	else
-		fTokens = nil;
+    if (count) {
+        fTokens = new Token[count];
+        memcpy(fTokens, tokens, sizeof(Token) * count);
+    }
+    else {
+        fTokens = nil;
+    }
 
-	fArgCount = argCount;
-	fMark = false;
+    fArgCount = argCount;
+    fMark = false;
 }
 
 
 Macro::~Macro()
 {
-	delete [] fTokens;
+    delete [] fTokens;
 }

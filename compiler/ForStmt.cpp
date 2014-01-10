@@ -14,81 +14,77 @@
 #include "ForStmt.h"
 #include "Bytecode.h"
 
+
 ForStmt::ForStmt(Stmt *init, Expr *c, Stmt *iterate, Stmt *body) :
-	fInit(init),
-	fCondition(c),
-	fIterate(iterate),
-	fBody(body)
+    fInit(init),        ///< Optional; can be NULL
+    fCondition(c),      ///< Optional; can be NULL
+    fIterate(iterate),  ///< Optional; can be NULL
+    fBody(body)
 {
-	// note that fInit, fCondition, and fIterate are all optional and
-	// may be NULL!
+    // we need to keep child statements in a list
+    fChildren.InsertHead(fBody);
+    if (fIterate)
+        fChildren.InsertHead(fIterate);
+    if (fInit)
+        fChildren.InsertHead(fInit);
 
-	// we need to keep child statments in a list
-	fChildren.InsertHead(fBody);
-	if (fIterate)
-		fChildren.InsertHead(fIterate);
-	if (fInit)
-		fChildren.InsertHead(fInit);
-
-	Adopt(init);
-	Adopt(iterate);
-	Adopt(body);
+    Adopt(init);
+    Adopt(iterate);
+    Adopt(body);
 }
 
 
 ForStmt::~ForStmt()
 {
-	delete fInit;
-	delete fCondition;
-	delete fIterate;
-	delete fBody;
+    delete fInit;
+    delete fCondition;
+    delete fIterate;
+    delete fBody;
 }
 
 
 void ForStmt::EmitActual(Bytecode &b)
 {
-	/*
-			init
-		loop:
-			test !condition -> break
-			body
-		continue:
-			iterate
-			jump -> loop
-		break:
-	*/
+    /*
+            init
+        loop:
+            test !condition -> break
+            body
+        continue:
+            iterate
+            jump -> loop
+        break:
+    */
 
-	if (fInit)
-		fInit->Emit(b);
+    if (fInit)
+        fInit->Emit(b);
 
+    int cLabel = b.PushFlow(Bytecode::kContinueFlow);
+    int bLabel = b.PushFlow(Bytecode::kBreakFlow);
 
-	int cLabel = b.PushFlow(Bytecode::kContinueFlow);
-	int bLabel = b.PushFlow(Bytecode::kBreakFlow);
+    int loopLabel = b.NewLabel();
 
-	int loopLabel = b.NewLabel();
+    if (fCondition)
+        fCondition->EmitBranch(b, bLabel, false);
 
-	if (fCondition)
-		fCondition->EmitBranch(b, bLabel, false);
+    fBody->Emit(b);
 
-	fBody->Emit(b);
+    b.SetLabel(cLabel);
+    if (fIterate)
+        fIterate->Emit(b);
+    b.AddJump(loopLabel);
 
-	b.SetLabel(cLabel);
-	if (fIterate)
-		fIterate->Emit(b);
-	b.AddJump(loopLabel);
-
-	b.SetLabel(bLabel);
-	b.PopFlow(Bytecode::kContinueFlow);
-	b.PopFlow(Bytecode::kBreakFlow);
+    b.SetLabel(bLabel);
+    b.PopFlow(Bytecode::kContinueFlow);
+    b.PopFlow(Bytecode::kBreakFlow);
 }
 
 
 Stmt* ForStmt::CloneActual(Mapping *b) const
 {
-	return new ForStmt(
-		fInit ? fInit->Clone(b) : 0,
-		fCondition ? fCondition->Clone(b) : 0,
-		fIterate ? fIterate->Clone(b) : 0,
-		fBody->Clone(b));
+    return new ForStmt(
+        fInit ? fInit->Clone(b) : 0,
+        fCondition ? fCondition->Clone(b) : 0,
+        fIterate ? fIterate->Clone(b) : 0,
+        fBody->Clone(b));
 }
-

@@ -22,23 +22,22 @@
 class BlockStmt : public Stmt
 {
 public:
-				BlockStmt();
-				~BlockStmt();
+                    BlockStmt();
+                    ~BlockStmt();
 
-	virtual Stmt*		GetChildren();
+    virtual Stmt*   GetChildren();
 
+    void            Add(Stmt *s);
+    void            Prepend(Stmt *s);
+    const Stmt*     GetHead() const { return fList.GetHead(); }
+    Stmt*           GetHead()       { return fList.GetHead(); }
+    Stmt*           RemoveHead()    { return fList.RemoveHead(); }
 
-	void			Add(Stmt *s);
-	void			Prepend(Stmt *s);
-	const Stmt*		GetHead() const	{ return fList.GetHead(); }
-	Stmt*			GetHead() 		{ return fList.GetHead(); }
-	Stmt*			RemoveHead()	{ return fList.RemoveHead(); }
-
-	virtual void	EmitActual(Bytecode &b);
-	virtual Stmt*	CloneActual(Mapping *b) const;
+    virtual void    EmitActual(Bytecode &b);
+    virtual Stmt*   CloneActual(Mapping *b) const;
 
 private:
-	PListS<Stmt>	fList;
+    PListS<Stmt>    fList;
 };
 
 

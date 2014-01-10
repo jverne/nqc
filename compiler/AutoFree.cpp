@@ -15,65 +15,64 @@
 
 AutoFreeGroup& GetAutoFreeGroup()
 {
-	static AutoFreeGroup afGroup;
+    static AutoFreeGroup afGroup;
 
-	return afGroup;
+    return afGroup;
 }
 
 
 AutoFreeGroup::AutoFreeGroup()
 {
-	head_.next_ = &tail_;
-	head_.prev_ = 0;
-	tail_.next_ = 0;
-	tail_.prev_ = &head_;
+    head_.next_ = &tail_;
+    head_.prev_ = 0;
+    tail_.next_ = 0;
+    tail_.prev_ = &head_;
 }
 
 
 void* AutoFreeGroup::allocate(size_t n)
 {
-	// allocate memory plus overhead for link
-	Link *link = (Link *) ::operator new(n + sizeof(Link));
+    // allocate memory plus overhead for link
+    Link *link = (Link *) ::operator new(n + sizeof(Link));
 
-	// link memory into pool list
-	link->next_ = head_.next_;
-	link->prev_ = &head_;
-	link->next_->prev_ = link;
-	link->prev_->next_ = link;
+    // link memory into pool list
+    link->next_ = head_.next_;
+    link->prev_ = &head_;
+    link->next_->prev_ = link;
+    link->prev_->next_ = link;
 
-	// return pointer to memory past the link
-	return (void *)((char *)link + sizeof(Link));
+    // return pointer to memory past the link
+    return (void *)((char *)link + sizeof(Link));
 }
 
 
 void AutoFreeGroup::free(void *ptr)
 {
-	if (ptr==0) return;
+    if (ptr==0) return;
 
-	// determine pointer to link
-	Link *link = (Link *)((char *)ptr - sizeof(Link));
+    // determine pointer to link
+    Link *link = (Link *)((char *)ptr - sizeof(Link));
 
-	dispose(link);
+    dispose(link);
 }
 
 
 void AutoFreeGroup::dispose(Link *link)
 {
-	// unlink memory from pool list
-	link->prev_->next_ = link->next_;
-	link->next_->prev_ = link->prev_;
+    // unlink memory from pool list
+    link->prev_->next_ = link->next_;
+    link->next_->prev_ = link->prev_;
 
-	// free the memory
-	::operator delete((void*)link);
+    // free the memory
+    ::operator delete((void*)link);
 }
 
 
 void AutoFreeGroup::freeAll()
 {
-	Link *link;
+    Link *link;
 
-	while((link = head_.next_)->next_ != 0)
-	{
-		dispose(link);
-	}
+    while((link = head_.next_)->next_ != 0) {
+        dispose(link);
+    }
 }

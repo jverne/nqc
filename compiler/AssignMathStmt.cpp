@@ -20,58 +20,53 @@
 
 
 AssignMathStmt::AssignMathStmt(Expr *lval, RCX_VarCode code, Expr * value)
- :	AssignStmt(lval, value),
- 	fCode(code)
+ :  AssignStmt(lval, value),
+    fCode(code)
 {
 }
 
 void AssignMathStmt::EmitActual(Bytecode &b)
 {
-	RCX_Value dst = fLval->EmitAny(b);
+    RCX_Value dst = fLval->EmitAny(b);
 
-	if (RCX_VALUE_TYPE(dst) == kRCX_VariableType)
-	{
-		EmitOperation(b, RCX_VALUE_DATA(dst));
-	}
-	else if (b.GetTarget()->fHasExtendedMathOps && (fCode != kRCX_IllegalVar))
-        {
-                // this firmware supports math assignment to generic sources
-                EmitValueOperation(b, dst);
-        }
-        else
-            Error(kErr_NotSupported, "math assignment to non-vars").Raise(&fLval->GetLoc());
+    if (RCX_VALUE_TYPE(dst) == kRCX_VariableType) {
+        EmitOperation(b, RCX_VALUE_DATA(dst));
+    }
+    else if (b.GetTarget()->fHasExtendedMathOps && (fCode != kRCX_IllegalVar)) {
+        // this firmware supports math assignment to generic sources
+        EmitValueOperation(b, dst);
+    } else
+        Error(kErr_NotSupported, "math assignment to non-vars").Raise(&fLval->GetLoc());
 
-	b.ReleaseTempEA(dst);
+    b.ReleaseTempEA(dst);
 }
 
 
 
 void AssignMathStmt::EmitOperation(Bytecode &b, int var)
 {
-	RCX_Value ea = fValue->EmitMath(b);
-	if (ea != Expr::kIllegalEA)
-	{
-		RCX_Cmd cmd;
-		cmd.MakeVar(fCode, (UByte)var, ea);
-		b.Add(cmd);
-		b.ReleaseTempEA(ea);
-	}
+    RCX_Value ea = fValue->EmitMath(b);
+    if (ea != Expr::kIllegalEA) {
+        RCX_Cmd cmd;
+        cmd.MakeVar(fCode, (UByte)var, ea);
+        b.Add(cmd);
+        b.ReleaseTempEA(ea);
+    }
 }
 
 void AssignMathStmt::EmitValueOperation(Bytecode &b, RCX_Value dst)
 {
-        RCX_Value ea = fValue->EmitMath(b);
-        if (ea != Expr::kIllegalEA)
-        {
-            RCX_Cmd cmd;
-            cmd.MakeSetMath(dst, ea, fCode);
-            b.Add(cmd);
-            b.ReleaseTempEA(ea);
-        }
+    RCX_Value ea = fValue->EmitMath(b);
+    if (ea != Expr::kIllegalEA){
+        RCX_Cmd cmd;
+        cmd.MakeSetMath(dst, ea, fCode);
+        b.Add(cmd);
+        b.ReleaseTempEA(ea);
+    }
 }
 
 
 Stmt* AssignMathStmt::CloneActual(Mapping *m) const
 {
-	return new AssignMathStmt(fLval->Clone(m), fCode, fValue->Clone(m));
+    return new AssignMathStmt(fLval->Clone(m), fCode, fValue->Clone(m));
 }

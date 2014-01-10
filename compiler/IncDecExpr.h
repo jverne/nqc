@@ -27,21 +27,21 @@
 class IncDecExpr : public Expr, public Translatable
 {
 public:
-			IncDecExpr(int var, bool inc, bool pre, const LexLocation &loc);
-			~IncDecExpr();
+            IncDecExpr(int var, bool inc, bool pre, const LexLocation &loc);
+            ~IncDecExpr();
 
-	virtual Expr*		Clone(Mapping *b) const;
-	virtual bool		Contains(int var) const;
-	virtual bool		PromiseConstant() const	{ return false; }
-	virtual RCX_Value	EmitAny_(Bytecode &b) const;
-	virtual bool		EmitTo_(Bytecode &b, int dst) const;
-	virtual bool		EmitSide_(Bytecode &b) const;
+    virtual Expr*       Clone(Mapping *b) const;
+    virtual bool        Contains(int var) const;
+    virtual bool        PromiseConstant() const { return false; }
+    virtual RCX_Value   EmitAny_(Bytecode &b) const;
+    virtual bool        EmitTo_(Bytecode &b, int dst) const;
+    virtual bool        EmitSide_(Bytecode &b) const;
 
-	void				Translate(int from, int to);
+    void                Translate(int from, int to);
 private:
-	int			fVar;
-	bool		fInc;
-	bool		fPre;
+    int         fVar;
+    bool        fInc;
+    bool        fPre;
 };
 
 

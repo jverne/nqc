@@ -21,28 +21,29 @@ using std::size_t;
 class AutoFreeGroup
 {
 public:
-			AutoFreeGroup();
+    AutoFreeGroup();
 
-	// these are called by new/delete operators
-	void*	allocate(size_t);
-	void	free(void*);
+    /// Called by ::new operator
+    void* allocate(size_t);
+    //// Called by ::delete operator
+    void  free(void*);
 
-	// call this to release all remaining objects
-	void	freeAll();
+    /// Call this to release all remaining objects
+    void freeAll();
 
 private:
-	struct Link
-	{
-		Link*	next_;
-		Link*	prev_;
-	};
+    struct Link
+    {
+        Link* next_;
+        Link* prev_;
+    };
 
-	// internal call to unlink and dispose an item
-	void	dispose(Link *link);
+    // internal call to unlink and dispose an item
+    void dispose(Link *link);
 
 
-	Link head_;
-	Link tail_;
+    Link head_;
+    Link tail_;
 };
 
 
@@ -51,10 +52,10 @@ extern AutoFreeGroup& GetAutoFreeGroup();
 class AutoFree
 {
 public:
-	void* operator new(size_t n)			{ return GetAutoFreeGroup().allocate(n); }
-	void operator delete(void* ptr, size_t)	{ GetAutoFreeGroup().free(ptr); }
-	void* operator new[](size_t n)			{ return GetAutoFreeGroup().allocate(n); }
-	void operator delete[](void * ptr, size_t)	{ GetAutoFreeGroup().free(ptr); }
+    void* operator new(size_t n) { return GetAutoFreeGroup().allocate(n); }
+    void operator delete(void* ptr, size_t) { GetAutoFreeGroup().free(ptr); }
+    void* operator new[](size_t n) { return GetAutoFreeGroup().allocate(n); }
+    void operator delete[](void * ptr, size_t) { GetAutoFreeGroup().free(ptr); }
 };
 
 #endif

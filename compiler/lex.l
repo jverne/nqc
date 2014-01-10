@@ -210,8 +210,8 @@ int LexPush(Buffer *b) {
     index = Compiler::Get()->AddBuffer(b);
 
     // make sure max file depth and file count haven't been exceeded
-    if (sFileDepth == kMaxFileDepth ||
-        index > kMaxFileCount) return 0;
+    if (sFileDepth == kMaxFileDepth || index > kMaxFileCount)
+        return 0;
 
     // save line number and buffer in previous file
     if (sCurrentInputFile) {
