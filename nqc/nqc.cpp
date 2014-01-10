@@ -662,7 +662,7 @@ RCX_Result Download(RCX_Image *image)
     RCX_Result result;
     RCX_Cmd cmd;
 
-    fprintf(STDERR, "Downloading program:");
+    fprintf(STDERR, "Sending program:");
 
     result = gLink.Open();
     if (result != kRCX_OK) goto ErrorReturn;
@@ -676,7 +676,7 @@ RCX_Result Download(RCX_Image *image)
     return kRCX_OK;
 
 ErrorReturn:
-    fprintf(STDERR, "Error: firmware download failed (%d)\n", result);
+    fprintf(STDERR, "Error: program transfer failed (%d)\n", result);
     return result;
 }
 
@@ -737,7 +737,7 @@ RCX_Result UploadDatalog(bool verbose)
     RCX_Result result;
     int i;
 
-    fprintf(STDERR, "Uploading Datalog");
+    fprintf(STDERR, "Fetching Datalog");
 
     result = gLink.Open();
     if (RCX_ERROR(result)) return result;
@@ -819,7 +819,7 @@ RCX_Result DownloadFirmware(const char *filename, bool fast)
         return kQuietError;
     }
 
-    fprintf(STDERR, "Downloading firmware:");
+    fprintf(STDERR, "Sending firmware:");
 
     result = gLink.Open();
     if (RCX_ERROR(result)) goto ErrorReturn;
@@ -832,7 +832,7 @@ RCX_Result DownloadFirmware(const char *filename, bool fast)
     return kRCX_OK;
 
 ErrorReturn:
-    fprintf(STDERR, "Error: firmware download failed (%d)\n", result);
+    fprintf(STDERR, "Error: firmware transfer failed (%d)\n", result);
     return result;
 }
 
