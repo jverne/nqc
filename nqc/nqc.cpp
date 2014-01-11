@@ -83,7 +83,7 @@ public:
     void Close();
     RCX_Result Send(const RCX_Cmd *cmd, bool retry=true);
 
-    void SetSerialPort(const char *sp)   { fSerialPort = sp; }
+    void SetSerialPort(const char *sp) { fSerialPort = sp; }
 
     bool DownloadProgress(int soFar, int total);
 
@@ -662,7 +662,7 @@ RCX_Result Download(RCX_Image *image)
     RCX_Result result;
     RCX_Cmd cmd;
 
-    fprintf(STDERR, "Sending program:");
+    fprintf(STDERR, "Sending program: [%d bytes]\n", image->GetSize());
 
     result = gLink.Open();
     if (result != kRCX_OK) goto ErrorReturn;
@@ -688,7 +688,8 @@ RCX_Image *Compile(const char *sourceFile, int flags)
     if (sourceFile) {
         FILE *fp  = fopen(sourceFile, "rb");
         if (!fp) {
-            fprintf(gErrorStream, "Error: could not open file \"%s\" (%d)\n", sourceFile, errno);
+            fprintf(gErrorStream, "Error: could not open file \"%s\" (%d)\n",
+                sourceFile, errno);
             return nil;
         }
 
@@ -819,7 +820,7 @@ RCX_Result DownloadFirmware(const char *filename, bool fast)
         return kQuietError;
     }
 
-    fprintf(STDERR, "Sending firmware:");
+    fprintf(STDERR, "Sending firmware [%d bytes]:\n", srec.GetLength());
 
     result = gLink.Open();
     if (RCX_ERROR(result)) goto ErrorReturn;
@@ -1188,8 +1189,7 @@ bool AutoLink::DownloadProgress(int /* soFar */, int /* total */)
 void MyCompiler::AddError(const Error &e, const LexLocation *loc)
 {
     // check the error count
-    if (!e.IsWarning())
-    {
+    if (!e.IsWarning()) {
         int errorCount = ErrorHandler::Get()->GetErrorCount();
         // only print the first few errors
         if (errorCount > kMaxPrintedErrors) {

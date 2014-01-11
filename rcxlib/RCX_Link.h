@@ -47,12 +47,11 @@ class RCX_Link
 public:
     enum {
         // constants for Open options
-        kRxTimeoutMask =    0x0000ffff,
-        kVerboseMode =      0x80000000,
+        kRxTimeoutMask = 0x0000ffff,
+        kVerboseMode = 0x80000000,
 
-        // max sizes (much bigger than strictly necessary
-        kMaxCmdLength = 4000,
-        kMaxReplyLength = 1000
+        kMaxCmdLength = 4000,   ///< Maximum command size (much bigger than strictly necessary)
+        kMaxReplyLength = 1000  ///< Maximum reply size (much bigger than strictly necessary)
     };
 
     RCX_Link();
@@ -68,10 +67,18 @@ public:
     RCX_Result Send(const UByte *data, int length, bool retry=true,
         int timeout=0);
 
-    // GetReply() and GetReplyByte() only look at the reply data - the
-    // inverted command byte is ignored.  This makes the indexing consistent
-    // with RCX_Result (which represents the number of data bytes in the reply)
+    /**
+     * Only looks at the reply data - the
+     * inverted command byte is ignored.  This makes the indexing consistent
+     * with RCX_Result (which represents the number of data bytes in the reply)
+     */
     RCX_Result GetReply(UByte *data, int maxLength);
+
+    /**
+     * Only looks at the reply data - the
+     * inverted command byte is ignored.  This makes the indexing consistent
+     * with RCX_Result (which represents the number of data bytes in the reply)
+     */
     UByte GetReplyByte(int index) const { return fReply[index + 1]; }
 
     RCX_Result Download(const RCX_Image &image, int programNumber);
@@ -84,9 +91,9 @@ public:
     RCX_Result GetBatteryLevel();
     RCX_Result GetValue(RCX_Value value);
 
-    // This function should only be called after Sync() has been called.
-    // It can be used to determine if an kRCX_ReplyError error was due
-    // to missing firmware.
+    /// This function should only be called after Sync() has been called.
+    /// It can be used to determine if an kRCX_ReplyError error was due
+    /// to missing firmware.
     bool WasErrorFromMissingFirmware();
 
     void SetOmitHeader(bool value) {

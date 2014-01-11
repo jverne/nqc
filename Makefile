@@ -126,7 +126,7 @@ endif
 # Debug builds for most Clang/GCC environments.
 # This implies -DDEBUG_TIMEOUT
 #
-CFLAGS += -DDEBUG -DPDEBUG -g -O0
+#CFLAGS += -DDEBUG -DPDEBUG -g -O0
 
 #
 # Object files

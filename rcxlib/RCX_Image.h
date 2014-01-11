@@ -54,69 +54,67 @@ public:
         class Chunk;
 
         RCX_Image();
-        ~RCX_Image()	{ Clear(); }
+        ~RCX_Image() { Clear(); }
 
-        RCX_Result	Read(const char *filename);
-        bool		Write(const char *filename);
+        RCX_Result Read(const char *filename);
+        bool Write(const char *filename);
 
-        RCX_Result	Download(RCX_Link *link, int programNumber=0) const;
-        void		Print(RCX_Printer *dst, RCX_SourceFiles *sf=0, bool genLASM=false) const;
+        RCX_Result Download(RCX_Link *link, int programNumber=0) const;
+        void Print(RCX_Printer *dst, RCX_SourceFiles *sf=0, bool genLASM=false) const;
 
-        int		GetChunkCount() const	{ return fChunks.size(); }
-        void		AddChunk(RCX_ChunkType type, UByte number,
-                                 const UByte *data, int length, const char *name,
-                                 const RCX_SourceTag *tags, int tagCount);
+        int GetChunkCount() const { return fChunks.size(); }
+        void AddChunk(RCX_ChunkType type, UByte number,
+        const UByte *data, int length, const char *name,
+        const RCX_SourceTag *tags, int tagCount);
 
-        const Chunk&	GetChunk(int i) const { return *fChunks[i]; }
+        const Chunk& GetChunk(int i) const { return *fChunks[i]; }
 
-        void		SetVariable(int index, const char *name);
-        void		SetTargetType(RCX_TargetType t) { fTargetType = t; }
+        void SetVariable(int index, const char *name);
+        void SetTargetType(RCX_TargetType t) { fTargetType = t; }
 
-        void		Clear();
-        int		GetSize() const;
+        void Clear();
+        int GetSize() const;
 
-        class	Chunk
+        class   Chunk
         {
         public:
-
-                const UByte*	GetData() const { return fData; }
-                int		GetLength() const { return fLength; }
-                UByte		GetNumber() const { return fNumber; }
-                RCX_ChunkType GetType() const { return fType; }
+            const UByte* GetData() const { return fData; }
+            int GetLength() const { return fLength; }
+            UByte GetNumber() const { return fNumber; }
+            RCX_ChunkType GetType() const { return fType; }
 
         private:
-		Chunk();
-		~Chunk();
+            Chunk();
+            ~Chunk();
 
-                // partial ordering for sorting
-                bool	operator<(const Chunk &rhs) const;
+            // partial ordering for sorting
+            bool operator<(const Chunk &rhs) const;
 
-                int		fLength;
-                UByte*		fData;
-                UByte		fNumber;
-                RCX_ChunkType fType;
-                string		fName;
-                RCX_SourceTag*	fTags;
-                int		fTagCount;
+            int  fLength;
+            UByte* fData;
+            UByte fNumber;
+            RCX_ChunkType fType;
+            string fName;
+            RCX_SourceTag* fTags;
+            int fTagCount;
 
-                friend class RCX_Image;
+            friend class RCX_Image;
         };
 
 private:
-        struct	Variable
-        {
-                int	fIndex;
-                string	fName;
+        struct Variable {
+            int fIndex;
+            string  fName;
         };
 
-        const Chunk*	FindChunk(RCX_ChunkType type, UByte number) const;
-        std::string*	GetNameString(UByte type, UByte index);
+        const Chunk* FindChunk(RCX_ChunkType type, UByte number) const;
+        std::string* GetNameString(UByte type, UByte index);
 
-        const Chunk**	BuildIndex() const;
+        const Chunk** BuildIndex() const;
 
-        vector<Chunk*>		fChunks;
-        vector<Variable>	fVars;
-        RCX_TargetType		fTargetType;
+        vector<Chunk*> fChunks;
+        vector<Variable> fVars;
+        RCX_TargetType fTargetType;
 };
 
 
