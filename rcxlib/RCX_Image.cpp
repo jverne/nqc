@@ -17,6 +17,7 @@
 #include "RCX_Disasm.h"
 #include "RCX_Link.h"
 #include "RCX_Cmd.h"
+#include "PDebug.h"
 
 #include "rcxifile.h"
 
@@ -92,45 +93,44 @@ void RCX_Image::SetVariable(int index, const char *name)
 
 void RCX_Image::Print(RCX_Printer *dst, RCX_SourceFiles *sf, bool genLASM) const
 {
-        RCX_Disasm disasm(fTargetType);
-        char line[256];
-        const Chunk **index = BuildIndex();
+    RCX_Disasm disasm(fTargetType);
+    char line[256];
+    const Chunk **index = BuildIndex();
 
-        for(size_t i=0; i<fVars.size(); i++)
-        {
-                sprintf(line, "%s Var %d = %s\n", genLASM ? ";" : "***", fVars[i].fIndex, fVars[i].fName.c_str());
-                dst->Print(line);
-        }
+    for(size_t i=0; i<fVars.size(); i++) {
+        sprintf(line, "%s Var %d = %s\n",
+            genLASM ? ";" : "***", fVars[i].fIndex, fVars[i].fName.c_str());
+        dst->Print(line);
+    }
 
-        for(int i=0; i<(int)fChunks.size(); i++)
-        {
-                const Chunk &f = *index[i];
+    for(int i=0; i<(int)fChunks.size(); i++) {
+        const Chunk &f = *index[i];
 
-                char typeName[10];
+        char typeName[10];
 
-                GetChunkTypeName(typeName, f.fType);
-                sprintf(line, "\n%s %s %d", genLASM ? ";" : "***", typeName, f.fNumber);
-                dst->Print(line);
-
-                sprintf(line, " = %s, size: %d bytes\n", f.fName.c_str(), f.fLength);
-                dst->Print(line);
-
-                if (IsCodeChunkType(f.fType))
-                {
-                        disasm.Print(dst, genLASM, f.fName, f.fType, f.fNumber, f.fData, f.fLength, sf, f.fTags, f.fTagCount);
-                }
-                else
-                {
-                        HexDump(dst, genLASM, f.fName, f.fType, f.fNumber, f.fData, f.fLength);
-                }
-        }
-
-        sprintf(line, "\n%sTotal size: %d bytes\n", genLASM ? ";" : "", GetSize());
+        GetChunkTypeName(typeName, f.fType);
+        sprintf(line, "\n%s %s %d", genLASM ? ";" : "***", typeName, f.fNumber);
         dst->Print(line);
 
-        delete [] index;
-}
+        sprintf(line, " = %s, size: %d bytes\n", f.fName.c_str(), f.fLength);
+        dst->Print(line);
 
+        if (IsCodeChunkType(f.fType)) {
+            PDEBUGSTR("Found a code chunk");
+            disasm.Print(dst, genLASM, f.fName, f.fType, f.fNumber, f.fData,
+                f.fLength, sf, f.fTags, f.fTagCount);
+        }
+        else {
+            PDEBUGSTR("Found a non-code chunk");
+            HexDump(dst, genLASM, f.fName, f.fType, f.fNumber, f.fData, f.fLength);
+        }
+    }
+
+    sprintf(line, "\n%sTotal size: %d bytes\n", genLASM ? ";" : "", GetSize());
+    dst->Print(line);
+
+    delete [] index;
+}
 
 
 const RCX_Image::Chunk **RCX_Image::BuildIndex() const
@@ -487,124 +487,92 @@ void GetChunkTypeName(char *dst, RCX_ChunkType type)
 
 bool IsCodeChunkType(RCX_ChunkType type)
 {
-        switch(type) {
-                case kRCX_TaskChunk:
-                case kRCX_SubChunk:
-                case kRCX_SoundChunk:
-                        return true;
-                default:
-                        return false;
-        }
+    switch(type) {
+        case kRCX_TaskChunk:
+        case kRCX_SubChunk:
+        case kRCX_SoundChunk:
+            return true;
+        default:
+            return false;
+    }
 }
 
-void HexDump(RCX_Printer *dst, bool genLASM, string name,
-  RCX_ChunkType type, int ChunkNum, const UByte *data, int count)
-{
-        char line[256];
-        char *ptr;
 
-        int offset = 0;
+void HexDump(
+    RCX_Printer *dst,
+    bool genLASM,
+    string name,
+    RCX_ChunkType type,
+    int ChunkNum,
+    const UByte *data,
+    int count
+){
+    char line[256];
+    char *ptr;
 
-        if (genLASM) {
-          // output the header
-          sprintf(line, ";%s\n", name.c_str());
-          dst->Print(line);
-          if (type == kRCX_AnimationChunk)
+    int offset = 0;
+
+    if (genLASM) {
+        // output the header
+        sprintf(line, ";%s\n", name.c_str());
+        dst->Print(line);
+        if (type == kRCX_AnimationChunk)
             sprintf(line, "\tmood\t%d\n", ChunkNum);
-//          else if (type == kRCX_DataChunk)
-//            sprintf(line, "\tdata\t%d\n", ChunkNum);
-          dst->Print(line);
 
-          // output the body
+        dst->Print(line);
 
-/*
-          if (type == kRCX_DataChunk)
-          {
-              sprintf(line, "");
-              ptr = line;
-              sprintf(ptr, "\t\t");
-              ptr += strlen(ptr);
-              // print data bytes (all but one)
-              for(int i=0; i<count-1; ++i)
-              {
-                      sprintf(ptr, "%d,", *data++);
-                      ptr += strlen(ptr);
-              }
-              // print the last byte
-              sprintf(ptr, "%d", *data++);
-              ptr += strlen(ptr);
-              if (strlcat(ptr, "\n", sizeof(ptr)) >= sizeof(ptr) {
-			fprintf(stderr, "Truncation!");
-		}
-              dst->Print(line);
-          }
-          else
-*/
-          {
-              // output 2 bytes per line
-              while(count)
-              {
-                  // max of 2 bytes per line
-                  int n = count;
-                  if (n > 2)
-                      n = 2;
+        // output the body
+        // output 2 bytes per line
+        while (count) {
+            // max of 2 bytes per line
+            int n = count;
+            if (n > 2)
+                n = 2;
 
-                  // print tab
-                  sprintf(line, "\t");
-                  ptr = line + strlen(line);
+            // print tab
+            sprintf(line, "\t");
+            ptr = line + strlen(line);
 
-                  // print data bytes
-                  for(int i=0; i<n; ++i)
-                  {
-                          sprintf(ptr, "%d ", *data++);
-                          ptr += strlen(ptr);
-                  }
-
-              //    strcat(ptr, "\n");
-              if (strlcat(ptr, "\n", sizeof(ptr)) >= sizeof(ptr)) {
-			fprintf(stderr, "Truncation!");
-		}
-                  dst->Print(line);
-
-                  count -= n;
-              }
-          }
-          // output the footer
-          if (type == kRCX_AnimationChunk)
-            sprintf(line, "\tendm\n");
-//          else if (type == kRCX_DataChunk)
-//            sprintf(line, "\tendd\n");
-          dst->Print(line);
-        }
-        else
-        {
-            while(count)
-            {
-                    // max of 16 bytes per line
-                    int n = count;
-                    if (n > 16)
-                    {
-                            n = 16;
-                    }
-
-                    // print offset
-                    sprintf(line, "%03x  ", offset);
-                    ptr = line + strlen(line);
-
-                    // print data bytes
-                    for(int i=0; i<n; ++i)
-                    {
-                            sprintf(ptr, "%02x ", *data++);
-                            ptr += strlen(ptr);
-                    }
-
-                    strcat(ptr, "\n");
-                    dst->Print(line);
-
-                    count -= n;
-                    offset += count;
+            // print data bytes
+            for (int i=0; i<n; ++i) {
+                sprintf(ptr, "%d ", *data++);
+                ptr += strlen(ptr);
             }
+
+            strcat(ptr, "\n");
+            dst->Print(line);
+
+            count -= n;
         }
 
-}
+        // output the footer
+        if (type == kRCX_AnimationChunk)
+            sprintf(line, "\tendm\n");
+        dst->Print(line);
+    }
+    else {
+        while (count) {
+            // max of 16 bytes per line
+            int n = count;
+            if (n > 16) {
+                n = 16;
+            }
 
+            // print offset
+            sprintf(line, "%03x  ", offset);
+            ptr = line + strlen(line);
+
+            // print data bytes
+            for (int i=0; i<n; ++i) {
+                sprintf(ptr, "%02x ", *data++);
+                ptr += strlen(ptr);
+            }
+
+            strcat(ptr, "\n");
+            dst->Print(line);
+
+            count -= n;
+            offset += count;
+        }
+    }
+}

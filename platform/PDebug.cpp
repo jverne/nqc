@@ -65,7 +65,7 @@ const char *get_leafname(const char *filename)
 
 void _p_debugstr(const char *text)
 {
-	printf("%s\n", text);
+	printf("DBG: %s\n", text);
 }
 
 #endif
