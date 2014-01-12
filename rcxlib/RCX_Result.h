@@ -28,7 +28,7 @@ typedef int RCX_Result;
 #define kRCX_RequestError           -4  ///< attempt to send too much data
 #define kRCX_FileError              -5  ///< could not open/read/write file
 #define kRCX_FormatError            -6  ///< unknown file format
-#define kRCX_AbortError             -7  ///< canceled by RCX_Link::DownloadProgress()
+#define kRCX_AbortError             -7  ///< canceled by RCX_Link::DownloadProgress
 #define kRCX_MemFullError           -8  ///< not enough room in RCX program memory
 
 // New error codes as of 2.4a3
@@ -36,7 +36,7 @@ typedef int RCX_Result;
 #define kRCX_USBUnsupportedError    -10 ///< USB is not yet supported (depends on the OS)
 #define kRCX_GhostNotFoundError     -11 ///< USB requires Ghost, which is not installed
 
-#define kRCX_LastError              -11 ///<  last error code
+#define kRCX_LastError              -11 ///< Last error code so classes can hook their own codes in
 
 /// Convenience define to check if a code is an error condition.
 #define RCX_ERROR(result)   ((result) < 0)

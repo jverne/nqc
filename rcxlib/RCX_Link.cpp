@@ -624,7 +624,8 @@ RCX_Result RCX_Link::Send(const UByte *data, int length, bool retry, int timeout
         return kRCX_RequestError;
     }
 
-    fResult = fTransport->Send(data, length, fReply, expected, kMaxReplyLength, retry, timeout);
+    fResult = fTransport->Send(data, length, fReply, expected,
+        kMaxReplyLength, retry, timeout);
 
     return fResult;
 }
@@ -658,11 +659,12 @@ void RCX_Link::BeginProgress(int total)
 bool RCX_Link::IncrementProgress(int delta)
 {
     fDownloadSoFar += delta;
-    return fDownloadTotal ? DownloadProgress(fDownloadSoFar, fDownloadTotal) : true;
+    return fDownloadTotal ?
+        DownloadProgress(fDownloadSoFar, fDownloadTotal, delta) : true;
 }
 
 
-bool RCX_Link::DownloadProgress(int /* soFar */, int /* total */)
+bool RCX_Link::DownloadProgress(int /* soFar */, int /* total */, int /* chunkSize */)
 {
     return true;
 }

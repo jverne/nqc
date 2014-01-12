@@ -85,7 +85,7 @@ public:
 
     void SetSerialPort(const char *sp) { fSerialPort = sp; }
 
-    bool DownloadProgress(int soFar, int total);
+    bool DownloadProgress(int soFar, int total, int chunkSize);
 
 private:
     const char* fSerialPort;
@@ -149,14 +149,14 @@ enum {
     kCompileStdinCode
 };
 
-// these must be in the same order as the codes for the long options
+/// These must be in the same order as the codes for the long options
 static const char *sActionNames[] = {
     "datalog", "datalog_full", "clear", "firmware", "firmfast",
     "getversion", "batterylevel", "near", "far", "watch", "sleep",
     "run", "pgm", "msg", "raw", "raw1", "remote", "api", "help", ""
 };
 
-// these MUST be in the same order as the RCX_TargetType values
+/// These MUST be in the same order as the RCX_TargetType values
 static const char *sTargetNames[] = {
     "RCX",
     "CM",
@@ -213,7 +213,7 @@ static void PrintVersion();
 
 AutoLink gLink;
 
-// I assume everyone is running 0328 or later.
+/// Default is an RCX running firmware v.0328 or later.
 RCX_TargetType gTargetType = kRCX_RCX2Target;
 bool gVerbose = false;
 int gTimeout = 0;
@@ -285,6 +285,8 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
 #endif
 
         if (isOption) {
+            // Process the option(s), dispatching any actions we
+            // also find.
             int code = GetActionCode(a+1);
 
             if (code) {
@@ -456,6 +458,7 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
             }
         }
         else if (!fileProcessed) {
+            // Not an option, so must be a file.
             result = ProcessFile(a, req);
 
 #ifdef CHECK_LEAKS
@@ -508,7 +511,13 @@ RCX_Result SetTarget(const char *name)
     return kUsageError;
 }
 
-
+/**
+ * Set the clock/watch on the target
+ *
+ * @param timeSpec a string to be converted into 24h hh:mm time, or "now" for current
+ *  local time
+ * @return the RCX_Result from running kRCX_SetWatchOp
+ */
 RCX_Result SetWatch(const char *timeSpec)
 {
     int hour;
@@ -644,7 +653,7 @@ RCX_Result GetBatteryLevel()
 
     result = gLink.GetBatteryLevel();
     if (!RCX_ERROR(result)) {
-        fprintf(STDERR, "Battery Level = %3.1fV\n", (double)result / 1000);
+        fprintf(STDERR, "Battery Level = %3.3fV\n", (double)result / 1000);
         int lowBatt = (gTargetType == kRCX_SpyboticsTarget) ? kLow45Battery : kLowBattery;
         if (result < lowBatt)
             fprintf(STDERR, "Warning: battery level is low.\n");
@@ -662,7 +671,7 @@ RCX_Result Download(RCX_Image *image)
     RCX_Result result;
     RCX_Cmd cmd;
 
-    fprintf(STDERR, "Sending program: [%d bytes]\n", image->GetSize());
+    fprintf(STDERR, "Sending program [%d bytes]:\n", image->GetSize());
 
     result = gLink.Open();
     if (result != kRCX_OK) goto ErrorReturn;
@@ -794,7 +803,7 @@ RCX_Result GetVersion()
     result = gLink.GetVersion(rom, ram);
     if (RCX_ERROR(result)) return result;
 
-    fprintf(STDERR, "Current Version: %08lx/%08lx\n", rom, ram);
+    fprintf(STDERR, "Current Version [ROM/Firmware]: %08lx/%08lx\n", rom, ram);
 
     return result;  
 }
@@ -976,7 +985,7 @@ RCX_Result SetErrorFile(const char *filename)
 
 RCX_Result RedirectOutput(const char *filename)
 {
-    if (*filename==0) {
+    if (*filename == 0) {
         fprintf(STDERR, "Error: -R requires a filename\n");
         return kQuietError;
     }
@@ -1014,7 +1023,8 @@ void DefineMacro(const char *text)
 int GetActionCode(const char *arg)
 {
     for (int i=0; i< (int)(sizeof(sActionNames)/sizeof(const char *)); ++i)
-        if (strcmp(sActionNames[i], arg)==0) return i+kFirstActionCode;
+        if (strcmp(sActionNames[i], arg)==0)
+            return i+kFirstActionCode;
 
     return 0;
 }
@@ -1046,22 +1056,26 @@ void PrintError(RCX_Result error, const char *filename)
             }
             break;
         case kRCX_MemFullError:
-            fprintf(STDERR, "Not enough free memory in %s to download program\n", targetName);
+            fprintf(STDERR, "Not enough free memory in %s to download program\n",
+                targetName);
             break;
         case kRCX_FileError:
             fprintf(STDERR, "Could not access file \'%s\'\n", filename);
             break;
         case kRCX_FormatError:
-            fprintf(STDERR, "File \'%s\' is not a valid RCX image\n", filename);
+            fprintf(STDERR, "File \'%s\' is not a valid RCX image\n",
+                filename);
             break;
         case kUsageError:
             PrintVersion();
-            fprintf(STDERR, "Usage error: try \'nqc -help\' to display options\n");
+            fprintf(STDERR,
+                "Usage error: try \'nqc -help\' to display options\n");
             break;
         case kQuietError:
             break;
         case kRCX_PipeModeError:
-            fprintf(STDERR, "USB driver does not support -firmfast, CyberMaster, or Spybotics\n");
+            fprintf(STDERR,
+                "USB driver does not support -firmfast, CyberMaster, or Spybotics\n");
             break;
         case kRCX_USBUnsupportedError:
             fprintf(STDERR, "USB Tower not supported\n");
@@ -1122,7 +1136,7 @@ void PrintUsage()
     fprintf(stdout,"   -watch <hhmm> | now: set %s clock to <hhmm> or system time\n", targetName);
     fprintf(stdout,"   -firmware <filename>: send firmware to %s\n", targetName);
     fprintf(stdout,"   -firmfast <filename>: send firmware to %s at quad speed\n", targetName);
-    fprintf(stdout,"   -getversion: report %s firmware version\n", targetName);
+    fprintf(stdout,"   -getversion: report %s ROM and firmware version\n", targetName);
     fprintf(stdout,"   -batterylevel: report battery level in volts\n");
     fprintf(stdout,"   -sleep <timeout>: set %s sleep timeout in minutes\n", targetName);
     fprintf(stdout,"   -msg <number>: send IR message to %s\n", targetName);
@@ -1178,10 +1192,24 @@ RCX_Result AutoLink::Send(const RCX_Cmd *cmd, bool retry)
 }
 
 
-bool AutoLink::DownloadProgress(int /* soFar */, int /* total */)
+bool AutoLink::DownloadProgress(int /* soFar */, int /* total */, int chunkSize)
 {
-    fputc('.', STDERR);
+    char c;
+    if (chunkSize <= 20) {
+        c = '.';
+    } else if (chunkSize <= 80) {
+        c = '-';
+    } else if (chunkSize <= 140) {
+        c = '+';
+    } else if (chunkSize <= 200) {
+        c = '*';
+    } else {
+        c = '#';
+    }
+
+    fputc(c, STDERR);
     fflush(STDERR);
+
     return true;
 }
 

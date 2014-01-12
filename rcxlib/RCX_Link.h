@@ -85,7 +85,7 @@ public:
     RCX_Result DownloadFirmware(const UByte *data, int length, int start,
         bool fast);
 
-    virtual bool DownloadProgress(int soFar, int total);
+    virtual bool DownloadProgress(int soFar, int total, int chunkSize);
 
     RCX_Result GetVersion(ULong &rom, ULong &ram);
     RCX_Result GetBatteryLevel();
