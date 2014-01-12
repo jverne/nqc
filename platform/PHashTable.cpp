@@ -42,7 +42,7 @@ PHashable* P_HashTable::_Find(const char *key) {
     PHashable *ptr;
     int hash = Hash(key);
 
-    for(ptr=fBuckets[hash].GetHead(); ptr; ptr=ptr->GetNext()) {
+    for (ptr=fBuckets[hash].GetHead(); ptr; ptr=ptr->GetNext()) {
         if (ptr->MatchKey(key)) return ptr;
     }
 
@@ -68,7 +68,7 @@ void P_HashTable::DeleteAll() {
     int i;
     PHashable *item;
 
-    for(i=0; i<fSize; i++) {
+    for (i=0; i<fSize; i++) {
         while((item = fBuckets[i].RemoveHead()) != nil)
             delete item;
     }
@@ -79,7 +79,7 @@ int P_HashTable::Hash(const char *string) {
     register unsigned long h=0,g;
     register const char *p;
 
-    for(p=string; *p != 0; p++) {
+    for (p=string; *p != 0; p++) {
         h = (h <<4) + (*p);
         if ((g= h & 0xf0000000) != 0) {
             h = h ^ (g >> 24);

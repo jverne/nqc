@@ -165,7 +165,7 @@ RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5
 RCX_Cmd* RCX_Cmd::MakeUnlock()
 {
     // TODO: why is this kRCX_UnlockOp instead of TRCXop rcxGetVersion, e.g.:
-    //return Set((TRCXop)rcxGetVersion, 1, 3, 5, 7, 0xb);
+    //return Set((TRCXop)rcxGetVersion, 1, 3, 5, 7, 11);
     return Set(kRCX_UnlockOp, 1, 3, 5, 7, 0xb);
 }
 

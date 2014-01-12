@@ -41,19 +41,16 @@ RCX_Log::~RCX_Log()
 void RCX_Log::SetLength(int length)
 {
 	// clear old data
-	if (fLength)
-	{
+	if (fLength) {
 		delete [] fData;
 		delete [] fTypes;
 	}
 
-	if (length)
-	{
+	if (length) {
 		fData = new short[length];
 		fTypes = new UByte[length];
 	}
-	else
-	{
+	else {
 		fData = nil;
 		fTypes = nil;
 	}
@@ -81,8 +78,7 @@ RCX_Result RCX_Log::Upload(RCX_Link *link)
 	length = (link->GetReplyByte(1) + (link->GetReplyByte(2) << 8)) - 1;
 	SetLength(length);
 
-	for(pos = 0; pos<length; )
-	{
+	for (pos = 0; pos<length; ) {
 		// how many points to upload
 		n = length - pos;
 		if (n > kPointsPerUpload)
@@ -94,15 +90,14 @@ RCX_Result RCX_Log::Upload(RCX_Link *link)
 		if (result != n * 3) return kRCX_ReplyError;
 
 		// copy data into log
-		for(i=0; i<n; i++)
-		{
+		for (i=0; i<n; i++) {
 			fTypes[pos+i] = link->GetReplyByte(i*3);
 			fData[pos+i] = (short)(link->GetReplyByte(i*3+1) +
 							((UShort)link->GetReplyByte(i*3+2) << 8));
 		}
 
 		pos += n;
-		if (!link->DownloadProgress(pos, length)) break;
+		if (!link->DownloadProgress(pos, length, n)) break;
 	}
 
 	return pos;
@@ -111,11 +106,9 @@ RCX_Result RCX_Log::Upload(RCX_Link *link)
 
 void RCX_Log::SPrintEntry(char *buf, int index, bool verbose) const
 {
-	if (verbose)
-	{
+	if (verbose) {
 		UByte type = GetType(index);
-		switch(type & 0xe0)
-		{
+		switch(type & 0xe0) {
 			case 0:
 				sprintf(buf, "Variable %d: ", type & 0x1f);
 				break;

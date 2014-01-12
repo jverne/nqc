@@ -115,9 +115,9 @@ private:
     RCX_Result DownloadSpybotics(const RCX_Image &image);
     RCX_Result DownloadChunk(RCX_ChunkType type, UByte taskNumber,
         const UByte *data, int length, int total=0);
-    RCX_Result  TransferFirmware(const UByte *data, int length, int start,
+    RCX_Result TransferFirmware(const UByte *data, int length, int start,
         bool progress);
-    RCX_Result  Download(const UByte *data, int length, int chunk);
+    RCX_Result Download(const UByte *data, int length, int chunk);
 
     int ExpectedReplyLength(const UByte *data, int length);
     int AdjustChunkSize(const int n, const int nMaxZeros,

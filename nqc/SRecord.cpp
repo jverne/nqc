@@ -160,9 +160,13 @@ int srec_decode(srec_t *srec, char *_line)
     return SREC_OK;
 }
 
-int srec_load (FILE *file, UByte *image, int maxlen, image_t *image_def,
-    int numimage_def)
-{
+int srec_load(
+    FILE *file,
+    UByte *image,
+    int maxlen,
+    image_t *image_def,
+    int numimage_def
+){
     char buf[256];
     srec_t srec;
     int segStartAddr = 0;

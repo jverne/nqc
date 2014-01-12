@@ -492,25 +492,25 @@ public:
     long    fOffset;
 };
 
-// Swan support code
+/// Swan support code
 const ubyte nSwanInstructionLength[256] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-  };
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
 
 ubyte getSwanInstructionLength(const ubyte anOpcode)
 {
@@ -527,221 +527,218 @@ typedef ubyte * pUbyte;
 
 void calculateInstructionLengths()
 {
-  typedef struct {
-    ubyte theOpcode;
-    ubyte  theLength;
-  } TOpcodeLengths;
+    typedef struct {
+        ubyte theOpcode;
+        ubyte  theLength;
+    } TOpcodeLengths;
 
-  {
-    uword index; // don't use ubyte or will get screwed up on range check '< 256'
+    {
+        uword index; // don't use ubyte or will get screwed up on range check '< 256'
+        //
+        // initialize instruction length array.
+        //
+        for (index = 0; index < 256; ++index) {
+            //
+            // instruction length is stored in an array rather than calculating every time we
+            // go through 'execute one instruction' loop.
+            // This is [1] for improved real time performance and [2] because no simple formula
+            // to calculate length for many of the new opcodes.
+            //
+            register ubyte nBytesInOpcode;
+            register pUbyte ptr;
+
+            nBytesInOpcode = (ubyte) (index & 0x07); // actually one less than the value
+            if (nBytesInOpcode > 5)
+                nBytesInOpcode -= 5;
+            else
+                ++nBytesInOpcode;
+            //
+            // Note:
+            // rcxTestAndBranchFar [8 bytes] and rcxTestAndBranchNear [7] are more than 5 bytes.
+            // As well as many of the new opcodes
+            //
+            //
+            ptr = (pUbyte) &nSwanInstructionLength[index];
+            *ptr = nBytesInOpcode;
+        }
+    }
+
     //
-    // initialize instruction length array.
+    // Special case instructions. Don't follow the above formula.
     //
-    for (index = 0; index < 256; ++index)
     {
-      //
-      // instruction length is stored in an array rather than calculating every time we
-      // go through 'execute one instruction' loop.
-      // This is [1] for improved real time performance and [2] because no simple formula
-      // to calculate length for many of the new opcodes.
-      //
-      register ubyte nBytesInOpcode;
-      register pUbyte ptr;
+        static const TOpcodeLengths OpcodeLengths[] = {
+            {(ubyte) rcxBreakpoint0,              1},
+            {(ubyte) rcxBreakpoint1,              1},
+            {(ubyte) rcxBreakpoint2,              1},
+            {(ubyte) rcxBreakpoint3,              1},
+            {(ubyte) rcxBreakpoint4,              1},
+            {(ubyte) rcxBreakpoint5,              1},
+            {(ubyte) rcxBreakpoint6,              1},
+            {(ubyte) rcxBreakpoint7,              1},
+            {(ubyte) rcxBreakpoint8,              1},
+            {(ubyte) rcxBreakpoint9,              1},
 
-      nBytesInOpcode = (ubyte) (index & 0x07); // actually one less than the value
-      if (nBytesInOpcode > 5)
-        nBytesInOpcode -= 5;
-      else
-        ++nBytesInOpcode;
-      //
-      // Note:
-      // rcxTestAndBranchFar [8 bytes] and rcxTestAndBranchNear [7] are more than 5 bytes.
-      // As well as many of the new opcodes
-      //
-      //
-      ptr = (pUbyte) &nSwanInstructionLength[index];
-      *ptr = nBytesInOpcode;
+            {(ubyte) rcxSetSourceValueByteConst,  5},
+            {(ubyte) rcxSetSourceValueShortVariable, 5},
+            {(ubyte) rcxAssignSourceValue,        7},
+
+            {(ubyte) rcxAssignGlobalConstantByte, 3},
+
+            {(ubyte) rcxSetMotorState,            5},
+
+            {(ubyte) rcxAssignGlobalConstant,     4},
+            {(ubyte) rcxAssignGlobalVariable,     4},
+
+            {(ubyte) rcxArrayBounds,              4},
+            {(ubyte) rcxAssert,                   1},
+
+            {(ubyte) rcxWaitTimer1MSec,           4},
+
+            {(ubyte) rcxBitComplement,            5},
+            {(ubyte) rcxModuloTo,                 5},
+
+            {(ubyte) rcxWaitTimerValue,           5},
+
+            {(ubyte) rcxTrinaryAdd,               7},
+            {(ubyte) rcxTrinaryMinus,             7},
+            {(ubyte) rcxTrinaryTimes,             7},
+            {(ubyte) rcxTrinaryAddConstant,       7},
+            {(ubyte) rcxTrinaryMinusConstant,     7},
+            {(ubyte) rcxTrinaryTimesConstant,     7},
+
+            {(ubyte) rcxAbsoluteValueSourceValue, 7},
+            {(ubyte) rcxSignValueSourceValue,     7},
+
+            {(ubyte) rcxBranchNearByte,           2},
+            {(ubyte) rcxBranchFarWord,            3},
+
+            {(ubyte) rcxSwitch,                   7}, // will recalculate on fly
+            {(ubyte) rcxSwitchByteCase,           7}, // will recalculate on fly
+            {(ubyte) rcxSwitchIndexTableFar,      7}, // will recalculate on fly
+            {(ubyte) rcxSwitchIndexTableNear,     7}, // will recalculate on fly
+
+            {(ubyte) rcxTestAndBranchNear,        7},
+            {(ubyte) rcxTestAndBranchFar,         8},
+
+            {(ubyte) rcxTestAndBranchIntShortFar, 7},
+            {(ubyte) rcxTestAndBranchIntBigFar,   9},
+            {(ubyte) rcxTestAndBranchIntConstShortNear,6},
+            {(ubyte) rcxTestAndBranchIntConstBigNear,  8},
+            {(ubyte) rcxTestAndBranchIntShortConstNear,6},
+            {(ubyte) rcxTestAndBranchIntBigConstNear,  8},
+            {(ubyte) rcxTestAndBranchIntShortNear,6},
+            {(ubyte) rcxTestAndBranchIntBigNear,  8},
+
+            {(ubyte) rcxTestAndBranchLongShortFar,7},
+            {(ubyte) rcxTestAndBranchLongBigFar,  9},
+            {(ubyte) rcxTestAndBranchLongShortNear,6},
+            {(ubyte) rcxTestAndBranchLongBigNear, 8},
+
+            {(ubyte) rcxTestAndBranchFloatShortFar,7},
+            {(ubyte) rcxTestAndBranchFloatBigFar, 9},
+            {(ubyte) rcxTestAndBranchFloatShortNear,6},
+            {(ubyte) rcxTestAndBranchFloatBigNear,8},
+
+            {(ubyte) rcxIntegerToLong,            7},
+            {(ubyte) rcxIntegerToFloat,           7},
+
+            {(ubyte) rcxFloatToLong,              7},
+            {(ubyte) rcxFloatToInteger,           7},
+
+            {(ubyte) rcxLongToFloat,              7},
+            {(ubyte) rcxLongToInteger,            7},
+
+            {(ubyte) rcxAddToFloat,               7},
+            {(ubyte) rcxMinusToFloat,             7},
+            {(ubyte) rcxTimesToFloat,             7},
+            {(ubyte) rcxDivideToFloat,            7},
+
+            {(ubyte) rcxAssignLong,               7},
+
+            {(ubyte) rcxAssignLongConstant,       8},
+            {(ubyte) rcxAssignLongConstantWord,   6},
+            {(ubyte) rcxAssignLongConstantByte,   5},
+
+            {(ubyte) rcxBitTest,                  7},
+            {(ubyte) rcxBitSet,                   7},
+            {(ubyte) rcxBitClear,                 7},
+            {(ubyte) rcxXOr,                      7},
+            {(ubyte) rcxShiftLeft,                7},
+            {(ubyte) rcxShiftRight,               7},
+            {(ubyte) rcxNegate,                   7},
+
+            {(ubyte) rcxSendMessageWithParm,      6},
+            {(ubyte) rcxSetMessageVariableParm,   6},
+
+            {(ubyte) 0,                           0}
+        };
+
+        register ubyte index;
+
+        for (index = 0; ; ++index) {
+            register TRCXop theOpcode;
+
+        theOpcode = (TRCXop) OpcodeLengths[index].theOpcode;
+        if (theOpcode == (TRCXop) 0)
+            break;
+        *(pUbyte) &nSwanInstructionLength[(ubyte) theOpcode] = OpcodeLengths[index].theLength;
+        }
     }
-  }
-  //
-  // special case instructions. Don't follow the above formula.
-  //
-  {
-    static const TOpcodeLengths OpcodeLengths[] =
+
+    //
+    // Ints and longs have more arithmetic: +, -, *, /. &, |, ~, %
+    //
     {
-      {(ubyte) rcxBreakpoint0,              1},
-      {(ubyte) rcxBreakpoint1,              1},
-      {(ubyte) rcxBreakpoint2,              1},
-      {(ubyte) rcxBreakpoint3,              1},
-      {(ubyte) rcxBreakpoint4,              1},
-      {(ubyte) rcxBreakpoint5,              1},
-      {(ubyte) rcxBreakpoint6,              1},
-      {(ubyte) rcxBreakpoint7,              1},
-      {(ubyte) rcxBreakpoint8,              1},
-      {(ubyte) rcxBreakpoint9,              1},
+        static const TOpcodeLengths ArithLengths[] = {
+            {(ubyte) rcxAddToGlobal,            4},
+            {(ubyte) rcxAddToGlobalUbyte,       3},
+            {(ubyte) rcxAddToGlobalConstant,    4},
+            {(ubyte) rcxAddToSourceValue,       7},
+            {(ubyte) rcxAddToGenericParms,      7},
 
-      {(ubyte) rcxSetSourceValueByteConst,  5},
-      {(ubyte) rcxSetSourceValueShortVariable, 5},
-      {(ubyte) rcxAssignSourceValue,        7},
+            {(ubyte) rcxAddToShortVar,          5},
+            {(ubyte) rcxAddToShortVarConstant,  5},
 
-      {(ubyte) rcxAssignGlobalConstantByte, 3},
+            {(ubyte) rcxAddToLong,              7},
+            {(ubyte) rcxAddToLongConstant,      8},
+            {(ubyte) 0,                         0}
+        };
 
-      {(ubyte) rcxSetMotorState,            5},
+        register ubyte index;
 
-      {(ubyte) rcxAssignGlobalConstant,     4},
-      {(ubyte) rcxAssignGlobalVariable,     4},
+        for (index = 0;  ; ++index) {
+            register TRCXop theOpcode;
+            register ubyte  theLength;
+            register ubyte idx;
 
-      {(ubyte) rcxArrayBounds,              4},
-      {(ubyte) rcxAssert,                   1},
-
-      {(ubyte) rcxWaitTimer1MSec,           4},
-
-      {(ubyte) rcxBitComplement,            5},
-      {(ubyte) rcxModuloTo,                 5},
-
-      {(ubyte) rcxWaitTimerValue,           5},
-
-      {(ubyte) rcxTrinaryAdd,               7},
-      {(ubyte) rcxTrinaryMinus,             7},
-      {(ubyte) rcxTrinaryTimes,             7},
-      {(ubyte) rcxTrinaryAddConstant,       7},
-      {(ubyte) rcxTrinaryMinusConstant,     7},
-      {(ubyte) rcxTrinaryTimesConstant,     7},
-
-      {(ubyte) rcxAbsoluteValueSourceValue, 7},
-      {(ubyte) rcxSignValueSourceValue,     7},
-
-      {(ubyte) rcxBranchNearByte,           2},
-      {(ubyte) rcxBranchFarWord,            3},
-
-      {(ubyte) rcxSwitch,                   7}, // will recalculate on fly
-      {(ubyte) rcxSwitchByteCase,           7}, // will recalculate on fly
-      {(ubyte) rcxSwitchIndexTableFar,      7}, // will recalculate on fly
-      {(ubyte) rcxSwitchIndexTableNear,     7}, // will recalculate on fly
-
-      {(ubyte) rcxTestAndBranchNear,        7},
-      {(ubyte) rcxTestAndBranchFar,         8},
-
-      {(ubyte) rcxTestAndBranchIntShortFar, 7},
-      {(ubyte) rcxTestAndBranchIntBigFar,   9},
-      {(ubyte) rcxTestAndBranchIntConstShortNear,6},
-      {(ubyte) rcxTestAndBranchIntConstBigNear,  8},
-      {(ubyte) rcxTestAndBranchIntShortConstNear,6},
-      {(ubyte) rcxTestAndBranchIntBigConstNear,  8},
-      {(ubyte) rcxTestAndBranchIntShortNear,6},
-      {(ubyte) rcxTestAndBranchIntBigNear,  8},
-
-      {(ubyte) rcxTestAndBranchLongShortFar,7},
-      {(ubyte) rcxTestAndBranchLongBigFar,  9},
-      {(ubyte) rcxTestAndBranchLongShortNear,6},
-      {(ubyte) rcxTestAndBranchLongBigNear, 8},
-
-      {(ubyte) rcxTestAndBranchFloatShortFar,7},
-      {(ubyte) rcxTestAndBranchFloatBigFar, 9},
-      {(ubyte) rcxTestAndBranchFloatShortNear,6},
-      {(ubyte) rcxTestAndBranchFloatBigNear,8},
-
-      {(ubyte) rcxIntegerToLong,            7},
-      {(ubyte) rcxIntegerToFloat,           7},
-
-      {(ubyte) rcxFloatToLong,              7},
-      {(ubyte) rcxFloatToInteger,           7},
-
-      {(ubyte) rcxLongToFloat,              7},
-      {(ubyte) rcxLongToInteger,            7},
-
-      {(ubyte) rcxAddToFloat,               7},
-      {(ubyte) rcxMinusToFloat,             7},
-      {(ubyte) rcxTimesToFloat,             7},
-      {(ubyte) rcxDivideToFloat,            7},
-
-      {(ubyte) rcxAssignLong,               7},
-
-      {(ubyte) rcxAssignLongConstant,       8},
-      {(ubyte) rcxAssignLongConstantWord,   6},
-      {(ubyte) rcxAssignLongConstantByte,   5},
-
-      {(ubyte) rcxBitTest,                  7},
-      {(ubyte) rcxBitSet,                   7},
-      {(ubyte) rcxBitClear,                 7},
-      {(ubyte) rcxXOr,                      7},
-      {(ubyte) rcxShiftLeft,                7},
-      {(ubyte) rcxShiftRight,               7},
-      {(ubyte) rcxNegate,                   7},
-
-      {(ubyte) rcxSendMessageWithParm,      6},
-      {(ubyte) rcxSetMessageVariableParm,   6},
-
-      {(ubyte) 0,                           0}
-    };
-
-    register ubyte index;
-
-    for (index = 0; ; ++index) {
-      register TRCXop theOpcode;
-
-      theOpcode = (TRCXop) OpcodeLengths[index].theOpcode;
-      if (theOpcode == (TRCXop) 0)
-        break;
-      *(pUbyte) &nSwanInstructionLength[(ubyte) theOpcode] = OpcodeLengths[index].theLength;
+            theOpcode = (TRCXop) ArithLengths[index].theOpcode;
+            if (theOpcode == (TRCXop) 0)
+                break;
+            theLength = ArithLengths[index].theLength;
+            for (idx = arithOffsetAddTo; idx <= arithOffsetModuloTo; ++idx) {
+                *(pUbyte) &nSwanInstructionLength[(ubyte)
+                    (((ubyte) theOpcode) + (ubyte) idx)] = theLength;
+            }
+        }
     }
-  }
-
-  //
-  // Ints and longs have more arithmetic: +, -, *, /. &, |, ~, %
-  //
-  {
-    static const TOpcodeLengths ArithLengths[] =
-    {
-      {(ubyte) rcxAddToGlobal,            4},
-      {(ubyte) rcxAddToGlobalUbyte,       3},
-      {(ubyte) rcxAddToGlobalConstant,    4},
-      {(ubyte) rcxAddToSourceValue,       7},
-      {(ubyte) rcxAddToGenericParms,      7},
-
-      {(ubyte) rcxAddToShortVar,          5},
-      {(ubyte) rcxAddToShortVarConstant,  5},
-
-      {(ubyte) rcxAddToLong,              7},
-      {(ubyte) rcxAddToLongConstant,      8},
-      {(ubyte) 0,                         0}
-    };
-
-    register ubyte index;
-
-    for (index = 0;  ; ++index) {
-      register TRCXop theOpcode;
-      register ubyte  theLength;
-      register ubyte idx;
-
-      theOpcode = (TRCXop) ArithLengths[index].theOpcode;
-      if (theOpcode == (TRCXop) 0)
-        break;
-      theLength = ArithLengths[index].theLength;
-      for (idx = arithOffsetAddTo; idx <= arithOffsetModuloTo; ++idx) {
-        *(pUbyte) &nSwanInstructionLength[(ubyte) (((ubyte) theOpcode) + (ubyte) idx)] = theLength;
-      }
-    }
-  }
 }
-
-
 
 
 RCX_Disasm::RCX_Disasm(RCX_TargetType targetType) : fTarget(targetType)
 {
     unsigned i;
 
-    for(i=0; i<256; ++i) {
+    for (i=0; i<256; ++i) {
         fOpDispatch[i] = 0;
     }
 
-    for(i=0; i<256; ++i) {
-            fResOpDisp[i] = 0;
+    for (i=0; i<256; ++i) {
+        fResOpDisp[i] = 0;
     }
 
-        if (targetType == kRCX_SwanTarget)
-          calculateInstructionLengths();
+    if (targetType == kRCX_SwanTarget)
+        calculateInstructionLengths();
 
     DefineInstructions(fOpDispatch, sGenericInstructions);
 
@@ -759,9 +756,9 @@ RCX_Disasm::RCX_Disasm(RCX_TargetType targetType) : fTarget(targetType)
             DefineInstructions(fResOpDisp, sSpyboticsResourceInstructions);
             break;
 
-                case kRCX_SwanTarget:
-                        DefineInstructions(fOpDispatch, sSwanInstructions);
-                        break;
+        case kRCX_SwanTarget:
+            DefineInstructions(fOpDispatch, sSwanInstructions);
+            break;
 
         default:
             break;
@@ -779,7 +776,7 @@ void RCX_Disasm::LASMOutputHeader(RCX_Printer *dst, string name, RCX_ChunkType t
     case kRCX_SoundChunk : strcpy(typeName, "sound"); break;
     case kRCX_AnimationChunk : strcpy(typeName, "mood"); break;
     default: break;
-//    case kRCX_DataChunk : strcpy(typeName, "data"); break;
+//  case kRCX_DataChunk : strcpy(typeName, "data"); break;
   }
   sprintf(line, ";%s\n\t%s\t%d\n", name.c_str(), typeName, ChunkNum);
   dst->Print(line);
@@ -804,7 +801,7 @@ void RCX_Disasm::LASMOutputFooter(RCX_Printer *dst, RCX_ChunkType type, UShort p
     case kRCX_SoundChunk : strcpy(typeName, "ends"); break;
     case kRCX_AnimationChunk : strcpy(typeName, "endm"); break;
     default: break;
-//    case kRCX_DataChunk : strcpy(typeName, "endd"); break;
+//  case kRCX_DataChunk : strcpy(typeName, "endd"); break;
   }
   sprintf(line, "\t%s\n", typeName);
   dst->Print(line);
@@ -917,45 +914,39 @@ RCX_Result RCX_Disasm::Print1(RCX_Printer *dst, const UByte *code, int length, U
 
     RCX_Result result = SPrint1(text, code, length, pc);
 
-    if (result < 1)
-    {
+    if (result < 1) {
         result = 1;
         sprintf(text, "?");
     }
 
-        if (fGenLASM)
-        {
-            if (fCurType == kRCX_SoundChunk)
-                sprintf(line, "\t%s ", text);
+    if (fGenLASM) {
+        if (fCurType == kRCX_SoundChunk) {
+            sprintf(line, "\t%s ", text);
+        }
+        else {
+            // does this line have a label???
+            labels_type::iterator p = fLabels.find((int)pc);
+            if (p != fLabels.end()) {
+                string tmp = (*p).second;
+                sprintf(line, "%s:\n\t%s ", tmp.c_str(), text);
+            }
             else
-            {
-                // does this line have a label???
-                labels_type::iterator p = fLabels.find((int)pc);
-                if (p != fLabels.end())
-                {
-                    string tmp = (*p).second;
-                    sprintf(line, "%s:\n\t%s ", tmp.c_str(), text);
-                }
-                else
-                    sprintf(line, "\t%s ", text);
-            }
+                sprintf(line, "\t%s ", text);
         }
-        else
+    } else
         sprintf(line, "%03d %-42s ", pc, text);
+
     dst->Print(line);
 
-        if (!fGenLASM)
-        {
-            for(int i=0; i<result; i++)
-            {
-                    sprintf(line, "%02x ", code[i]);
-                    dst->Print(line);
-            }
+    if (!fGenLASM) {
+        for (int i=0; i<result; i++) {
+            sprintf(line, "%02x ", code[i]);
+            dst->Print(line);
         }
+    }
 
-        sprintf(line, "\n");
+    sprintf(line, "\n");
     dst->Print(line);
-
 
     return result;
 }
@@ -1122,8 +1113,7 @@ void RCX_Disasm::FindLabelArg(ULong format, const UByte *code, UShort pc)
     char text[256];
     char buf[256];
     int value;
-    switch(format)
-    {
+    switch(format) {
         case kAF_Jump8:
             value = pc + ComputeOffset(code[0], 0);
             break;
@@ -1141,13 +1131,17 @@ void RCX_Disasm::FindLabelArg(ULong format, const UByte *code, UShort pc)
             break;
     }
 
-    if (value != -1)
-    {
-        switch(fCurType)
-        {
-            case kRCX_TaskChunk : sprintf(buf, "t%03d", fCurNum); break;
-            case kRCX_SubChunk : sprintf(buf, "s%03d", fCurNum); break;
-            default : sprintf(buf, "l%03d", fCurNum); break;
+    if (value != -1) {
+        switch(fCurType) {
+            case kRCX_TaskChunk:
+                sprintf(buf, "t%03d", fCurNum);
+                break;
+            case kRCX_SubChunk:
+                sprintf(buf, "s%03d", fCurNum);
+                break;
+            default:
+                sprintf(buf, "l%03d", fCurNum);
+                break;
         }
         sprintf(text, "%s%04d", buf, value);
         fLabels.insert(value_type(value, string(text)));
@@ -1176,8 +1170,7 @@ RCX_Result RCX_Disasm::FindLabel(const UByte *code, int length, UShort pc)
     if (length < iLength) return -1;
 
     ptr = code+1;
-    for(args = inst->fArgs; args; args>>=kArgFormatWidth)
-    {
+    for(args = inst->fArgs; args; args>>=kArgFormatWidth) {
         int af = args & kArgFormatMask;
         FindLabelArg(af, ptr, pc + (ptr - code));
         ptr += argFormatLengths[af];
@@ -1199,10 +1192,10 @@ RCX_Result RCX_Disasm::SPrint1(char *text, const UByte *code, int length, UShort
     // lookup the instruction
     if (length < 1) return -1;
     op = *code;
-        if (ResourceType(fCurType))
-          inst = fResOpDisp[op];
-        else
-      inst = fOpDispatch[op];
+    if (ResourceType(fCurType))
+        inst = fResOpDisp[op];
+    else
+        inst = fOpDispatch[op];
     if (!inst) return -1;
 
     // make sure there's enough code for entire instruction
@@ -1210,21 +1203,19 @@ RCX_Result RCX_Disasm::SPrint1(char *text, const UByte *code, int length, UShort
     if (length < iLength) return -1;
 
     // print the instruction name
-        if (fGenLASM)
-            sprintf(text,"%s\t", inst->fName);
-        else
-            sprintf(text,"%-8s ", inst->fName);
+    if (fGenLASM)
+        sprintf(text,"%s\t", inst->fName);
+    else
+        sprintf(text,"%-8s ", inst->fName);
     text += strlen(text);
 
     // print the args
     ptr = code+1;
-    for(args = inst->fArgs; args; args>>=kArgFormatWidth)
-    {
+    for (args = inst->fArgs; args; args>>=kArgFormatWidth) {
         int af = args & kArgFormatMask;
 
         SPrintArg(argText, af, ptr, pc + (ptr - code));
-        if (argText[0])
-        {
+        if (argText[0]) {
             sprintf(text, "%s%s", argPrinted ? ", " : "", argText);
             text += strlen(text);
             argPrinted = true;
@@ -1239,8 +1230,7 @@ RCX_Result RCX_Disasm::SPrint1(char *text, const UByte *code, int length, UShort
 
 void RCX_Disasm::DefineInstructions(const Instruction** OpArray, const Instruction *inst)
 {
-    while(inst->fName)
-    {
+    while(inst->fName) {
         int op = inst->fOpcode;
 
         #ifdef DEBUG
@@ -1248,26 +1238,25 @@ void RCX_Disasm::DefineInstructions(const Instruction** OpArray, const Instructi
             printf("opcode 0x%02x already defined\n", op);
         #endif
 
-                if (fTarget != kRCX_SwanTarget)
-          OpArray[op ^ 0x8] = inst; // swan breaks this rule
+        if (fTarget != kRCX_SwanTarget)
+        OpArray[op ^ 0x8] = inst; // swan breaks this rule
         OpArray[op] = inst;
 
 
         #ifdef CHECK_LENGTHS
-                // check length
-                int argLen = op & 7;
-                if (argLen > 5) argLen -= 6;
-                if (fTarget == kRCX_SwanTarget)
-                {
-                  // swan breaks this rule
-                  //   (you can't figure out the argument length from the opcode)
-                  argLen = getSwanArgLength(op);
-                }
+        // check length
+        int argLen = op & 7;
+        if (argLen > 5) argLen -= 6;
+        if (fTarget == kRCX_SwanTarget) {
+            // swan breaks this rule
+            //   (you can't figure out the argument length from the opcode)
+            argLen = getSwanArgLength(op);
+        }
 
-                int computedLen = ArgsLength(inst->fArgs);
+        int computedLen = ArgsLength(inst->fArgs);
 
-                if (computedLen != argLen)
-                        printf("opcode 0x%02x: possible wrong length of %d, should be %d\n", op, computedLen, argLen);
+        if (computedLen != argLen)
+            printf("opcode 0x%02x: possible wrong length of %d, should be %d\n", op, computedLen, argLen);
         #endif
 
         ++inst;
@@ -1279,10 +1268,9 @@ void SPrintOutputNames(char *argText, const UByte outs)
 {
     char *ptr = argText;
 
-    if (outs)
-    {
+    if (outs) {
         // list outputs
-        for(int i=0; i<3; i++)
+        for (int i=0; i<3; i++)
             if (outs & (1 << i))
                 *ptr++ = (char)('A' + i);
     }
@@ -1297,8 +1285,7 @@ int ArgsLength(ULong args)
 {
     int length = 0;
 
-    for( ; args; args >>= kArgFormatWidth)
-    {
+    for ( ; args; args >>= kArgFormatWidth) {
         length += argFormatLengths[args & kArgFormatMask];
     }
 
@@ -1308,43 +1295,40 @@ int ArgsLength(ULong args)
 
 void RCX_Disasm::SPrintValue(char *text, int type, short data)
 {
-        if (fGenLASM)
-        {
+    if (fGenLASM) {
           sprintf(text, "%d, %d", type, data);
+    }
+    else {
+        switch(type) {
+            case kRCX_VariableType:
+                sprintf(text, "var[%d]", data);
+                break;
+            case kRCX_ConstantType:
+                sprintf(text,"%d", data);
+                break;
+            case kRCX_IndirectType:
+                sprintf(text,"*var[%d]", data);
+                break;
+            case kRCX_UARTSetupType:
+                sprintf(text, "uart[%d]", data);
+                break;
+            case kRCX_GlobalVariableType:
+                if (fTarget == kRCX_SwanTarget)
+                    sprintf(text, "gvar[%d]", data);
+                else
+                    sprintf(text, "%s(%d)", GetTypeName(type), data);
+                break;
+            case kRCX_IndirectGlobalVarType:
+                if (fTarget == kRCX_SwanTarget)
+                    sprintf(text, "*gvar[%d]", data);
+                else
+                    sprintf(text, "%s(%d)", GetTypeName(type), data);
+                break;
+            default:
+                sprintf(text, "%s(%d)", GetTypeName(type) , data);
+                break;
         }
-        else
-        {
-            switch(type)
-            {
-                    case kRCX_VariableType:
-                            sprintf(text, "var[%d]", data);
-                            break;
-                    case kRCX_ConstantType:
-                            sprintf(text,"%d", data);
-                            break;
-                    case kRCX_IndirectType:
-                            sprintf(text,"*var[%d]", data);
-                            break;
-                    case kRCX_UARTSetupType:
-                            sprintf(text, "uart[%d]", data);
-                            break;
-                    case kRCX_GlobalVariableType:
-                            if (fTarget == kRCX_SwanTarget)
-                              sprintf(text, "gvar[%d]", data);
-                            else
-                              sprintf(text, "%s(%d)", GetTypeName(type), data);
-                            break;
-                    case kRCX_IndirectGlobalVarType:
-                            if (fTarget == kRCX_SwanTarget)
-                              sprintf(text, "*gvar[%d]", data);
-                            else
-                              sprintf(text, "%s(%d)", GetTypeName(type), data);
-                            break;
-                    default:
-                            sprintf(text, "%s(%d)", GetTypeName(type) , data);
-                            break;
-            }
-        }
+    }
 }
 
 
@@ -1355,42 +1339,42 @@ const char *RCX_Disasm::GetTypeName(int type)
             case 18: return "ScoutRules";
             case 19: return "SensorParam";
             case 20: return "TimerLimit";
-                        case 22: return "CounterLimit";
-                        case 24: return "EventFeedback";
+            case 22: return "CounterLimit";
+            case 24: return "EventFeedback";
         }
     }
-        else if (fTarget == kRCX_CMTarget) {
-                switch(type) {
-                        case  5: return "TachoCount";
-                        case  6: return "TachoSpeed";
-                        case  7: return "MotorCurrent";
-                        case 16: return "CounterLimit";
-                }
+    else if (fTarget == kRCX_CMTarget) {
+        switch(type) {
+            case  5: return "TachoCount";
+            case  6: return "TachoSpeed";
+            case  7: return "MotorCurrent";
+            case 16: return "CounterLimit";
         }
-        else if (fTarget == kRCX_SpyboticsTarget) {
-                switch(type) {
-                        case 18: return "Stack";
-                        case 19: return "TimerControl";
-                        case 20: return "EEPROM";
-                        case 22: return "LED";
-                        case 32: return "TaskID";
-                        case 43: return "RobotNotes";
-                        case 45: return "RobotDist";
-                        case 46: return "RobotDir";
-                        case 47: return "RobotOrient";
-                        case 49: return "RobotID";
-                        case 50: return "TargetInfo";
-                        case 51: return "PingCtrl";
-                        case 52: return "BeaconCtrl";
-                        case 53: return "SoundCtrl";
-                        case 54: return "IndirectEEPROM";
-                }
+    }
+    else if (fTarget == kRCX_SpyboticsTarget) {
+        switch(type) {
+            case 18: return "Stack";
+            case 19: return "TimerControl";
+            case 20: return "EEPROM";
+            case 22: return "LED";
+            case 32: return "TaskID";
+            case 43: return "RobotNotes";
+            case 45: return "RobotDist";
+            case 46: return "RobotDir";
+            case 47: return "RobotOrient";
+            case 49: return "RobotID";
+            case 50: return "TargetInfo";
+            case 51: return "PingCtrl";
+            case 52: return "BeaconCtrl";
+            case 53: return "SoundCtrl";
+            case 54: return "IndirectEEPROM";
         }
+    }
 
-        if (fTarget == kRCX_SwanTarget)
-          return LOOKUP(type, swanTypeNames);
-        else
-      return LOOKUP(type, typeNames);
+    if (fTarget == kRCX_SwanTarget)
+        return LOOKUP(type, swanTypeNames);
+    else
+        return LOOKUP(type, typeNames);
 }
 
 
@@ -1401,31 +1385,29 @@ void RCX_Disasm::SPrintCondition(char *text, const UByte *code)
 
     SPrintValue(v1Text, (code[0] & 0x3f), (short)WORD(code+2));
     SPrintValue(v2Text, (code[1] & 0x3f), code[4]);
-        if (fGenLASM)
-          sprintf(text, "%s, %d, %s", v1Text, (code[0]>>6) & 3, v2Text);
-        else
-          sprintf(text, "%s %s %s", v1Text, LOOKUP((code[0]>>6) & 3, relNames), v2Text);
+    if (fGenLASM)
+        sprintf(text, "%s, %d, %s", v1Text, (code[0]>>6) & 3, v2Text);
+    else
+        sprintf(text, "%s %s %s", v1Text, LOOKUP((code[0]>>6) & 3, relNames), v2Text);
 }
 
 
 int ComputeOffset(UByte b1, UByte b2, bool lowFirst)
 {
-        if (lowFirst)
-        {
-                int x = (b1 & 0x7f) + (b2 << 7);
+    if (lowFirst) {
+        int x = (b1 & 0x7f) + (b2 << 7);
 
-                if (b1 & 0x80) x = -x;
+        if (b1 & 0x80) x = -x;
 
-                return x;
-        }
-        else
-        {
-                int x = (b2 & 0x7f) + (b1 << 7);
+        return x;
+    }
+    else {
+        int x = (b2 & 0x7f) + (b1 << 7);
 
-                if (b2 & 0x80) x = -x;
+        if (b2 & 0x80) x = -x;
 
-                return x;
-        }
+        return x;
+    }
 }
 
 
