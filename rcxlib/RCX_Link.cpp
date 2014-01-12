@@ -167,7 +167,7 @@ RCX_Result RCX_Link::Sync()
         if (RCX_ERROR(result)) return result;
     }
     else if (fTarget == kRCX_ScoutTarget) {
-        result = Send(cmd.MakeBoot());
+        result = Send(cmd.MakeUnlock());
         if (RCX_ERROR(result)) return result;
 
         result = Send(cmd.Set(0x47, 0x80));
@@ -339,8 +339,9 @@ RCX_Result RCX_Link::GetVersion(ULong &rom, ULong &ram)
     if (RCX_ERROR(result)) return result;
 
     // Do our best to get a result.
-    result = Send(cmd.MakeUnlock(), true, kDownloadWaitTime);
+    result = Send(cmd.MakeGetVersions(), true, kDownloadWaitTime);
     if (RCX_ERROR(result)) return result;
+    fprintf(stderr, "Reply: %d\n", result);
 
     if (result != 8) return kRCX_ReplyError;
 
@@ -441,15 +442,24 @@ RCX_Result RCX_Link::TransferFirmware(const UByte *data, int length, int start, 
     result = Sync();
     if (RCX_ERROR(result)) return result;
 
-    result = Send(cmd.MakeUnlock());
+    // Send a ping.
+    // TODO: is this right?
+    result = Send(cmd.MakePing());
     if (RCX_ERROR(result)) return result;
 
-    result = Send(cmd.Set(kRCX_BootModeOp, 1, 3, 5, 7, 0xb));
+    // Get versions.
+    // TODO: is this right?
+    result = Send(cmd.MakeGetVersions());
     if (RCX_ERROR(result)) return result;
 
+    // Delete the existing FW
+    result = Send(cmd.Set(kRCX_DeleteFirmware, 1, 3, 5, 7, 0xb));
+    if (RCX_ERROR(result)) return result;
+
+    // Make a checksum and transfer the FW
     int check = Checksum(data, length < 0x4c00 ? length : 0x4c00);
-    result = Send(cmd.Set(kRCX_BeginFirmwareOp, (UByte)(start), (UByte)(start>>8),
-        (UByte)check, (UByte)(check>>8), 0));
+    result = Send(cmd.Set(kRCX_BeginFirmwareOp,
+        (UByte)(start), (UByte)(start>>8), (UByte)check, (UByte)(check>>8), 0));
     if (RCX_ERROR(result)) return result;
 
     BeginProgress(progress ? length : 0);
@@ -458,7 +468,7 @@ RCX_Result RCX_Link::TransferFirmware(const UByte *data, int length, int start, 
 
     // last packet is no-retry with an extra long delay
     // this gives the RCX time to respond and makes sure response doesn't get trampled
-    result = Send(cmd.MakeBoot(), false);
+    result = Send(cmd.MakeUnlock(), false);
     if (fTransport->GetFastMode()) {
         return kRCX_OK;
     }

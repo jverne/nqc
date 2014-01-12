@@ -70,15 +70,17 @@
 
 // special
 #define kRCX_ReadOp 0x12
-#define kRCX_UnlockOp 0x15
+#define KRCX_GetVersions 0x15
+#define kRCX_UnlockOp 0xa5
 #define kRCX_BeginTaskOp 0x25
 #define kRCX_BeginSubOp 0x35
 #define kRCX_DownloadOp 0x45
 #define kRCX_DeleteTasksOp 0x40
 #define kRCX_DeleteSubsOp 0x70
-#define kRCX_BootModeOp 0x65
+//#define kRCX_BootModeOp 0x65              // Not sure what BootModeOp is...
+#define kRCX_DeleteFirmware 0x65            ///< As per Proudfoot's opcode list
 #define kRCX_BeginFirmwareOp 0x75
-#define kRCX_BootOp 0xa5
+//#define kRCX_BootOp 0xa5                  // Not sure what BootOp is...
 #define kRCX_PingOp 0x10
 #define kRCX_SelectProgramOp 0x91
 #define kRCX_BatteryLevelOp 0x30

@@ -162,12 +162,11 @@ RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5
 }
 
 
-RCX_Cmd* RCX_Cmd::MakeUnlock()
+RCX_Cmd* RCX_Cmd::MakeGetVersions()
 {
-    // TODO: why is this kRCX_UnlockOp instead of TRCXop rcxGetVersion, e.g.:
-    //return Set((TRCXop)rcxGetVersion, 1, 3, 5, 7, 11);
-    return Set(kRCX_UnlockOp, 1, 3, 5, 7, 0xb);
+    return Set(KRCX_GetVersions, 1, 3, 5, 7, 0xb);
 }
+
 
 RCX_Cmd* RCX_Cmd::MakePlayTone(UShort freq, UByte duration)
 {
@@ -437,21 +436,26 @@ RCX_Cmd* RCX_Cmd::MakeVar(RCX_VarCode code, UByte var, RCX_Value value)
 }
 
 
-RCX_Cmd* RCX_Cmd::MakeBoot()
+RCX_Cmd* RCX_Cmd::MakeUnlock()
 {
-    Set(kRCX_BootOp, 0x4c, 0x45, 0x47, 0x4f, 0xae);
+    static const UByte unlockMsg[] = {kRCX_UnlockOp,
+        'L', 'E', 'G', 'O', 174
+    };
+    Set(unlockMsg, sizeof(unlockMsg));
+
     return this;
 }
 
 
 RCX_Cmd* RCX_Cmd::MakeUnlockCM()
 {
-    static const UByte unlockMsg[] = {kRCX_BootOp,
+    static const UByte unlockMsg[] = {kRCX_UnlockOp,
       'D','o',' ','y','o','u',' ','b','y','t','e',',',' ',
-      'w','h','e','n',' ','I',' ','k','n','o','c','k','?' };
-     Set(unlockMsg, sizeof(unlockMsg));
+      'w','h','e','n',' ','I',' ','k','n','o','c','k','?'
+    };
+    Set(unlockMsg, sizeof(unlockMsg));
 
-     return this;
+    return this;
 }
 
 
