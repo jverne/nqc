@@ -143,7 +143,7 @@ RCX_Result RCX_Link::Sync()
     if (fSynced) return kRCX_OK;
 
     // always start with a ping
-    result = Send(cmd.MakePing(), true, 500);
+    result = Send(cmd.MakePing());
     if (RCX_ERROR(result)) return result;
 
     // cybermaster requires an unlock also
