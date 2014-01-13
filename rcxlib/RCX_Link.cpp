@@ -14,8 +14,6 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
-#include <cctype>
-#include <unistd.h>
 
 #include "RCX_Link.h"
 #include "RCX_Cmd.h"
@@ -145,20 +143,7 @@ RCX_Result RCX_Link::Sync()
     if (fSynced) return kRCX_OK;
 
     // always start with a ping
-    int retries = 0;
-    while (true) {
-        result = Send(cmd.MakePing());
-        if (result == kRCX_ReplyError) {
-            // Retry on error, sleeping between each retry, up
-            // to a maximum of 3 retries.
-            if (retries++ >= 3) break;
-            fprintf(stderr, "!");
-            usleep(10000 * retries);
-            continue;
-        }
-        break;
-    }
-
+    result = Send(cmd.MakePing(), true, 500);
     if (RCX_ERROR(result)) return result;
 
     // cybermaster requires an unlock also

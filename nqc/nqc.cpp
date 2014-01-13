@@ -354,7 +354,6 @@ RCX_Result ProcessCommandLine(int argc, char ** argv)
                     Compiler::Get()->Undefine(a+2);
                     break;
                 case 'd':
-                case 'u':
                     req.fDownload = true;
                     break;
                 case 'l':
@@ -1109,7 +1108,7 @@ void PrintUsage()
         fprintf(stdout, " %s", sTargetNames[i]);
     }
     fprintf(stdout, " (target=%s)\n", targetName);
-    fprintf(stdout,"   -u: send program to \%s\n", targetName);
+    fprintf(stdout,"   -d: send program to \%s\n", targetName);
     fprintf(stdout,"   -n: prevent the API header file from being included\n");
     fprintf(stdout,"   -D<sym>[=<value>] : define macro <sym>\n");
     fprintf(stdout,"   -U<sym>: undefine macro <sym>\n");
