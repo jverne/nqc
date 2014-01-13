@@ -155,6 +155,7 @@ RCX_Result RCX_Link::Sync()
         result = Send(cmd.MakeUnlock());
         if (RCX_ERROR(result)) return result;
 
+        // XXX: I don't know what this opcode is       
         result = Send(cmd.Set(0x47, 0x80));
         if (RCX_ERROR(result)) return result;
     }
@@ -175,11 +176,10 @@ bool RCX_Link::WasErrorFromMissingFirmware()
     // if not synced, then firmware wasn't a problem
     if (!fSynced) return false;
 
-    // use Unlock command to check ROM/firmware versions
+    // use GetVersions command to check ROM/firmware versions
     RCX_Result result;
     RCX_Cmd cmd;
-    result = Send(cmd.MakeUnlock());
-
+    result = Send(cmd.MakeGetVersions());
 
     // check the reply
     if (result != 8) return false;
@@ -326,7 +326,6 @@ RCX_Result RCX_Link::GetVersion(ULong &rom, ULong &ram)
     // Do our best to get a result.
     result = Send(cmd.MakeGetVersions(), true, kDownloadWaitTime);
     if (RCX_ERROR(result)) return result;
-    fprintf(stderr, "Reply: %d\n", result);
 
     if (result != 8) return kRCX_ReplyError;
 
