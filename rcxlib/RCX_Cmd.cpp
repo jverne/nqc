@@ -122,7 +122,8 @@ RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4)
 }
 
 
-RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5)
+RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4,
+    UByte d5)
 {
     SetLength(6);
     fBody.fData[0] = d0;
@@ -134,7 +135,8 @@ RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5
     return this;
 }
 
-RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5, UByte d6)
+RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4,
+    UByte d5, UByte d6)
 {
     SetLength(7);
     fBody.fData[0] = d0;
@@ -147,7 +149,8 @@ RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5
     return this;
 }
 
-RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5, UByte d6, UByte d7)
+RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4,
+    UByte d5, UByte d6, UByte d7)
 {
     SetLength(8);
     fBody.fData[0] = d0;
