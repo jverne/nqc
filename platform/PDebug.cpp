@@ -93,7 +93,6 @@ bool open_logfile(char *filename)
 {
     FILE * file;
     if (filename && (file = fopen(filename, "w"))) {
-        fprintf(stderr, "Logging to %s\n", filename);
         LogFile = file;
         return true;
     }
