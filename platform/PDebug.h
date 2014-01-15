@@ -14,6 +14,8 @@
 #ifndef __PDebug_h
 #define __PDebug_h
 
+#define OUTFILE stderr
+#define NCQ_LOGFILE "NQC_LOGFILE"
 
 #ifdef PDEBUG
 #ifdef __cplusplus
@@ -23,6 +25,7 @@ extern "C" {
 	#define _p_debugstr(msg)	debugstr(msg)
 #else
 	extern void	_p_debugstr(const char *text);
+    extern void _p_debugvar(const char* varname, const int);
 #endif	// macintosh
 
 	// normal debugging
@@ -32,9 +35,11 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+    // debugging
 
 	#define PASSERT(expr)				do { if (!(expr)) _p_assert(__FILE__, __LINE__); } while(0)
 	#define PDEBUGSTR(mesg)				_p_debugstr(mesg)
+    #define PDEBUGVAR(varname, var)     _p_debugvar(varname, var)
 	#define PREQUIRE(expr, label)		do { if (!(expr)) { _p_require(__FILE__, __LINE__, #label); goto label; }} while (0)
 	#define PREQUIRENOT(expr, label)	do { if (expr) { _p_requirenot(__FILE__, __LINE__, (int)(expr), #label); goto label; }} while (0)
 
@@ -43,6 +48,7 @@ extern "C" {
 
 	#define PASSERT(expr)				((void)0)
 	#define PDEBUGSTR(mesg)				((void)0)
+    #define PDEBUGVAR(varname, var)     ((void)0)
 	#define PREQUIRE(expr, label)		do { if (!(expr)) goto label; } while (0)
 	#define PREQUIRENOT(expr, label)	do { if (expr) goto label; } while (0)
 

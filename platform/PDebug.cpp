@@ -14,23 +14,35 @@
 #ifdef PDEBUG
 
 #include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
 #include "PDebug.h"
 
-static const char *get_leafname(const char *filename);
+static const char* get_leafname(const char *filename);
+FILE* get_logfile();
+bool open_logfile(char *filename);
+
+static FILE* LogFile;
+#define BUFSIZE 512
 
 
 void _p_assert(const char* file, int line)
 {
-	char buffer[512];
-	sprintf(buffer, "PASSERT() failed line #%d in file %s", line, get_leafname(file));
+	char buffer[BUFSIZE];
+	snprintf(buffer, BUFSIZE,
+        "PASSERT() failed line #%d in file %s",
+        line, get_leafname(file));
 
 	_p_debugstr(const_cast<char *>(buffer));
 }
 
 void _p_require(const char* file, int line, const char* label)
 {
-	char buffer[512];
-	sprintf(buffer, "PREQUIRE %s failed line #%d in file %s", label, line, get_leafname(file));
+	char buffer[BUFSIZE];
+	snprintf(buffer, BUFSIZE,
+        "PREQUIRE %s failed line #%d in file %s",
+        label, line, get_leafname(file));
 
 	_p_debugstr(const_cast<char *>(buffer));
 }
@@ -38,21 +50,21 @@ void _p_require(const char* file, int line, const char* label)
 
 void _p_requirenot(const char* file, int line, int val, const char* label)
 {
-	char buffer[512];
-	sprintf(buffer, "PREQUIRENOT %s failed line #%d in file %s, value = %d",
+	char buffer[BUFSIZE];
+	snprintf(buffer, BUFSIZE,
+        "PREQUIRENOT %s failed line #%d in file %s, value = %d",
 		label, line, get_leafname(file), val);
 
 	_p_debugstr(const_cast<char *>(buffer));
 }
 
 
-const char *get_leafname(const char *filename)
+const char* get_leafname(const char *filename)
 {
 	const char *leaf = filename;
 	const char *ptr = filename;
 
-	while(*ptr != 0)
-	{
+	while(*ptr != 0) {
 		if (*ptr == ':')
 			leaf = ptr+1;
 		ptr++;
@@ -61,14 +73,51 @@ const char *get_leafname(const char *filename)
 	return leaf;
 }
 
+
+FILE* get_logfile()
+{
+    if (LogFile) {
+        return LogFile;
+    }
+
+    char *filename = getenv(NCQ_LOGFILE);
+    if (filename && open_logfile(filename)) {
+        return LogFile;
+    } else {
+        return stderr;
+    }
+}
+
+
+bool open_logfile(char *filename)
+{
+    FILE * file;
+    if (filename && (file = fopen(filename, "w"))) {
+        fprintf(stderr, "Logging to %s\n", filename);
+        LogFile = file;
+        return true;
+    }
+
+    return false;
+}
+
 #ifndef _p_debugstr
 
+// TODO: this is lame. We should use a stream.
 void _p_debugstr(const char *text)
 {
-	printf("DBG: %s\n", text);
+	fprintf(get_logfile(), "DBG: %s\n", text);
+    fflush(get_logfile());
+}
+
+void _p_debugvar(const char *varname, const int var)
+{
+    char buffer[BUFSIZE];
+    snprintf(buffer, BUFSIZE, "%s = %d", varname, var);
+
+    _p_debugstr(const_cast<char *>(buffer));
 }
 
 #endif
 
 #endif
-
