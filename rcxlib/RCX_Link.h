@@ -69,14 +69,14 @@ public:
 
     /**
      * Only looks at the reply data - the
-     * inverted command byte is ignored.  This makes the indexing consistent
+     * inverted command byte is ignored. This makes the indexing consistent
      * with RCX_Result (which represents the number of data bytes in the reply)
      */
     RCX_Result GetReply(UByte *data, int maxLength);
 
     /**
      * Only looks at the reply data - the
-     * inverted command byte is ignored.  This makes the indexing consistent
+     * inverted command byte is ignored. This makes the indexing consistent
      * with RCX_Result (which represents the number of data bytes in the reply)
      */
     UByte GetReplyByte(int index) const { return fReply[index + 1]; }

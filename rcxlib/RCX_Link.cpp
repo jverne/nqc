@@ -156,7 +156,7 @@ RCX_Result RCX_Link::Sync()
     result = Send(cmd.MakePing());
     if (RCX_ERROR(result)) return result;
 
-    // cybermaster requires an unlock also
+    // CyberMaster, Scout require an unlock, too.
     if (fTarget == kRCX_CMTarget) {
         result = Send(cmd.MakeUnlockCM());
         if (RCX_ERROR(result)) return result;
@@ -164,12 +164,10 @@ RCX_Result RCX_Link::Sync()
     else if (fTarget == kRCX_ScoutTarget) {
         result = Send(cmd.MakeUnlock());
         if (RCX_ERROR(result)) return result;
-
-        // XXX: I don't know what this opcode is       
+     
         result = Send(cmd.Set(0x47, 0x80));
         if (RCX_ERROR(result)) return result;
     }
-
 
     fSynced = true;
     return kRCX_OK;
@@ -180,8 +178,9 @@ bool RCX_Link::WasErrorFromMissingFirmware()
 {
     // if not RCX, RCX2, or Swan then firmware isn't required
     if ((fTarget != kRCX_RCXTarget) &&
-            (fTarget != kRCX_RCX2Target) &&
-            (fTarget != kRCX_SwanTarget)) return false;
+        (fTarget != kRCX_RCX2Target) &&
+        (fTarget != kRCX_SwanTarget))
+            return false;
 
     // if not synced, then firmware wasn't a problem
     if (!fSynced) return false;
@@ -255,6 +254,7 @@ RCX_Result RCX_Link::DownloadSpybotics(const RCX_Image &image)
     return kRCX_OK;
 }
 
+// TODO: this is an odd way to set a boolean property...
 bool gProgramMode = false;
 class ProgramMode
 {
@@ -274,7 +274,7 @@ RCX_Result RCX_Link::DownloadByChunk(const RCX_Image &image, int programNumber)
     // select program
     if (programNumber) {
         result = Send(cmd.Set(kRCX_SelectProgramOp, (UByte)(programNumber-1)));
-        if (result < 0) return result;
+        if (RCX_ERROR(result)) return result;
     }
 
     // clear existing tasks and/or subs
@@ -286,7 +286,7 @@ RCX_Result RCX_Link::DownloadByChunk(const RCX_Image &image, int programNumber)
 
     int total = image.GetSize();
 
-    for(i=0; i<image.GetChunkCount(); i++) {
+    for (i=0; i<image.GetChunkCount(); i++) {
         const RCX_Image::Chunk &f = image.GetChunk(i);
         result = DownloadChunk(f.GetType(), f.GetNumber(), f.GetData(),
             f.GetLength(), i==0 ? total : -1);
@@ -334,7 +334,7 @@ RCX_Result RCX_Link::GetVersion(ULong &rom, ULong &ram)
     if (RCX_ERROR(result)) return result;
 
     // Do our best to get a result.
-    result = Send(cmd.MakeGetVersions(), true, kDownloadWaitTime);
+    result = Send(cmd.MakeGetVersions(), true, RCX_PipeTransport::kMaxTimeout);
     if (RCX_ERROR(result)) return result;
 
     if (result != 8) return kRCX_ReplyError;
@@ -434,20 +434,9 @@ RCX_Result RCX_Link::TransferFirmware(const UByte *data, int length, int start, 
     RCX_Cmd cmd;
     RCX_Result result;
 
+    // Sync takes care of the Ping and any necessary unlock ops.
     result = Sync();
     PDEBUGVAR("result after Sync", result);
-    if (RCX_ERROR(result)) return result;
-
-    // Send a ping.
-    // TODO: is this right?
-    result = Send(cmd.MakePing());
-    PDEBUGVAR("result after Ping", result);
-    if (RCX_ERROR(result)) return result;
-
-    // Get versions.
-    // TODO: is this right?
-    result = Send(cmd.MakeGetVersions());
-    PDEBUGVAR("result after GetVersions", result);
     if (RCX_ERROR(result)) return result;
 
     // Delete the existing FW
@@ -706,7 +695,7 @@ int RCX_Link::ExpectedReplyLength(const UByte *data, int length)
             return 26;
         case kRCX_GetMemMap:
             return (fTarget == kRCX_CMTarget) ? 21 : 189;
-        case kRCX_PollMemoryOp:     // pollm
+        case kRCX_PollMemoryOp:     // Scout pollm
             if (length != 4) return 0;
             return data[3] +1;
         case kRCX_UploadDatalogOp:  // upload datalog

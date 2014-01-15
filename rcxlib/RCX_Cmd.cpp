@@ -167,7 +167,7 @@ RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4,
 
 RCX_Cmd* RCX_Cmd::MakeGetVersions()
 {
-    return Set(KRCX_GetVersions, 1, 3, 5, 7, 0xb);
+    return Set(kRCX_GetVersions, 1, 3, 5, 7, 0xb);
 }
 
 
