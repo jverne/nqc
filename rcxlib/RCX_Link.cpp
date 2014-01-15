@@ -686,30 +686,30 @@ int RCX_Link::ExpectedReplyLength(const UByte *data, int length)
     switch(data[0] & 0xf7)
     {
 /*
-        case 0xf7:  // message
-        case 0xd2:  // remote
+        case kRCX_Message:          // message
+        case kRCX_Remote:           // remote
             return 0;   // unconfirmed
 */
-        case 0x25:  // __task
-        case 0x35:
-        case 0x45:  // __dl
-        case 0x75:
+        case kRCX_BeginTaskOp:      // __task
+        case kRCX_BeginSubOp:
+        case kRCX_DownloadOp:       // __dl
+        case kRCX_BeginFirmwareOp:
             return 2;
-        case 0x30:  // pollb
-        case 0x12:  // poll
+        case kRCX_BatteryLevelOp:   // pollb
+        case kRCX_ReadOp:           // poll
             return 3;
-        case 0x15:
+        case kRCX_GetVersions:      // Get Versions
             return 9;
-        case 0x11: // spybot upload EEPROM
+        case kRCX_UploadEepromOp:   // spybot upload EEPROM
             return (fTarget == kRCX_CMTarget) ? 1 : 17;
-        case 0xa5:
+        case kRCX_UnlockOp:
             return 26;
-        case 0x20:
+        case kRCX_GetMemMap:
             return (fTarget == kRCX_CMTarget) ? 21 : 189;
-        case 0x63:  // pollm
+        case kRCX_PollMemoryOp:     // pollm
             if (length != 4) return 0;
             return data[3] +1;
-        case 0xa4:  // upload datalog
+        case kRCX_UploadDatalogOp:  // upload datalog
             if (length != 5) return 0;
             return (data[3] + ((int)data[4] << 8)) * 3 + 1;
         default:
@@ -737,7 +737,6 @@ const char *CheckPrefix(const char *s, const char *prefix)
             return 0;
     }
 }
-
 
 
 int Checksum(const UByte *data, int length)

@@ -70,7 +70,7 @@
 
 // special
 #define kRCX_ReadOp 0x12
-#define KRCX_GetVersions 0x15
+#define kRCX_GetVersions 0x15
 #define kRCX_UnlockOp 0xa5
 #define kRCX_BeginTaskOp 0x25
 #define kRCX_BeginSubOp 0x35
@@ -87,6 +87,7 @@
 #define kRCX_SetWatchOp 0x22
 #define kRCX_IRModeOp 0x31
 #define kRCX_AutoOffOp 0xb1
+#define kRCX_GetMemMap 0x20
 
 #define kRCX_Message 0xf7
 #define kRCX_Remote 0xd2
