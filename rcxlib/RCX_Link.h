@@ -120,8 +120,7 @@ private:
     RCX_Result Download(const UByte *data, int length, int chunk);
 
     int ExpectedReplyLength(const UByte *data, int length);
-    int AdjustChunkSize(const int n, const int nMaxZeros,
-        const int nMaxOnes, const UByte *data, bool bComplement);
+    int AdjustChunkSize(const int n, const UByte *data, bool bComplement);
     void BeginProgress(int total);
     bool IncrementProgress(int delta);
 
@@ -140,6 +139,10 @@ private:
     // new fields to track download progress;
     int fDownloadTotal;
     int fDownloadSoFar;
+
+    // Fields to control how we adjust for large runs of zeros and sparse bytes
+    int fMaxOnes;
+    int fMaxZeros;
 };
 
 const char *CheckPrefix(const char *s, const char *prefix);

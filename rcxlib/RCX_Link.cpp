@@ -40,6 +40,9 @@ using std::tolower;
 #define kSpyboticsChunk 16
 #define kFirmwareChunk 200
 #define kDownloadWaitTime 300
+#define kMaxZerosUSB 23       ///< Max number of zeros when downloading over USB @see AdjustChunkSize
+#define kMaxZerosSerial 30    ///< Max number of zeros when downloading over serial @see AdjustChunkSize
+#define kMaxOnes 90           ///< Max number of sparse bytes when downloading fast @see AdjustChunkSize 
 
 #define kNubStart 0x8000
 
@@ -57,6 +60,7 @@ RCX_Link::RCX_Link()
     fRCXFirmwareChunkSize = kFirmwareChunk;
     fDownloadWaitTime = kDownloadWaitTime;
     fVerbose = false;
+    fMaxOnes = kMaxOnes;
 }
 
 
@@ -68,6 +72,8 @@ RCX_Link::~RCX_Link()
 
 RCX_Result RCX_Link::Open(RCX_TargetType target, const char *portName, ULong options)
 {
+    PDEBUGVAR("RCX_Link::Open target type", (int)target);
+    PDEBUGSTR(portName);
     fVerbose = (options & kVerboseMode);
     fTarget = target;
 
@@ -112,6 +118,10 @@ RCX_Result RCX_Link::Open(RCX_TargetType target, const char *portName, ULong opt
         result = Send(cmd.MakeSet(RCX_VALUE(kRCX_SpybotPingCtrlType, 1), RCX_VALUE(2, 0)));
         if (RCX_ERROR(result)) return result;
     }
+
+    // Tweak maximums for detecting too many zeros in a transfer, which
+    // can cause sync problems at higher transfer speeds.
+    fMaxZeros = gUSB ? kMaxZerosUSB : kMaxZerosSerial;
 
     fSynced = false;
     fResult = kRCX_OK;
@@ -420,43 +430,52 @@ RCX_Result RCX_Link::DownloadFirmware(const UByte *data, int length, int start, 
 
 RCX_Result RCX_Link::TransferFirmware(const UByte *data, int length, int start, bool progress)
 {
+    PDEBUGVAR("RCX_Link::TransferFirmware, length", length);
     RCX_Cmd cmd;
     RCX_Result result;
 
     result = Sync();
+    PDEBUGVAR("result after Sync", result);
     if (RCX_ERROR(result)) return result;
 
     // Send a ping.
     // TODO: is this right?
     result = Send(cmd.MakePing());
+    PDEBUGVAR("result after Ping", result);
     if (RCX_ERROR(result)) return result;
 
     // Get versions.
     // TODO: is this right?
     result = Send(cmd.MakeGetVersions());
+    PDEBUGVAR("result after GetVersions", result);
     if (RCX_ERROR(result)) return result;
 
     // Delete the existing FW
     result = Send(cmd.Set(kRCX_DeleteFirmware, 1, 3, 5, 7, 0xb));
+    PDEBUGVAR("result after DeleteFirmware", result);
     if (RCX_ERROR(result)) return result;
 
     // Make a checksum and transfer the FW
     int check = Checksum(data, length < 0x4c00 ? length : 0x4c00);
     result = Send(cmd.Set(kRCX_BeginFirmwareOp,
         (UByte)(start), (UByte)(start>>8), (UByte)check, (UByte)(check>>8), 0));
+    PDEBUGVAR("result after BeginFirmwareOp", result);
     if (RCX_ERROR(result)) return result;
 
     BeginProgress(progress ? length : 0);
     result = Download(data, length, fRCXFirmwareChunkSize);
+    PDEBUGVAR("result after Download", result);
     if (RCX_ERROR(result)) return result;
 
     // last packet is no-retry with an extra long delay
     // this gives the RCX time to respond and makes sure response doesn't get trampled
-    result = Send(cmd.MakeUnlock(), false);
+    result = Send(cmd.MakeUnlock(), false, RCX_PipeTransport::kMaxTimeout);
+    PDEBUGVAR("result after unlock", result);
     if (fTransport->GetFastMode()) {
         return kRCX_OK;
     }
 
+    PDEBUGVAR("RCX_Link::TransferFirmware, result", result);
     return result;
 }
 
@@ -481,8 +500,7 @@ const int nOnesDensity[256] = {
 
 #define max(x, y) ((x) > (y)) ? (x) : (y)
 
-int RCX_Link::AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOnes,
-    const UByte *data, bool bComplement)
+int RCX_Link::AdjustChunkSize(const int n, const UByte *data, bool bComplement)
 {
     int size = n;
     //
@@ -496,7 +514,7 @@ int RCX_Link::AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOn
         const int kOnesPlusMinusScore = 3;
 
         int i;
-        for (i = 0; i < (size - nMaxZeros); ++i) {
+        for (i = 0; i < (size - fMaxZeros); ++i) {
             int j;
 
             UByte * p = (UByte*)data + i;
@@ -504,25 +522,23 @@ int RCX_Link::AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOn
                 continue;
             }
 
-            //
             // Found a zero -- check to see how many consecutive
-            //
-            for (j = 0; j < nMaxZeros; ++j) {
+            for (j = 0; j < fMaxZeros; ++j) {
                 UByte * q = (UByte*)data + i + j;
                 if (*q != 0) {
                     break;
                 }
             }
 
-            if (j >= nMaxZeros) {
+            if (j >= fMaxZeros) {
                 // Too many consecutive zeros. Shorten the message size.
-                size = i + nMaxZeros;
+                size = i + fMaxZeros;
                 if (fVerbose) printf("too many consecutive zeros (%d)\n", j);
                 break;
             }
         }
 
-        for (i = 0; i < (size - nMaxOnes); ++i) {
+        for (i = 0; i < (size - fMaxOnes); ++i) {
             int j;
             ubyte aByte;
             int nLotsOfOnes;
@@ -532,11 +548,9 @@ int RCX_Link::AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOn
                 continue;
             }
 
-            //
             // Found a sparse byte -- check to see how many consecutive.
-            //
             nLotsOfOnes = 0;
-            for (j = 0; j < nMaxOnes; ++j) {
+            for (j = 0; j < fMaxOnes; ++j) {
                 aByte = *(data + i + j);
                 if (nOnesDensity[aByte] >= 3) {
                     ++nLotsOfOnes;
@@ -549,9 +563,9 @@ int RCX_Link::AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOn
                 }
             }
 
-            if (j >= nMaxOnes) {
+            if (j >= fMaxOnes) {
                 // Too many consecutive sparse bytes. Shorten the message size.
-                size = max(i, nMaxOnes);
+                size = max(i, fMaxOnes);
                 if (fVerbose) printf("too many consecutive sparse bytes (%d)\n", j);
                 break;
             }
@@ -563,6 +577,7 @@ int RCX_Link::AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOn
 
 RCX_Result RCX_Link::Download(const UByte *data, int length, int chunk)
 {
+    PDEBUGVAR("RCX_Link::Download chunk", chunk);
     RCX_Cmd cmd;
     RCX_Result result;
     UShort seq;
@@ -571,6 +586,8 @@ RCX_Result RCX_Link::Download(const UByte *data, int length, int chunk)
 
     seq = 1;
     while (remain > 0) {
+        // Transfer the remaining bytes if what is left to send
+        // is less than the current chunk size.
         if (remain <= chunk) {
             if (!gQuiet || gProgramMode) {
                 seq = 0;
@@ -581,17 +598,16 @@ RCX_Result RCX_Link::Download(const UByte *data, int length, int chunk)
             n = chunk;
         }
 
-        int maxZeros = gUSB ? 23 : 30;
-        int maxOnes  = 90;
-        n = AdjustChunkSize(n, maxZeros, maxOnes, data, fTransport->GetComplementData());
+        n = AdjustChunkSize(n, data, fTransport->GetComplementData());
+        PDEBUGVAR("sending bytes", n);
         if (fVerbose) {
             printf("sending %d bytes\n", n);
         }
 
-        result = Send(cmd.MakeDownload(seq++, data, (UShort)n), true, fDownloadWaitTime);
-        if (result < 0) {
+        result = Send(cmd.MakeDownload(seq++, data, (UShort)n),
+            true, fDownloadWaitTime);
+        if (RCX_ERROR(result))
             return result;
-        }
 
         remain -= n;
         data += n;
@@ -618,12 +634,12 @@ RCX_Result RCX_Link::Send(const UByte *data, int length, bool retry, int timeout
         return kRCX_RequestError;
     }
 
+    // TODO: why are we setting this property here?
     fResult = fTransport->Send(data, length, fReply, expected,
         kMaxReplyLength, retry, timeout);
 
     return fResult;
 }
-
 
 
 RCX_Result RCX_Link::GetReply(UByte *data, int maxLength)
@@ -639,6 +655,7 @@ RCX_Result RCX_Link::GetReply(UByte *data, int maxLength)
         *data++ = *src++;
     }
 
+    PDEBUGVAR("length on exit from RCX_Link::GetReply", length);
     return length;
 }
 

@@ -19,6 +19,8 @@
 #include "RCX_Link.h"
 #include "RCX_SerialPipe.h"
 
+#include "PDebug.h"
+
 using std::printf;
 
 #ifdef DEBUG
@@ -139,42 +141,48 @@ void RCX_PipeTransport::SetFastMode(bool fast)
 RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxData,
     int rxExpected, int rxMax, bool retry, int timeout)
 {
+    PDEBUGVAR("RCX_PipeTransport::Send retry", (int)retry);
+    PDEBUGVAR("timeout", timeout);
+
     RCX_Result result;
+    int originalTimeout = fRxTimeout;
 
     // format the command
     BuildTxData(txData, txLength, retry);
 
-    // try sending
+    // Try sending
     int tries = retry ? kDefaultRetryCount : 1;
-    int originalTimeout = fRxTimeout;
-
+    PDEBUGVAR("tries", tries);
     for (int i=0; i<tries; i++) {
+        PDEBUGVAR("Transmitting from buffer; try", i);
         SendFromTxBuffer(fFastMode ? 100 : 0);
 
         // if no reply is expected, we can just return now (no retries, no errors, etc)
         if (!rxExpected) return kRCX_OK;
 
-        int tmpTimeout;
+        int retryTimeout;
         if (timeout > 0)
-            tmpTimeout = timeout;
+            retryTimeout = timeout;
         else
-            tmpTimeout = fRxTimeout;
+            retryTimeout = fRxTimeout;
 
         int replyOffset;
-        result = ReceiveReply(rxExpected, tmpTimeout, replyOffset);
+        result = ReceiveReply(rxExpected, retryTimeout, replyOffset);
         if (fDynamicTimeout) {
             AdjustTimeout(result, i);
         }
 
         if (!RCX_ERROR(result)) {
+            PDEBUGSTR("Reply received");
             if (rxData) {
-                int length = result+1;
+                int length = result + 1;
                 if (length > rxMax) length = rxMax;
                 CopyReply(rxData, replyOffset, length);
             }
 
             return result;
         }
+        PDEBUGVAR("Reply result", result);
 
         // only the second kRCX_IREchoError is catastrophic
         // this is somewhat of a hack - I really should keep track
@@ -182,8 +190,13 @@ RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxD
         // level failure on a single packet doesn't kill the entire
         // send
         if (result == kRCX_IREchoError && i > 0) break;
-                
-        if (fVerbose) printf("Retrying...\n");
+
+        // Update UI, verbosely or tersely.
+        if (fVerbose) {
+            printf("Retrying...\n");
+        } else {
+            fputc('!', stderr);
+        }
     }
 
     if (retry) {
@@ -194,6 +207,7 @@ RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxD
         fSynced = false;
     }
 
+    PDEBUGVAR("result", result);
     return result;
 }
 
@@ -258,7 +272,7 @@ void RCX_PipeTransport::BuildTxData(const UByte *data, int length, bool duplicat
 void RCX_PipeTransport::SendFromTxBuffer(int delay)
 {
     // drain serial rx buffer
-        fPipe->FlushRead(delay);
+    fPipe->FlushRead(delay);
 
     // send command
     fPipe->Write(fTxData, fTxLength);
@@ -370,22 +384,25 @@ void RCX_PipeTransport::AdjustTimeout(RCX_Result result, int attempt)
 {
     int newTimeout = fRxTimeout;
 
-    if (!RCX_ERROR(result) && attempt==0) {
+    if (!RCX_ERROR(result) && attempt == 0) {
         // worked on first try, lets see if we can go faster next time
         newTimeout = fRxTimeout - (fRxTimeout / 10);
         if (newTimeout < kMinTimeout)
             newTimeout = kMinTimeout;
+        PDEBUGVAR("Adjusting Rx timeout down, newTimeout", newTimeout);
     }
     else if (RCX_ERROR(result) && attempt > 0) {
         // failed on try other than first - slow down
         newTimeout *= 2;
-        if (newTimeout > kMaxTimeout) newTimeout = kMaxTimeout;
+        if (newTimeout > kMaxTimeout)
+            newTimeout = kMaxTimeout;
+        PDEBUGVAR("Adjusting Rx timeout up, newTimeout", newTimeout);
     }
 
     if (newTimeout != fRxTimeout) {
         fRxTimeout = newTimeout;
         #ifdef DEBUG_TIMEOUT
-            printf("Timeout = %d\n", fRxTimeout);
+            PDEBUGVAR("New Rx timeout", fRxTimeout);
         #endif
     }
 }

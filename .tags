@@ -93,7 +93,7 @@ AddTest	compiler/Bytecode.cpp	/^void Bytecode::AddTest(RCX_Value v1, RCX_Relatio
 AddVariableName	compiler/Bytecode.h	/^	void		AddVariableName(int index, const char *name) { fImage->SetVariable(index, name); }$/;"	f	class:Bytecode
 AddrOfExpr	compiler/AddrOfExpr.cpp	/^AddrOfExpr::AddrOfExpr(int value, int offset, const LexLocation &loc) :$/;"	f	class:AddrOfExpr
 AddrOfExpr	compiler/AddrOfExpr.h	/^class AddrOfExpr : public Expr, public Translatable$/;"	c
-AdjustChunkSize	rcxlib/RCX_Link.cpp	/^int RCX_Link::AdjustChunkSize(const int n, const int nMaxZeros, const int nMaxOnes,$/;"	f	class:RCX_Link
+AdjustChunkSize	rcxlib/RCX_Link.cpp	/^int RCX_Link::AdjustChunkSize(const int n, const UByte *data, bool bComplement)$/;"	f	class:RCX_Link
 AdjustTimeout	rcxlib/RCX_PipeTransport.cpp	/^void RCX_PipeTransport::AdjustTimeout(RCX_Result result, int attempt)$/;"	f	class:RCX_PipeTransport
 Adopt	compiler/Stmt.h	/^    void Adopt(Stmt *c)  { if (c) c->fParent = this; }$/;"	f	class:Stmt
 Allocate	compiler/VarAllocator.cpp	/^int VarAllocator::Allocate(bool temp, bool canUseLocals, int count)$/;"	f	class:VarAllocator
@@ -125,6 +125,7 @@ BEGIN	default/lexer.cpp	84;"	d	file:
 BINDIR	Makefile	/^BINDIR ?= ${PREFIX}\/bin$/;"	m
 BISON_SIMPLE	compiler/build.bat	/^@set BISON_SIMPLE=c:\\cbuilderx\\bin\\bison.simple$/;"	v
 BUFFERSIZE	nqc/SRecord.cpp	58;"	d	file:
+BUFSIZE	platform/PDebug.cpp	27;"	d	file:
 Begin	compiler/VarAllocator.cpp	/^void VarAllocator::Begin(int mode)$/;"	f	class:VarAllocator
 BeginExpansion	compiler/PreProc.cpp	/^bool PreProc::BeginExpansion(Symbol *s)$/;"	f	class:PreProc
 BeginFunction	compiler/parse_util.cpp	/^FunctionDef* BeginFunction(FunctionDef *f, const Symbol *name, bool listing)$/;"	f
@@ -314,8 +315,8 @@ CreateImage	compiler/Program.cpp	/^RCX_Image*	Program::CreateImage()$/;"	f	class
 CreateQueue	rcxlib/RCX_GhostTransport.cpp	/^GHQUEUE RCX_GhostTransport::CreateQueue(const UByte *txData, int txLength, int rxExpected)$/;"	f	class:RCX_GhostTransport
 CreateSubroutine	compiler/parse_util.cpp	/^Fragment* CreateSubroutine(Fragment *f, Symbol *name, Stmt *body)$/;"	f
 CreateVar	compiler/Program.cpp	/^int Program::CreateVar(const Symbol *name, bool array, bool ptr, bool stack)$/;"	f	class:Program
-DEBUG	nqc/debug_prefix.h	14;"	d
-DEBUG_TIMEOUT	rcxlib/RCX_PipeTransport.cpp	25;"	d	file:
+DEBUG	nqc/debug_prefix.h	15;"	d
+DEBUG_TIMEOUT	rcxlib/RCX_PipeTransport.cpp	27;"	d	file:
 DEFAULT	compiler/parse.cpp	/^     DEFAULT = 308,$/;"	e	enum:yytokentype	file:
 DEFAULT	compiler/parse.cpp	187;"	d	file:
 DEFAULT	compiler/parse.tab.h	/^     DEFAULT = 308,$/;"	e	enum:yytokentype
@@ -556,7 +557,7 @@ FOR	default/parse.cpp	53;"	d	file:
 FOR	default/parse.tab.h	/^     FOR = 304,$/;"	e	enum:yytokentype
 FOR	default/parse.tab.h	145;"	d
 FUNCTION	rcxlib/USBTowerWin.cpp	22;"	d	file:
-FastModeOddParity	rcxlib/RCX_PipeTransport.h	/^	virtual bool FastModeOddParity() const { return fPipe->GetCapabilities() & RCX_Pipe::kFastOddParityFlag; }$/;"	f	class:RCX_PipeTransport
+FastModeOddParity	rcxlib/RCX_PipeTransport.h	/^    virtual bool FastModeOddParity() const { return fPipe->GetCapabilities() & RCX_Pipe::kFastOddParityFlag; }$/;"	f	class:RCX_PipeTransport
 FastModeOddParity	rcxlib/RCX_Transport.h	/^    virtual bool FastModeOddParity() const { return false; }$/;"	f	class:RCX_Transport
 FastModeSupported	rcxlib/RCX_PipeTransport.cpp	/^bool RCX_PipeTransport::FastModeSupported() const$/;"	f	class:RCX_PipeTransport
 FastModeSupported	rcxlib/RCX_Transport.h	/^    virtual bool FastModeSupported() const { return false; }$/;"	f	class:RCX_Transport
@@ -1231,6 +1232,7 @@ LoadLEGOTowerFunctions	rcxlib/USBTowerWin.cpp	/^HINSTANCE LoadLEGOTowerFunctions
 LocationNode	compiler/LocationNode.h	/^						LocationNode() { LexCurrentLocation(fLocation); }$/;"	f	class:LocationNode
 LocationNode	compiler/LocationNode.h	/^						LocationNode(const LexLocation &loc) : fLocation(loc) {}$/;"	f	class:LocationNode
 LocationNode	compiler/LocationNode.h	/^class LocationNode : public AutoFree$/;"	c
+LogFile	platform/PDebug.cpp	/^static FILE* LogFile;$/;"	v	file:
 LogicalExpr	compiler/LogicalExpr.cpp	/^LogicalExpr::LogicalExpr (Expr *lhs, int op, Expr *rhs)$/;"	f	class:LogicalExpr
 LogicalExpr	compiler/LogicalExpr.h	/^class LogicalExpr : public NodeExpr$/;"	c
 Lookup	compiler/Scope.cpp	/^int Scope::Lookup(const Symbol *name, bool &array, bool &ptr, bool &stack)$/;"	f	class:Scope
@@ -1320,22 +1322,23 @@ NAVTREE	doc/html/navtree.js	/^var NAVTREE =$/;"	v
 NAVTREEINDEX	doc/html/navtree.js	/^var NAVTREEINDEX =$/;"	v
 NAVTREEINDEX0._acquire_stmt_8cpp.xhtml	doc/html/navtreeindex0.js	/^{$/;"	p
 NAVTREEINDEX1._l_e_g_o_u_s_b_towerioctl_8h.xhtml#a47023c1722ea789c3effbdae7f25f10e	doc/html/navtreeindex1.js	/^{$/;"	p
-NAVTREEINDEX10.class_r_c_x___link.xhtml#ab397664edc10831167aa357312cc1ed2	doc/html/navtreeindex10.js	/^{$/;"	p
-NAVTREEINDEX11.class_reader.xhtml#ace8832c12769bbac7cc34dfc1041be58	doc/html/navtreeindex11.js	/^{$/;"	p
-NAVTREEINDEX12.dir_7bcdb63c5b61d90823206428528a737d.xhtml	doc/html/navtreeindex12.js	/^{$/;"	p
-NAVTREEINDEX13.lexer_8cpp.xhtml#a835f10dd1ab4bf9a80c4cd80ee6e3058	doc/html/navtreeindex13.js	/^{$/;"	p
-NAVTREEINDEX14.parse_8cpp.xhtml#a15c9f7bd2f0e9686df5d9df4f3314aa9a972f3df9d279a3d3acc88bcbe4452d51	doc/html/navtreeindex14.js	/^{$/;"	p
-NAVTREEINDEX15.parse_8tab_8h.xhtml#a15c9f7bd2f0e9686df5d9df4f3314aa9a6b9a8fecdd76d16c318da0ffe327f693	doc/html/navtreeindex15.js	/^{$/;"	p
-NAVTREEINDEX16.strlutil_8cpp.xhtml	doc/html/navtreeindex16.js	/^{$/;"	p
-NAVTREEINDEX17.struct_l_t___t_i_m_e_o_u_t.xhtml#acfc4f6d462ffcbd2eda9b1fbbafbef9c	doc/html/navtreeindex17.js	/^{$/;"	p
-NAVTREEINDEX2._r_c_x___constants_8h.xhtml#a1cb0bddcd8d85efc445aefb42e187c6ca0a953f1a0abeefd955fec5da50896a0b	doc/html/navtreeindex2.js	/^{$/;"	p
-NAVTREEINDEX3._r_c_x___constants_8h.xhtml#a40e9c383b856c2ecab16f9d635425f35	doc/html/navtreeindex3.js	/^{$/;"	p
-NAVTREEINDEX4._r_c_x___ghost_transport_8cpp.xhtml#ac4f50c55649031b9f1e3d04681847bb8	doc/html/navtreeindex4.js	/^{$/;"	p
-NAVTREEINDEX5._tower_api_8h.xhtml#a1e5508c29c63c000a4a94972c8347288	doc/html/navtreeindex5.js	/^{$/;"	p
-NAVTREEINDEX6.class_binary_expr.xhtml#a5b74ba8754311afb8b06833f8c0b289a	doc/html/navtreeindex6.js	/^{$/;"	p
-NAVTREEINDEX7.class_declare_stmt.xhtml#afdf00efa5314e144266cc6672f4816ee	doc/html/navtreeindex7.js	/^{$/;"	p
-NAVTREEINDEX8.class_goto_stmt.xhtml#a5ac0beabd19ee9ef7007cd309731b5a1	doc/html/navtreeindex8.js	/^{$/;"	p
-NAVTREEINDEX9.class_p_serial__win.xhtml#a21de661aede9042a69b4fdd9b00e6cb9	doc/html/navtreeindex9.js	/^{$/;"	p
+NAVTREEINDEX10.class_r_c_x___link.xhtml#a8051875fd70239868df0de1d71bb923f	doc/html/navtreeindex10.js	/^{$/;"	p
+NAVTREEINDEX11.class_reader.xhtml#a7072591ec4f60d6b12f0649f6b73da91	doc/html/navtreeindex11.js	/^{$/;"	p
+NAVTREEINDEX12.debug__prefix_8h.xhtml#ab524bf5b133823d5d8bdbae90a7b5977	doc/html/navtreeindex12.js	/^{$/;"	p
+NAVTREEINDEX13.lexer_8cpp.xhtml#a7f71d7fa2c403eb4b2f38cb9536f3c63	doc/html/navtreeindex13.js	/^{$/;"	p
+NAVTREEINDEX14.parse_8cpp.xhtml#a15c9f7bd2f0e9686df5d9df4f3314aa9a950a4e8a0f44ffd6a534de12559b08f5	doc/html/navtreeindex14.js	/^{$/;"	p
+NAVTREEINDEX15.parse_8tab_8h.xhtml#a15c9f7bd2f0e9686df5d9df4f3314aa9a682bff09ecd13e855c20beeea7f234f8	doc/html/navtreeindex15.js	/^{$/;"	p
+NAVTREEINDEX16.rcxnub__odd_8h_source.xhtml	doc/html/navtreeindex16.js	/^{$/;"	p
+NAVTREEINDEX17.struct_l_t___t_i_m_e_o_u_t.xhtml#aa83f2bced91585ab1d0e91b5fea37be6	doc/html/navtreeindex17.js	/^{$/;"	p
+NAVTREEINDEX2._r_c_x___constants_8h.xhtml#a1cb0bddcd8d85efc445aefb42e187c6ca08d6cf5f797adf5d105b605f455c5267	doc/html/navtreeindex2.js	/^{$/;"	p
+NAVTREEINDEX3._r_c_x___constants_8h.xhtml#a2c6f1829855036612d1eacd579823711	doc/html/navtreeindex3.js	/^{$/;"	p
+NAVTREEINDEX4._r_c_x___ghost_transport_8cpp.xhtml	doc/html/navtreeindex4.js	/^{$/;"	p
+NAVTREEINDEX5._tower_api_8h.xhtml#a1bbc4968df03fe5e8ddd0b305dd41427	doc/html/navtreeindex5.js	/^{$/;"	p
+NAVTREEINDEX6.class_binary_expr.xhtml#a1102bdb40bf7a4c39a140dd6e572e012	doc/html/navtreeindex6.js	/^{$/;"	p
+NAVTREEINDEX7.class_declare_stmt.xhtml#ae3c025040a08faed1ae8472b0af32ebd	doc/html/navtreeindex7.js	/^{$/;"	p
+NAVTREEINDEX8.class_goto_stmt.xhtml#a3d690990a36b5a9f2909e2f5fbc13877	doc/html/navtreeindex8.js	/^{$/;"	p
+NAVTREEINDEX9.class_p_serial__unix.xhtml#ae57b8b2eab02556ae1d8ac2990a9db7b	doc/html/navtreeindex9.js	/^{$/;"	p
+NCQ_LOGFILE	platform/PDebug.h	18;"	d
 NL	compiler/parse.cpp	/^     NL = 287,$/;"	e	enum:yytokentype	file:
 NL	compiler/parse.cpp	166;"	d	file:
 NL	compiler/parse.tab.h	/^     NL = 287,$/;"	e	enum:yytokentype
@@ -1387,6 +1390,7 @@ OR	default/parse.cpp	7;"	d	file:
 OR	default/parse.tab.h	/^     OR = 258,$/;"	e	enum:yytokentype
 OR	default/parse.tab.h	99;"	d
 OSTYPE	Makefile	/^OSTYPE := $(strip $(shell uname -s))$/;"	m
+OUTFILE	platform/PDebug.h	17;"	d
 Open	nqc/nqc.cpp	/^RCX_Result AutoLink::Open()$/;"	f	class:AutoLink
 Open	platform/PSerial_mac.cpp	/^bool PSerial_mac::Open(const char *name)$/;"	f	class:PSerial_mac
 Open	platform/PSerial_none.cpp	/^	virtual	bool	Open(const char *) { return false; }$/;"	f	class:PSerial_none
@@ -1406,11 +1410,13 @@ OpenInterface	rcxlib/RCX_USBTowerPipe_fbsd.cpp	/^IOReturn RCX_USBTowerPipe_fbsd:
 OpenInterface	rcxlib/RCX_USBTowerPipe_osx.cpp	/^IOReturn RCX_USBTowerPipe_osx::OpenInterface()$/;"	f	class:RCX_USBTowerPipe_osx
 OpenOneSerialDriver	platform/PSerial_mac.cpp	/^static OSErr OpenOneSerialDriver(ConstStr255Param driverName, short *refNum)$/;"	f	file:
 OptimizeFixups	compiler/Bytecode.cpp	/^void Bytecode::OptimizeFixups()$/;"	f	class:Bytecode
-PASSERT	platform/PDebug.h	36;"	d
-PASSERT	platform/PDebug.h	44;"	d
-PDEBUG	nqc/debug_prefix.h	15;"	d
-PDEBUGSTR	platform/PDebug.h	37;"	d
-PDEBUGSTR	platform/PDebug.h	45;"	d
+PASSERT	platform/PDebug.h	40;"	d
+PASSERT	platform/PDebug.h	49;"	d
+PDEBUG	nqc/debug_prefix.h	16;"	d
+PDEBUGSTR	platform/PDebug.h	41;"	d
+PDEBUGSTR	platform/PDebug.h	50;"	d
+PDEBUGVAR	platform/PDebug.h	42;"	d
+PDEBUGVAR	platform/PDebug.h	51;"	d
 PHashTable	platform/PHashTable.h	/^				PHashTable(int size) : P_HashTable(size) {}$/;"	f	class:PHashTable
 PHashTable	platform/PHashTable.h	/^template <class T> class PHashTable : public P_HashTable$/;"	c
 PHashable	platform/PHashTable.h	/^class PHashable : public PLinkS<PHashable> {$/;"	c
@@ -1542,10 +1548,10 @@ PP_WARNING	default/parse.tab.h	141;"	d
 PREFIX	Makefile	/^PREFIX ?= \/usr\/local$/;"	m
 PREPROC	compiler/lexer.cpp	691;"	d	file:
 PREPROC	default/lexer.cpp	607;"	d	file:
-PREQUIRE	platform/PDebug.h	38;"	d
-PREQUIRE	platform/PDebug.h	46;"	d
-PREQUIRENOT	platform/PDebug.h	39;"	d
-PREQUIRENOT	platform/PDebug.h	47;"	d
+PREQUIRE	platform/PDebug.h	43;"	d
+PREQUIRE	platform/PDebug.h	52;"	d
+PREQUIRENOT	platform/PDebug.h	44;"	d
+PREQUIRENOT	platform/PDebug.h	53;"	d
 PSeekStream	platform/PStream.h	/^class PSeekStream : public PStream$/;"	c
 PSerial	platform/PSerial.h	/^class PSerial : public PStream$/;"	c
 PSerial_mac	platform/PSerial_mac.cpp	/^class PSerial_mac : public PSerial$/;"	c	file:
@@ -1937,9 +1943,7 @@ Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1)$/;"	f	class:R
 Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2)$/;"	f	class:RCX_Cmd
 Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3)$/;"	f	class:RCX_Cmd
 Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4)$/;"	f	class:RCX_Cmd
-Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5)$/;"	f	class:RCX_Cmd
-Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5, UByte d6)$/;"	f	class:RCX_Cmd
-Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4, UByte d5, UByte d6, UByte d7)$/;"	f	class:RCX_Cmd
+Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(UByte d0, UByte d1, UByte d2, UByte d3, UByte d4,$/;"	f	class:RCX_Cmd
 Set	rcxlib/RCX_Cmd.cpp	/^RCX_Cmd* RCX_Cmd::Set(const UByte *data, int length)$/;"	f	class:RCX_Cmd
 SetArg	compiler/Expansion.cpp	/^void Expansion::SetArg(int i, const Token *t, int count)$/;"	f	class:Expansion
 SetBlocking	platform/PStream.cpp	/^bool PStream::SetBlocking(bool blocking)$/;"	f	class:PStream
@@ -2541,7 +2545,8 @@ _monitor_stmt_8cpp	doc/html/_monitor_stmt_8cpp.js	/^var _monitor_stmt_8cpp =$/;"
 _p_assert	platform/PDebug.cpp	/^void _p_assert(const char* file, int line)$/;"	f
 _p_debug_8h	doc/html/_p_debug_8h.js	/^var _p_debug_8h =$/;"	v
 _p_debugstr	platform/PDebug.cpp	/^void _p_debugstr(const char *text)$/;"	f
-_p_debugstr	platform/PDebug.h	23;"	d
+_p_debugstr	platform/PDebug.h	25;"	d
+_p_debugvar	platform/PDebug.cpp	/^void _p_debugvar(const char *varname, const int var)$/;"	f
 _p_list_s_8h	doc/html/_p_list_s_8h.js	/^var _p_list_s_8h =$/;"	v
 _p_require	platform/PDebug.cpp	/^void _p_require(const char* file, int line, const char* label)$/;"	f
 _p_requirenot	platform/PDebug.cpp	/^void _p_requirenot(const char* file, int line, int val, const char* label)$/;"	f
@@ -2908,7 +2913,7 @@ fChunkNumbers	compiler/Program.h	/^	int		fChunkNumbers[kRCX_ChunkTypeCount];$/;"
 fChunks	rcxlib/RCX_Image.h	/^    vector<Chunk*> fChunks;$/;"	m	class:RCX_Image
 fCode	compiler/AssignMathStmt.h	/^	RCX_VarCode	fCode;$/;"	m	class:AssignMathStmt
 fCode	compiler/Error.h	/^    ErrorCode fCode;$/;"	m	class:Error
-fComplementData	rcxlib/RCX_PipeTransport.h	/^	bool fComplementData;$/;"	m	class:RCX_PipeTransport
+fComplementData	rcxlib/RCX_PipeTransport.h	/^    bool fComplementData;$/;"	m	class:RCX_PipeTransport
 fCondition	compiler/DoStmt.h	/^	Expr*	fCondition;$/;"	m	class:DoStmt
 fCondition	compiler/ForStmt.h	/^    Expr*           fCondition;$/;"	m	class:ForStmt
 fCondition	compiler/IfStmt.h	/^	Expr*	fCondition;$/;"	m	class:IfStmt
@@ -2955,7 +2960,7 @@ fDownload	nqc/nqc.cpp	/^    bool fDownload;$/;"	m	struct:Request	file:
 fDownloadSoFar	rcxlib/RCX_Link.h	/^    int fDownloadSoFar;$/;"	m	class:RCX_Link
 fDownloadTotal	rcxlib/RCX_Link.h	/^    int fDownloadTotal;$/;"	m	class:RCX_Link
 fDownloadWaitTime	rcxlib/RCX_Link.h	/^    int fDownloadWaitTime;$/;"	m	class:RCX_Link
-fDynamicTimeout	rcxlib/RCX_PipeTransport.h	/^	bool fDynamicTimeout;$/;"	m	class:RCX_PipeTransport
+fDynamicTimeout	rcxlib/RCX_PipeTransport.h	/^    bool fDynamicTimeout;$/;"	m	class:RCX_PipeTransport
 fEA	compiler/AsmStmt.h	/^    RCX_Value   fEA;$/;"	m	class:EAField
 fElseAllowed	compiler/Conditional.h	/^		bool	fElseAllowed;	\/\/ true until else is done$/;"	m	class:Conditional::Level
 fEnabled	rcxlib/RCX_Disasm.cpp	/^    bool    fEnabled;$/;"	m	class:SrcListState	file:
@@ -2976,7 +2981,7 @@ fExpr	compiler/parse.tab.h	/^	Expr*		fExpr;$/;"	m	union:YYSTYPE
 fExpr	default/parse.cpp	/^	Expr*		fExpr;$/;"	m	union:__anon12	file:
 fExpr	default/parse.tab.h	/^	Expr*		fExpr;$/;"	m	union:YYSTYPE
 fExprs	compiler/NodeExpr.h	/^	Expr*	fExprs[MAX_EXPRS];$/;"	m	class:NodeExpr
-fFastMode	rcxlib/RCX_PipeTransport.h	/^	bool fFastMode;$/;"	m	class:RCX_PipeTransport
+fFastMode	rcxlib/RCX_PipeTransport.h	/^    bool fFastMode;$/;"	m	class:RCX_PipeTransport
 fField	compiler/parse.cpp	/^	Field*		fField;$/;"	m	union:YYSTYPE	file:
 fField	compiler/parse.tab.h	/^	Field*		fField;$/;"	m	union:YYSTYPE
 fField	default/parse.cpp	/^	Field*		fField;$/;"	m	union:__anon12	file:
@@ -3088,8 +3093,10 @@ fMainAdded	compiler/Program.h	/^	bool		fMainAdded;$/;"	m	class:Program
 fMark	compiler/Macro.h	/^    bool fMark;$/;"	m	class:Macro
 fMaxDepth	compiler/CondParser.h	/^	int		fMaxDepth;$/;"	m	class:CondParser
 fMaxGlobalVars	rcxlib/RCX_Target.h	/^    int fMaxGlobalVars;$/;"	m	class:RCX_Target
+fMaxOnes	rcxlib/RCX_Link.h	/^    int fMaxOnes;$/;"	m	class:RCX_Link
 fMaxTaskVars	rcxlib/RCX_Target.h	/^    int fMaxTaskVars;$/;"	m	class:RCX_Target
 fMaxVars	compiler/VarAllocator.h	/^	int		fMaxVars;$/;"	m	class:VarAllocator
+fMaxZeros	rcxlib/RCX_Link.h	/^    int fMaxZeros;$/;"	m	class:RCX_Link
 fMode	compiler/VarAllocator.h	/^	int		fMode;$/;"	m	class:VarAllocator
 fMustEmit	compiler/Stmt.h	/^    bool fMustEmit;$/;"	m	class:Stmt
 fNLRead	compiler/PreProc.h	/^    bool    fNLRead;$/;"	m	class:PreProc
@@ -3139,7 +3146,7 @@ fParen	compiler/CondParser.h	/^	int		fParen;$/;"	m	class:CondParser
 fParent	compiler/Stmt.h	/^    Stmt* fParent;$/;"	m	class:Stmt
 fParser	compiler/PreProc.h	/^    CondParser          fParser;$/;"	m	class:PreProc
 fPath	nqc/DirList.h	/^        char* fPath;$/;"	m	class:DirList::Entry
-fPipe	rcxlib/RCX_PipeTransport.h	/^	RCX_Pipe* fPipe;$/;"	m	class:RCX_PipeTransport
+fPipe	rcxlib/RCX_PipeTransport.h	/^    RCX_Pipe* fPipe;$/;"	m	class:RCX_PipeTransport
 fPos	nqc/CmdLine.h	/^    int fPos;$/;"	m	class:CmdLine
 fPre	compiler/IncDecExpr.h	/^    bool        fPre;$/;"	m	class:IncDecExpr
 fPrimary	compiler/Stmt.h	/^    Stmt* fPrimary;$/;"	m	class:BinaryStmt
@@ -3168,10 +3175,10 @@ fResources	rcxlib/RCX_Target.h	/^    bool fResources;$/;"	m	class:RCX_Target
 fRestrictedMath	rcxlib/RCX_Target.h	/^    bool fRestrictedMath;$/;"	m	class:RCX_Target
 fRestrictor	compiler/AsmStmt.h	/^    ULong       fRestrictor;$/;"	m	class:EAField
 fResult	rcxlib/RCX_Link.h	/^    RCX_Result fResult;$/;"	m	class:RCX_Link
-fRxData	rcxlib/RCX_PipeTransport.h	/^	UByte* fRxData;$/;"	m	class:RCX_PipeTransport
-fRxLength	rcxlib/RCX_PipeTransport.h	/^	int	 fRxLength;$/;"	m	class:RCX_PipeTransport
-fRxState	rcxlib/RCX_PipeTransport.h	/^	int	fRxState;$/;"	m	class:RCX_PipeTransport
-fRxTimeout	rcxlib/RCX_PipeTransport.h	/^	int fRxTimeout;$/;"	m	class:RCX_PipeTransport
+fRxData	rcxlib/RCX_PipeTransport.h	/^    UByte* fRxData;$/;"	m	class:RCX_PipeTransport
+fRxLength	rcxlib/RCX_PipeTransport.h	/^    int  fRxLength;$/;"	m	class:RCX_PipeTransport
+fRxState	rcxlib/RCX_PipeTransport.h	/^    int fRxState;$/;"	m	class:RCX_PipeTransport
+fRxTimeout	rcxlib/RCX_PipeTransport.h	/^    int fRxTimeout;         \/\/\/< Receive reply timeouts$/;"	m	class:RCX_PipeTransport
 fSavedOffset	compiler/lexer.cpp	/^    long fSavedOffset;$/;"	m	struct:InputFile	file:
 fSavedOffset	default/lexer.cpp	/^	long		fSavedOffset;$/;"	m	struct:InputFile	file:
 fScope	compiler/DeclareStmt.h	/^		ScopeStmt*	fScope;$/;"	m	class:DeclareStmt::Binder
@@ -3221,9 +3228,9 @@ fSymbol	compiler/parse.tab.h	/^	Symbol*		fSymbol;$/;"	m	union:YYSTYPE
 fSymbol	default/parse.cpp	/^	Symbol*		fSymbol;$/;"	m	union:__anon12	file:
 fSymbol	default/parse.tab.h	/^	Symbol*		fSymbol;$/;"	m	union:YYSTYPE
 fSymbolCount	rcxlib/rcxifile.h	/^    unsigned short  fSymbolCount;   \/\/\/< Number of symbols defined in symbol table$/;"	m	struct:RCXIHeader
-fSync	rcxlib/RCX_PipeTransport.h	/^	const UByte* fSync;	\/\/ sync pattern for packets (depends on target and usb mode)$/;"	m	class:RCX_PipeTransport
+fSync	rcxlib/RCX_PipeTransport.h	/^    const UByte* fSync; \/\/\/< sync pattern for packets (depends on target and usb mode)$/;"	m	class:RCX_PipeTransport
 fSynced	rcxlib/RCX_Link.h	/^    bool fSynced;$/;"	m	class:RCX_Link
-fSynced	rcxlib/RCX_PipeTransport.h	/^	bool fSynced;$/;"	m	class:RCX_PipeTransport
+fSynced	rcxlib/RCX_PipeTransport.h	/^    bool fSynced;           \/\/\/< Flag that indicates we have a sync with the remote brick$/;"	m	class:RCX_PipeTransport
 fTagCount	rcxlib/RCX_Image.h	/^        int fTagCount;$/;"	m	class:RCX_Image::Chunk
 fTags	compiler/Bytecode.h	/^	vector<RCX_SourceTag>	fTags;$/;"	m	class:Bytecode
 fTags	rcxlib/RCX_Image.h	/^        RCX_SourceTag* fTags;$/;"	m	class:RCX_Image::Chunk
@@ -3232,7 +3239,7 @@ fTarget	compiler/Bytecode.h	/^	const RCX_Target*	fTarget;$/;"	m	class:Bytecode
 fTarget	compiler/Program.h	/^	const RCX_Target*	fTarget;$/;"	m	class:Program
 fTarget	rcxlib/RCX_Disasm.h	/^    RCX_TargetType  fTarget;$/;"	m	class:RCX_Disasm
 fTarget	rcxlib/RCX_Link.h	/^    RCX_TargetType fTarget;$/;"	m	class:RCX_Link
-fTarget	rcxlib/RCX_PipeTransport.h	/^	RCX_TargetType fTarget;$/;"	m	class:RCX_PipeTransport
+fTarget	rcxlib/RCX_PipeTransport.h	/^    RCX_TargetType fTarget; \/\/\/< Current target type.$/;"	m	class:RCX_PipeTransport
 fTarget	rcxlib/RCX_SpyboticsLinker.h	/^	const RCX_Target*	fTarget;$/;"	m	class:RCX_SpyboticsLinker
 fTargetType	compiler/EventSrcExpr.h	/^	RCX_TargetType		fTargetType;$/;"	m	class:EventSrcExpr
 fTargetType	rcxlib/RCX_Image.h	/^    RCX_TargetType fTargetType;$/;"	m	class:RCX_Image
@@ -3251,9 +3258,9 @@ fTokens	compiler/Expansion.h	/^	const Token*	fTokens;$/;"	m	class:Expansion
 fTokens	compiler/Macro.h	/^    Token* fTokens;$/;"	m	class:Macro
 fTopLevel	compiler/Conditional.h	/^		bool	fTopLevel;		\/\/ only true for the top level$/;"	m	class:Conditional::Level
 fTransport	rcxlib/RCX_Link.h	/^    RCX_Transport* fTransport;$/;"	m	class:RCX_Link
-fTxData	rcxlib/RCX_PipeTransport.h	/^	UByte* fTxData;$/;"	m	class:RCX_PipeTransport
-fTxLastCommand	rcxlib/RCX_PipeTransport.h	/^	UByte fTxLastCommand;$/;"	m	class:RCX_PipeTransport
-fTxLength	rcxlib/RCX_PipeTransport.h	/^	int	fTxLength;$/;"	m	class:RCX_PipeTransport
+fTxData	rcxlib/RCX_PipeTransport.h	/^    UByte* fTxData;$/;"	m	class:RCX_PipeTransport
+fTxLastCommand	rcxlib/RCX_PipeTransport.h	/^    UByte fTxLastCommand;$/;"	m	class:RCX_PipeTransport
+fTxLength	rcxlib/RCX_PipeTransport.h	/^    int fTxLength;$/;"	m	class:RCX_PipeTransport
 fType	compiler/AtomExpr.h	/^	RCX_ValueType	fType;$/;"	m	class:AtomExpr
 fType	compiler/Bytecode.h	/^		FixupCode 	fType;$/;"	m	class:Bytecode::Fixup
 fType	compiler/Fragment.h	/^                FunctionDef::ArgType    fType;$/;"	m	struct:Fragment::Arg
@@ -3292,7 +3299,7 @@ fVariables	compiler/ScopeStmt.h	/^	vector<int>		fVariables;$/;"	m	class:ScopeStm
 fVars	rcxlib/RCX_Image.h	/^    vector<Variable> fVars;$/;"	m	class:RCX_Image
 fVerbose	rcxlib/RCX_GhostTransport.h	/^	bool	fVerbose;$/;"	m	class:RCX_GhostTransport
 fVerbose	rcxlib/RCX_Link.h	/^    bool fVerbose;$/;"	m	class:RCX_Link
-fVerbose	rcxlib/RCX_PipeTransport.h	/^	bool fVerbose;$/;"	m	class:RCX_PipeTransport
+fVerbose	rcxlib/RCX_PipeTransport.h	/^    bool fVerbose;          \/\/\/< Flag that captures -v option from user$/;"	m	class:RCX_PipeTransport
 fVersion	rcxlib/rcxifile.h	/^    unsigned short  fVersion;       \/\/\/< @see kRCXI_CurrentVersion$/;"	m	struct:RCXIHeader
 fVirtualVarCount	compiler/Program.h	/^	int		fVirtualVarCount;$/;"	m	class:Program
 fWarningCount	compiler/Error.h	/^    int fWarningCount;$/;"	m	class:ErrorHandler
@@ -3354,7 +3361,8 @@ getSwanInstructionLength	rcxlib/RCX_Disasm.cpp	/^ubyte getSwanInstructionLength(
 getTarget	rcxlib/RCX_Target.cpp	/^const RCX_Target *getTarget(RCX_TargetType type)$/;"	f
 getXPos	doc/html/search/search.js	/^function getXPos(item)$/;"	f
 getYPos	doc/html/search/search.js	/^function getYPos(item)$/;"	f
-get_leafname	platform/PDebug.cpp	/^const char *get_leafname(const char *filename)$/;"	f
+get_leafname	platform/PDebug.cpp	/^const char* get_leafname(const char *filename)$/;"	f
+get_logfile	platform/PDebug.cpp	/^FILE* get_logfile()$/;"	f
 globals_defs	doc/html/globals_defs.js	/^var globals_defs =$/;"	v
 globals_dup	doc/html/globals_dup.js	/^var globals_dup =$/;"	v
 globals_eval	doc/html/globals_eval.js	/^var globals_eval =$/;"	v
@@ -3451,13 +3459,13 @@ kConstantArg	compiler/FunctionDef.h	/^		kConstantArg = 0,$/;"	e	enum:FunctionDef
 kContinueFlow	compiler/Bytecode.h	/^		kContinueFlow = 0,$/;"	e	enum:Bytecode::FlowCode
 kCurrentPosition	compiler/Bytecode.h	51;"	d
 kCyberMasterMode	rcxlib/RCX_Pipe.h	/^        kCyberMasterMode = 1 << 2,      \/\/\/< normal IR + DTR\/RTS for CyberMaster$/;"	e	enum:RCX_Pipe::__anon36
-kDataState	rcxlib/RCX_PipeTransport.cpp	/^	kDataState$/;"	e	enum:__anon37	file:
+kDataState	rcxlib/RCX_PipeTransport.cpp	/^    kDataState$/;"	e	enum:__anon37	file:
 kDatalogCode	nqc/nqc.cpp	/^    kDatalogCode = kFirstActionCode,$/;"	e	enum:__anon14	file:
 kDatalogFullCode	nqc/nqc.cpp	/^    kDatalogFullCode,$/;"	e	enum:__anon14	file:
 kDefaultBufferSize	compiler/Buffer.cpp	31;"	d	file:
 kDefaultBufferSize	platform/PSerial_mac.cpp	45;"	d	file:
 kDefaultDepth	compiler/CondParser.cpp	26;"	d	file:
-kDefaultRetryCount	rcxlib/RCX_PipeTransport.cpp	31;"	d	file:
+kDefaultRetryCount	rcxlib/RCX_PipeTransport.cpp	33;"	d	file:
 kDefaultSpeed	platform/PSerial_mac.cpp	18;"	d	file:
 kDefaultSpeed	platform/PSerial_win.cpp	17;"	d	file:
 kDefaultValue	compiler/CaseStmt.h	/^		kDefaultValue = 0x10000	\/\/ value for 'default:'$/;"	e	enum:CaseStmt::__anon2
@@ -3549,7 +3557,7 @@ kGreaterThan	compiler/RelExpr.h	/^				kGreaterThan,$/;"	e	enum:RelExpr::__anon9
 kHandlerCount	compiler/Bytecode.h	/^		kHandlerCount	\/\/ not an actual handler - must be the last code$/;"	e	enum:Bytecode::HandlerCode
 kHashSize	compiler/Symbol.cpp	23;"	d	file:
 kHelpCode	nqc/nqc.cpp	/^    kHelpCode,$/;"	e	enum:__anon14	file:
-kIdleState	rcxlib/RCX_PipeTransport.cpp	/^	kIdleState,$/;"	e	enum:__anon37	file:
+kIdleState	rcxlib/RCX_PipeTransport.cpp	/^    kIdleState,$/;"	e	enum:__anon37	file:
 kIllegalEA	compiler/Expr.h	/^		kIllegalEA = -1$/;"	e	enum:Expr::__anon5
 kIllegalLabel	compiler/Bytecode.h	52;"	d
 kIllegalSrcIndex	compiler/LexLocation.h	19;"	d
@@ -3572,14 +3580,17 @@ kMaxFileDepth	compiler/lexer.cpp	651;"	d	file:
 kMaxFileDepth	default/lexer.cpp	571;"	d	file:
 kMaxFirmware	nqc/nqc.cpp	112;"	d	file:
 kMaxLine	nqc/SRecord.cpp	23;"	d	file:
+kMaxOnes	rcxlib/RCX_Link.cpp	45;"	d	file:
 kMaxPathname	nqc/DirList.h	/^        kMaxPathname = 1024$/;"	e	enum:DirList::__anon13
 kMaxPrintedErrors	nqc/nqc.cpp	72;"	d	file:
 kMaxReplyLength	rcxlib/RCX_Link.h	/^        kMaxReplyLength = 1000  \/\/\/< Maximum reply size (much bigger than strictly necessary)$/;"	e	enum:RCX_Link::__anon35
-kMaxRxData	rcxlib/RCX_PipeTransport.cpp	29;"	d	file:
-kMaxTimeout	rcxlib/RCX_PipeTransport.h	/^		kMaxTimeout = 500$/;"	e	enum:RCX_PipeTransport::__anon38
-kMaxTxData	rcxlib/RCX_PipeTransport.cpp	28;"	d	file:
+kMaxRxData	rcxlib/RCX_PipeTransport.cpp	31;"	d	file:
+kMaxTimeout	rcxlib/RCX_PipeTransport.h	/^        kMaxTimeout = 500$/;"	e	enum:RCX_PipeTransport::__anon38
+kMaxTxData	rcxlib/RCX_PipeTransport.cpp	30;"	d	file:
+kMaxZerosSerial	rcxlib/RCX_Link.cpp	44;"	d	file:
+kMaxZerosUSB	rcxlib/RCX_Link.cpp	43;"	d	file:
 kMessageCode	nqc/nqc.cpp	/^    kMessageCode,$/;"	e	enum:__anon14	file:
-kMinTimeout	rcxlib/RCX_PipeTransport.h	/^		kMinTimeout = 50,$/;"	e	enum:RCX_PipeTransport::__anon38
+kMinTimeout	rcxlib/RCX_PipeTransport.h	/^        kMinTimeout = 50,$/;"	e	enum:RCX_PipeTransport::__anon38
 kMultiSubMode	compiler/VarAllocator.h	/^		kMultiSubMode$/;"	e	enum:VarAllocator::__anon11
 kMultiTaskID	compiler/Fragment.h	/^		kMultiTaskID = -2$/;"	e	enum:Fragment::__anon6
 kNQCFileExtension	nqc/nqc.cpp	120;"	d	file:
@@ -3595,7 +3606,7 @@ kNoTypeCode	compiler/AsmStmt.h	/^        kNoTypeCode =   0x2000000,$/;"	e	enum:E
 kNormal	rcxlib/RCX_SourceTag.h	/^        kNormal,        \/\/\/< most tags are this type$/;"	e	enum:RCX_SourceTag::__anon39
 kNormalIrMode	rcxlib/RCX_Pipe.h	/^        kNormalIrMode = 1 << 0,         \/\/\/< 2400 baud, odd parity, etc$/;"	e	enum:RCX_Pipe::__anon36
 kNotEqualTo	compiler/RelExpr.h	/^				kNotEqualTo,$/;"	e	enum:RelExpr::__anon9
-kNubStart	rcxlib/RCX_Link.cpp	44;"	d	file:
+kNubStart	rcxlib/RCX_Link.cpp	47;"	d	file:
 kOldIncludePathEnv	nqc/nqc.cpp	113;"	d	file:
 kOpState	compiler/CondParser.h	/^		kOpState$/;"	e	enum:CondParser::State
 kOptionsEnv	nqc/nqc.cpp	115;"	d	file:
@@ -3837,7 +3848,7 @@ kReadPipe	rcxlib/RCX_USBTowerPipe_fbsd.cpp	31;"	d	file:
 kReadPipe	rcxlib/RCX_USBTowerPipe_osx.cpp	37;"	d	file:
 kReferenceArg	compiler/FunctionDef.h	/^		kReferenceArg,$/;"	e	enum:FunctionDef::ArgType
 kRemoteCode	nqc/nqc.cpp	/^    kRemoteCode,$/;"	e	enum:__anon14	file:
-kReplyState	rcxlib/RCX_PipeTransport.cpp	/^	kReplyState = 0,	\/\/ state when rx buffer used for replies$/;"	e	enum:__anon37	file:
+kReplyState	rcxlib/RCX_PipeTransport.cpp	/^    kReplyState = 0,    \/\/ state when rx buffer used for replies$/;"	e	enum:__anon37	file:
 kReserved	compiler/VarAllocator.h	/^		kReserved$/;"	e	enum:VarAllocator::VarState
 kReturnFlow	compiler/Bytecode.h	/^		kReturnFlow,$/;"	e	enum:Bytecode::FlowCode
 kRight	compiler/ShiftExpr.h	/^		kRight = 0,$/;"	e	enum:ShiftExpr::__anon10
@@ -3857,8 +3868,8 @@ kSourceMask	compiler/AsmStmt.h	/^        kSourceMask = 0x00ffffff$/;"	e	enum:EAF
 kSpyboticsChunk	rcxlib/RCX_Link.cpp	40;"	d	file:
 kSpyboticsMode	rcxlib/RCX_Pipe.h	/^        kSpyboticsMode = 1 << 3,        \/\/\/< 4800 baud, odd parity, DTR\/RTS$/;"	e	enum:RCX_Pipe::__anon36
 kSpyboticsSmallChunk	rcxlib/RCX_Link.cpp	39;"	d	file:
-kSync1State	rcxlib/RCX_PipeTransport.cpp	/^	kSync1State,$/;"	e	enum:__anon37	file:
-kSync2State	rcxlib/RCX_PipeTransport.cpp	/^	kSync2State,$/;"	e	enum:__anon37	file:
+kSync1State	rcxlib/RCX_PipeTransport.cpp	/^    kSync1State,$/;"	e	enum:__anon37	file:
+kSync2State	rcxlib/RCX_PipeTransport.cpp	/^    kSync2State,$/;"	e	enum:__anon37	file:
 kTaskMode	compiler/VarAllocator.h	/^		kTaskMode,$/;"	e	enum:VarAllocator::__anon11
 kTemp	compiler/VarAllocator.h	/^		kTemp,$/;"	e	enum:VarAllocator::VarState
 kTxEchoFlag	rcxlib/RCX_Pipe.h	/^        kTxEchoFlag = 1 << 29,          \/\/\/< set if Tx data gets echoed$/;"	e	enum:RCX_Pipe::__anon36
@@ -3894,7 +3905,7 @@ main	default/lexer.cpp	/^int main()$/;"	f
 main	mkdata/mkdata.cpp	/^int main(int argc, char **argv)$/;"	f
 main	nqc/nqc.cpp	/^int main(int argc, char **argv)$/;"	f
 main	rcxspy/rcxspy.cpp	/^int main(int, char **)$/;"	f
-max	rcxlib/RCX_Link.cpp	483;"	d	file:
+max	rcxlib/RCX_Link.cpp	502;"	d	file:
 maxZoom	doc/html/svgpan.js	/^var maxZoom;$/;"	v
 minZoom	doc/html/svgpan.js	/^var minZoom;$/;"	v
 mkdata_8cpp	doc/html/mkdata_8cpp.js	/^var mkdata_8cpp =$/;"	v
@@ -3914,6 +3925,7 @@ o.node.getChildrenUL	doc/html/navtree.js	/^  o.node.childrenUL = document.create
 offset	nqc/SRecord.cpp	/^  int offset;$/;"	m	struct:__anon15	file:
 offset	rcxlib/USBTowerWin.cpp	/^  int offset;$/;"	m	struct:LEGOTowerFunctionName	file:
 open	rcxspy/rcxspy.cpp	/^bool Reader::open(const char *name)$/;"	f	class:Reader
+open_logfile	platform/PDebug.cpp	/^bool open_logfile(char *filename)$/;"	f
 operator ()	compiler/CallStmt.cpp	/^bool CallStmt::Expander::operator()(Stmt *s)$/;"	f	class:CallStmt::Expander
 operator ()	compiler/DeclareStmt.cpp	/^bool DeclareStmt::Binder::operator()(Stmt *s)$/;"	f	class:DeclareStmt::Binder
 operator ()	compiler/Fragment.cpp	/^bool ParentChecker::operator()(Stmt *s)$/;"	f	class:ParentChecker

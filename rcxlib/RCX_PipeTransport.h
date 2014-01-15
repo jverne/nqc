@@ -73,13 +73,16 @@ private:
     int fRxState;
 
     // parameters that define packet formatting
-    const UByte* fSync; // sync pattern for packets (depends on target and usb mode)
+    const UByte* fSync; ///< sync pattern for packets (depends on target and usb mode)
     bool fComplementData;
 
-    bool fVerbose;
-    bool fSynced;
-    RCX_TargetType fTarget;
-    int fRxTimeout;
+    bool fVerbose;          ///< Flag that captures -v option from user
+    bool fSynced;           ///< Flag that indicates we have a sync with the remote brick
+    RCX_TargetType fTarget; ///< Current target type.
+    int fRxTimeout;         ///< Receive reply timeouts
+
+    /// Adjust fRxTimeout based on reply success/failure; always true on Open
+    // TODO: maybe make this a user-settable option?
     bool fDynamicTimeout;
 
     /// use for fast download
