@@ -12,7 +12,7 @@
  *
  */
 
-static const unsigned char rcxnub_odd[]={
+static const unsigned char rcxnub_odd[] = {
 /*
     121,  6,  0, 15,107,134,238,128,121,  6,238,100,109,246,121,  6,
     238,116, 94,  0, 59,154, 11,135,121,  6,238, 94, 94,  0,  6,136,
