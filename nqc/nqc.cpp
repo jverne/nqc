@@ -1195,9 +1195,9 @@ bool AutoLink::DownloadProgress(int /* soFar */, int /* total */, int chunkSize)
 {
     char c;
     if (chunkSize <= 20) {
-        c = '.';
-    } else if (chunkSize <= 80) {
         c = '-';
+    } else if (chunkSize <= 80) {
+        c = '.';
     } else if (chunkSize <= 140) {
         c = '+';
     } else if (chunkSize <= 200) {
