@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>NQC by jverne</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>NQC</h1>
+        <p>NQC (Not Quite C) is a programming language for several LEGO MINDSTORMS products including the RCX, CyberMaster, and Scout. This is my own repo to capture my changes to the code as found on </p>
+
+        <p class="view"><a href="https://github.com/jverne/nqc">View the Project on GitHub <small>jverne/nqc</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/jverne/nqc/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jverne/nqc/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jverne/nqc">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>
+<a id="nqc" class="anchor" href="#nqc" aria-hidden="true"><span class="octicon octicon-link"></span></a>NQC</h2>
+
+<p>NQC (Not Quite C) is a programming language for several LEGO MINDSTORMS
+products including the RCX, CyberMaster, and Scout.</p>
+
+<p>This is my own repo to capture my changes to the code as found on
+<a href="http://bricxcc.sourceforge.net/nqc/">http://bricxcc.sourceforge.net/nqc/</a></p>
+
+<p>The original README from the NQC project follows.</p>
+
+<h2>
+<a id="nqc-readme" class="anchor" href="#nqc-readme" aria-hidden="true"><span class="octicon octicon-link"></span></a>NQC Readme</h2>
+
+<p>If you have a problem, PLEASE CHECK THE FAQ:
+  <a href="http://bricxcc.sourceforge.net/nqc/doc/faq.html">http://bricxcc.sourceforge.net/nqc/doc/faq.html</a></p>
+
+<p>Send bug reports to <a href="mailto:bricxcc@comcast.net">bricxcc@comcast.net</a>.  Be sure to include details about what
+platform you are running nqc on and a sample file that demonstrates the bug if
+possible.</p>
+
+<p>For updates and additional documentation, visit the NQC Web Site:
+<a href="http://bricxcc.sourceforge.net/nqc">http://bricxcc.sourceforge.net/nqc</a></p>
+
+<h2>
+<a id="note-to-windows-users" class="anchor" href="#note-to-windows-users" aria-hidden="true"><span class="octicon octicon-link"></span></a>Note to Windows Users</h2>
+
+<p>NQC is a command line based tool - normally you run it by typing an
+appropriate command into an MS-DOS window.  There is no GUI for it and
+if you double-click the nqc.exe file an MS-DOS console will be created
+for you, NQC will run within it, then since NQC finishes almost
+immediately, the entire window will disappear.</p>
+
+<p>Some people prefer command line based tools because they allow you to
+use the text editor of your choice, etc. It also makes for identical
+behavior under Windows, Mac, and Linux. In order to use the command line
+version of NQC you'll need to do two things:</p>
+
+<p>1) Use some sort of text editor (such as Notepad) to edit and save a
+source file for NQC to compile.</p>
+
+<p>2) From an MS-DOS window type the appropriate NQC command. Its usually
+best to either put all of your programs and nqc.exe in the same
+directory, or make sure the directory containing NQC is in your command
+path. </p>
+
+<p>If any of the above seem either too confusing or too tedious, then you
+may want to try the BricxCC which provides a familiar Windows style GUI on top
+of the standard NQC compiler.  You can download BricxCC here:</p>
+
+<p><a href="http://bricxcc.sourceforge.net/">http://bricxcc.sourceforge.net/</a></p>
+
+<h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started</h2>
+
+<p>Download the appropriate compiler (nqc or nqc.exe) and put it where
+your shell can find it as a command.</p>
+
+<p>The IR tower should be connected to your modem port (macintosh) or COM1
+(Win32/Linux). The IR tower should be set for "near" mode (small
+triangle). The RCX should also be set for this mode, and firmware must
+already be downloaded.</p>
+
+<p>Compile and download the test file using the following command line:</p>
+
+<p>nqc -d test.nqc</p>
+
+<p>The test program assumes there's a motor on output A and a touch sensor
+on input 1.  It turns on the motor and waits for the switch to be
+pressed, then it turns off the motor and plays a sound.</p>
+
+<p>If you are using a USB tower or a different serial port you will need to
+specify the port either by adding a -Sx option (where x is the name of the
+port) to the command line or by setting the RCX_PORT environment variable.</p>
+
+<p>Here are some examples:</p>
+
+<p>USB tower (where supported)
+    nqc -Susb -d test.nqc</p>
+
+<p>Win32 COM2 port:
+    set RCX_PORT=COM2</p>
+
+<p>Win32 USB port:
+    set RCX_PORT=usb</p>
+
+<p>Linux:
+    The syntax for setting environment variables is shell specific.  By
+    default nqcc uses "/dev/ttyS0" as the device name for the serial
+    port.  If you are using the second serial port, then "/dev/ttyS1"
+    should work.  Other device drivers may or may not work depending on if
+    they implement the expected ioctl's to setup the baud rate, parity,
+    etc.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/jverne">jverne</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
