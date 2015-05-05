@@ -108,6 +108,9 @@ void _p_debugstr(const char *text)
 	fprintf(get_logfile(), "DBG: %s\n", text);
     fflush(get_logfile());
 }
+#endif
+
+#ifndef _p_debugvar
 
 void _p_debugvar(const char *varname, const int var)
 {

@@ -27,8 +27,8 @@ class RCX_PipeTransport : public RCX_Transport
 {
 public:
     enum {
-        kMinTimeout = 50,
-        kMaxTimeout = 500
+        kMinTimeout = 50,   ///< Minimum value, in ms, that Rx timeouts will be set to dynamically
+        kMaxTimeout = 500   ///< Maximum value, in ms, that Rx timeouts will be set to dynamically  
     };
 
     RCX_PipeTransport(RCX_Pipe *pipe);
@@ -37,7 +37,9 @@ public:
     virtual RCX_Result Open(RCX_TargetType target, const char *deviceName, ULong options);
     virtual void Close();
 
-    virtual RCX_Result Send(const UByte *txData, int txLength, UByte *rxData, int rxExpected, int rxMax, bool retry, int timeout);
+    /// Transport sending implementation. Most Send implementations wrap this one.
+    virtual RCX_Result Send(const UByte *txData, int txLength, UByte *rxData,
+        int rxExpected, int rxMax, bool retry, int timeout);
 
     virtual bool FastModeSupported() const;
     virtual bool FastModeOddParity() const { return fPipe->GetCapabilities() & RCX_Pipe::kFastOddParityFlag; }
@@ -73,15 +75,16 @@ private:
     int fRxState;
 
     // parameters that define packet formatting
-    const UByte* fSync; ///< sync pattern for packets (depends on target and usb mode)
-    bool fComplementData;
+    const UByte* fSync;     ///< sync pattern for packets (depends on target and usb mode)
+    bool fComplementData;   ///< Data transfers will also contain data complement if this is set
 
-    bool fVerbose;          ///< Flag that captures -v option from user
+    bool fVerbose;          ///< Flag that captures -v option from command invocation
     bool fSynced;           ///< Flag that indicates we have a sync with the remote brick
     RCX_TargetType fTarget; ///< Current target type.
-    int fRxTimeout;         ///< Receive reply timeouts
+    int fRxTimeout;         ///< Receive reply timeouts if dynamic timeouts are enabled @see fDynamicTimeout
 
-    /// Adjust fRxTimeout based on reply success/failure; always true on Open
+    /// Adjust receive timeouts based on reply success/failure; always true on Open.
+    /// @see fRxTimeout
     // TODO: maybe make this a user-settable option?
     bool fDynamicTimeout;
 

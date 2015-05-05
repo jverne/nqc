@@ -17,6 +17,7 @@
   */
 
 #include "RCX_Pipe.h"
+#include <cstdio>
 
 void RCX_Pipe::FlushRead(int delay)
 {

@@ -10,7 +10,8 @@
  * Portions created by John Hansen are Copyright (C) 2005 John Hansen.
  * All Rights Reserved.
  *
- */#ifndef __TOWERAPI_H__
+ */
+    #ifndef __TOWERAPI_H__
 
 	#define __TOWERAPI_H__
 

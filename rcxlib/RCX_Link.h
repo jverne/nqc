@@ -100,6 +100,7 @@ public:
         fOmitHeader = value;
         if (fTransport) fTransport->SetOmitHeader(value);
     }
+    /// Unused
     void SetRCXProgramChunkSize(int value) {
         fRCXProgramChunkSize = value;
     }

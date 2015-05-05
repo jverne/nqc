@@ -76,8 +76,8 @@ void P_HashTable::DeleteAll() {
 
 
 int P_HashTable::Hash(const char *string) {
-    register unsigned long h=0,g;
-    register const char *p;
+    unsigned long h=0,g;
+    const char *p;
 
     for (p=string; *p != 0; p++) {
         h = (h <<4) + (*p);

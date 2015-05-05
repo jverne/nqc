@@ -185,10 +185,12 @@ bool RCX_Link::WasErrorFromMissingFirmware()
     // if not synced, then firmware wasn't a problem
     if (!fSynced) return false;
 
-    // use GetVersions command to check ROM/firmware versions
+    // Use GetVersions command to check ROM/firmware versions.
+    // Do our best to get a good reply in case the timeout is really low.
+    // This is used for error reporting, so transfer speed is not important.
     RCX_Result result;
     RCX_Cmd cmd;
-    result = Send(cmd.MakeGetVersions());
+    result = Send(cmd.MakeGetVersions(), true, RCX_PipeTransport::kMaxTimeout);
 
     // check the reply
     if (result != 8) return false;
@@ -333,8 +335,7 @@ RCX_Result RCX_Link::GetVersion(ULong &rom, ULong &ram)
     result = Sync();
     if (RCX_ERROR(result)) return result;
 
-    // Do our best to get a result.
-    result = Send(cmd.MakeGetVersions(), true, RCX_PipeTransport::kMaxTimeout);
+    result = Send(cmd.MakeGetVersions());
     if (RCX_ERROR(result)) return result;
 
     if (result != 8) return kRCX_ReplyError;
@@ -578,6 +579,8 @@ RCX_Result RCX_Link::Download(const UByte *data, int length, int chunk)
         // Transfer the remaining bytes if what is left to send
         // is less than the current chunk size.
         if (remain <= chunk) {
+            // TODO: I have no clear idea what gProgramMode is for, but
+            // it is almost always true.
             if (!gQuiet || gProgramMode) {
                 seq = 0;
             }
@@ -618,6 +621,8 @@ RCX_Result RCX_Link::Send(const RCX_Cmd *cmd, bool retry, int timeout)
 RCX_Result RCX_Link::Send(const UByte *data, int length, bool retry, int timeout)
 {
     int expected = ExpectedReplyLength(data, length);
+    // XXX: debugging
+    //fprintf(stderr, "length=%d retry=%d timeout=%d\n", length, retry, timeout);
 
     if (length > (int)kMaxCmdLength || expected > (int)kMaxReplyLength) {
         return kRCX_RequestError;
@@ -627,6 +632,7 @@ RCX_Result RCX_Link::Send(const UByte *data, int length, bool retry, int timeout
     fResult = fTransport->Send(data, length, fReply, expected,
         kMaxReplyLength, retry, timeout);
 
+    PDEBUGVAR("RCX_Link::Send fResult", fResult);
     return fResult;
 }
 
@@ -638,7 +644,7 @@ RCX_Result RCX_Link::GetReply(UByte *data, int maxLength)
     int length = fResult;
     if (length > maxLength) length = maxLength;
 
-    const UByte *src = fReply+1;
+    const UByte *src = fReply + 1;
 
     for(int i=0; i<length; ++i) {
         *data++ = *src++;
@@ -672,8 +678,7 @@ bool RCX_Link::DownloadProgress(int /* soFar */, int /* total */, int /* chunkSi
 
 int RCX_Link::ExpectedReplyLength(const UByte *data, int length)
 {
-    switch(data[0] & 0xf7)
-    {
+    switch(data[0] & 0xf7) {
 /*
         case kRCX_Message:          // message
         case kRCX_Remote:           // remote

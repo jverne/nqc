@@ -27,8 +27,8 @@ using std::printf;
 #define DEBUG_TIMEOUT
 #endif
 
-#define kMaxTxData  ((int)(2*RCX_Link::kMaxCmdLength + 6))
-#define kMaxRxData  ((int)(kMaxTxData + 2*RCX_Link::kMaxReplyLength + 5))
+#define kMaxTxData  ((int)(2 * RCX_Link::kMaxCmdLength + 6))
+#define kMaxRxData  ((int)(kMaxTxData + 2 * RCX_Link::kMaxReplyLength + 5))
 
 #define kDefaultRetryCount 4
 
@@ -160,15 +160,17 @@ RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxD
         // if no reply is expected, we can just return now (no retries, no errors, etc)
         if (!rxExpected) return kRCX_OK;
 
-        int retryTimeout;
-        if (timeout > 0)
-            retryTimeout = timeout;
-        else
-            retryTimeout = fRxTimeout;
-
+        // Get the expected reply. Use the passed-in timeout, if set.
+        // Otherwise, we will use the dynamically adjusted timeout.
         int replyOffset;
-        result = ReceiveReply(rxExpected, retryTimeout, replyOffset);
-        if (fDynamicTimeout) {
+        result = ReceiveReply(rxExpected, 
+            (timeout > 0) ? timeout : fRxTimeout, replyOffset);
+
+        // Adjust the timeout appropriately, if dynamic adjustment is
+        // enabled. This adjusts the fRxTimeut property for any following
+        // transfers. Only bother to do this if we aren't just using a hard-
+        // coded timeout.
+        if (fDynamicTimeout && timeout == 0) {
             AdjustTimeout(result, i);
         }
 
@@ -191,10 +193,10 @@ RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxD
         // send
         if (result == kRCX_IREchoError && i > 0) break;
 
-        // Update UI, verbosely or tersely.
-        if (fVerbose) {
+        // Update UI verbosely or tersely, but only if we are actually going to retry.
+        if (fVerbose && retry) {
             printf("Retrying...\n");
-        } else {
+        } else if (retry) {
             fputc('!', stderr);
         }
     }
@@ -207,7 +209,7 @@ RCX_Result RCX_PipeTransport::Send(const UByte *txData, int txLength, UByte *rxD
         fSynced = false;
     }
 
-    PDEBUGVAR("result", result);
+    PDEBUGVAR("RCX_PipeTransport::Send result", result);
     return result;
 }
 
@@ -285,10 +287,12 @@ void RCX_PipeTransport::SendFromTxBuffer(int delay)
 
 RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &replyOffset)
 {
+    PDEBUGVAR("CX_PipeTransport::ReceiveReply rxExpected", rxExpected);
     int receiveLen = ExpectedReceiveLen(rxExpected);
     if (!((fTarget == kRCX_SpyboticsTarget) || fPipe->IsUSB())) {
         receiveLen += fTxLength; // serial tower echoes the sent bytes
     }
+    PDEBUGVAR("receiveLen", receiveLen);
 
     // get the reply
     fRxState = kReplyState;
@@ -296,11 +300,13 @@ RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &rep
     int length = 0;
     bool bFirstRead = true;
     while (fRxLength < kMaxRxData) {
+        PDEBUGVAR("fRxLength", fRxLength);
         if (bFirstRead) {
             bFirstRead = false;
             if (fVerbose) printf("expecting %d bytes, timeout = %d\n", receiveLen, timeout);
 
             int bytesRead = fPipe->Read(fRxData+fRxLength, receiveLen, timeout);
+            PDEBUGVAR("bytesRead", bytesRead);
             if (bytesRead == 0) {
                 break;
             }
@@ -321,6 +327,7 @@ RCX_Result RCX_PipeTransport::ReceiveReply(int rxExpected, int timeout, int &rep
 
         // check for replies
         length = FindReply(rxExpected, replyOffset);
+        PDEBUGVAR("length", length);
         if (length == rxExpected) {
             break;
         }

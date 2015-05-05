@@ -31,8 +31,8 @@ extern "C"
 
 #include "PDebug.h"
 
-#define kVendorID       1684
-#define kProductID      1
+#define kVendorID       0x0694 // 1684 (Lego Group)
+#define kProductID      0x0001
 #define kConfiguration  0
 #define kReadPipe       1
 #define kWritePipe      2
@@ -48,8 +48,8 @@ extern "C"
 #define LTW_REQ_SET_TX_SPEED    0xEF
 #define LTW_REQ_SET_RX_SPEED    0xF1
 
-#define SPEED_COMM_BAUD_2400    8
-#define SPEED_COMM_BAUD_4800    0x10
+#define SPEED_COMM_BAUD_2400    0x0080
+#define SPEED_COMM_BAUD_4800    0x0010
 
 #define LTW_REQ_SET_TX_CARRIER_FREQUENCY    0xF4
 
@@ -79,7 +79,9 @@ class RCX_USBTowerPipe_osx : public RCX_Pipe
 {
 public:
     RCX_USBTowerPipe_osx();
-    ~RCX_USBTowerPipe_osx() { Close(); }
+    ~RCX_USBTowerPipe_osx() {
+        Close();
+    }
 
     virtual RCX_Result  Open(const char *name, int mode);
     virtual void        Close();
@@ -140,6 +142,8 @@ RCX_USBTowerPipe_osx::RCX_USBTowerPipe_osx()
 
 RCX_Result RCX_USBTowerPipe_osx::Open(const char *name, int mode)
 {
+    PDEBUGVAR("RCX_USBTowerPipe_osx::Open mode", mode);
+    PDEBUGSTR(name);
     IOReturn err;
     RCX_Result err2;
 
@@ -154,7 +158,7 @@ RCX_Result RCX_USBTowerPipe_osx::Open(const char *name, int mode)
 
     UInt8 range;
     range = (strcmp(name, "short")==0) ? LTW_RANGE_SHORT : LTW_RANGE_MEDIUM;
-    ControlRequest(LTW_REQ_SET_PARM, LTW_PARM_RANGE,range);
+    ControlRequest(LTW_REQ_SET_PARM, LTW_PARM_RANGE, range);
 
     // clear the input buffer
     fInBufferStart = fInBufferEnd = fInBuffer;
@@ -164,6 +168,7 @@ RCX_Result RCX_USBTowerPipe_osx::Open(const char *name, int mode)
         Close();
         return err2;
     }
+    PDEBUGSTR("Opened device");
     return kRCX_OK;
 
 Fail_OpenInterface:
@@ -224,15 +229,17 @@ RCX_Result RCX_USBTowerPipe_osx::SetMode(int mode)
 
 long RCX_USBTowerPipe_osx::Write(const void *ptr, long length)
 {
+    PDEBUGVAR("RCX_USBTowerPipe_osx::Write length", length);
     const unsigned char *data = (const unsigned char *)ptr;
 
     int total = 0;
 
-    while(length > 0) {
+    while (length > 0) {
         IOReturn err;
         int count = length;
         if (count > MAX_PACKET) count = MAX_PACKET;
         err = (*fInterface)->WritePipe(fInterface, kWritePipe, (void*)data, count);
+        PDEBUGVAR("err", err);
         PREQUIRENOT(err, Fail_WritePipe);
 
         length -= count;
@@ -241,22 +248,26 @@ long RCX_USBTowerPipe_osx::Write(const void *ptr, long length)
     }
 
 Fail_WritePipe:
+    PDEBUGVAR("CX_USBTowerPipe_osx::Write total", total);
     return total;
 }
 
+
 void RCX_USBTowerPipe_osx::SetTimeout(long timeout_ms)
 {
-    usleep(timeout_ms * 1000 / 2);
+    //usleep(timeout_ms * 1000 / 2);
+    sleep(timeout_ms / 1000);
 }
 
 
 long RCX_USBTowerPipe_osx::Read(void *data, long length, long timeout_ms)
 {
+    PDEBUGVAR("RCX_USBTowerPipe_osx::Read", length);
     fReadPtr = (unsigned char *)data;
     fReadRemain = length;
     fReadDone = false;
 
-    // This doesn't work with a USB tower for some reason.
+    // This doesn't seem to work
     //SetTimeout(timeout_ms);
 
     // consume any previously buffered data
@@ -265,7 +276,8 @@ long RCX_USBTowerPipe_osx::Read(void *data, long length, long timeout_ms)
     if (!fReadDone) {
         StartRead();
         do {
-            SInt32 reason = CFRunLoopRunInMode(kCFRunLoopDefaultMode, timeout_ms / 1000.0, true);
+            SInt32 reason = CFRunLoopRunInMode(kCFRunLoopDefaultMode,
+                timeout_ms / 1000.0, true);
             if (reason == kCFRunLoopRunTimedOut) {
                 (*fInterface)->AbortPipe(fInterface, kReadPipe);
                 fReadDone = true;
@@ -314,7 +326,8 @@ void RCX_USBTowerPipe_osx::StartRead()
     // clear the input buffer
     fInBufferStart = fInBufferEnd = fInBuffer;
 
-    IOReturn err = (*fInterface)->ReadPipeAsync(fInterface, kReadPipe, fInBuffer, kReadPacketSize, ReadCompletionGlue ,this);
+    IOReturn err = (*fInterface)->ReadPipeAsync(fInterface, kReadPipe,
+        fInBuffer, kReadPacketSize, ReadCompletionGlue ,this);
     PREQUIRENOT(err, Fail_ReadPipe);
     return;
 
@@ -333,9 +346,9 @@ void RCX_USBTowerPipe_osx::ReadCompletionGlue(void *refCon, IOReturn result, voi
 
 IOReturn RCX_USBTowerPipe_osx::OpenDevice(short vendorID, short productID)
 {
-    mach_port_t         masterPort;
-    CFMutableDictionaryRef  matchingDict;
-    kern_return_t       err;
+    mach_port_t masterPort;
+    CFMutableDictionaryRef matchingDict;
+    kern_return_t err;
     io_object_t usbDevice;
 
     // first create a master_port for my task
@@ -344,7 +357,8 @@ IOReturn RCX_USBTowerPipe_osx::OpenDevice(short vendorID, short productID)
     //PREQUIRE(masterPort, Fail_IOMasterPort);
 
     // Set up the matching criteria for the devices we're interested in
-    matchingDict = IOServiceMatching(kIOUSBDeviceClassName);    // Interested in instances of class IOUSBDevice and its subclasses
+    // Interested in instances of class IOUSBDevice and its subclasses
+    matchingDict = IOServiceMatching(kIOUSBDeviceClassName);
     //PREQUIRE(matchingDict, Fail_IOServiceMatching);
 
     CFDictionarySetValue(matchingDict, CFSTR(kUSBVendorID),
@@ -417,6 +431,7 @@ IOReturn RCX_USBTowerPipe_osx::OpenInterface()
     err = (*fInterface)->CreateInterfaceAsyncEventSource(fInterface, &source);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopDefaultMode);
 
+    PDEBUGSTR("Open interface");
     return 0;
 
 Fail_OpenInterface:
@@ -454,7 +469,10 @@ IOReturn RCX_USBTowerPipe_osx::ControlRequest(UInt8 request, UInt16 value)
     IOUSBDevRequestTO req;
     LTW_REQ_GET_SET_PARM_REPLY reply;
 
-    req.bmRequestType = (kUSBVendor<<kUSBRqTypeShift) + (kUSBIn<<kUSBRqDirnShift) + kUSBDevice;
+    // XXX: I think this is the recommended way to set the request type.
+    req.bmRequestType = USBmakebmRequestType(kUSBIn, kUSBVendor, kUSBDevice);
+    //req.bmRequestType = (kUSBVendor<<kUSBRqTypeShift) + (kUSBIn<<kUSBRqDirnShift) + kUSBDevice;
+
     req.bRequest = request;
     req.wValue = value;
     req.wIndex = 0;
@@ -466,7 +484,7 @@ IOReturn RCX_USBTowerPipe_osx::ControlRequest(UInt8 request, UInt16 value)
     err = (*fInterface)->ControlRequestTO(fInterface, 0, &req);
 
     // size of actual reply in req.wLenDone
-    //printf("%d %d %d\n", reply.wNoOfBytes, reply.bErrCode, reply.bValue);
+    //fprintf(stderr, "%d %d %d\n", reply.wNoOfBytes, reply.bErrCode, reply.bValue);
 
     return err;
 }
