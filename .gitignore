@@ -1,3 +1,5 @@
+# OS X Noise
+.DS_Store
 # RCX specific "binaries"
 *.rcx
 bin/*
@@ -20,3 +22,4 @@ rcxlib/rcxnub.h
 # Generated docs
 doc/html/*
 doc/latex/*
+doc/*.log

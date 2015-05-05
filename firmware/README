@@ -1,0 +1,19 @@
+These firmware files are property of someone else, probably LEGO, Inc.
+They are provided as a convenience only.
+
+Note that it is unknown if any of the "fast" firmwares work with any
+current version of NQC.
+
+firm0309 - Original version shipped with RIS 1.0 and 1.5
+firm0328 - Shipped with RIS 2.0
+firm0332 - Released as part of the LEGO Education Robotics sets
+fast0103 - Dick Swan's 10x firmware; compatible with most bricks and NQC
+fast0612 - Dick Swan's 100x firmware; mostly compatible with NQC 3.1r5
+fast0722 - Dick Swan firmware that only works with RobotC
+fast0753 - Dick Swan firmware that only works with RobotC
+fast0798 - Dick Swan firmware included with the last version of RobotC
+           for the RCX
+
+Unless there is a compelling reason not to do so, you should just use the
+latest LEGO firmware (0332) for NQC, which can be used in any RCX brick
+from 1.0 on.
