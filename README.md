@@ -1,9 +1,10 @@
 NQC
 ---
-NQC (Not Quite C) is a programming language for several LEGO MINDSTORMS
-products including the RCX, CyberMaster, and Scout.
+"Not Quite C is a simple language with a C-like syntax that can be used to program Lego's RCX programmable brick (from the Mindstorms set). If you are just getting started with programming, then graphical environments such as the Mindstorms RIS software or Robolab are probably better choices. If, however, you're a C programmer and prefer typing a few lines to drag and drop icon programming, then NQC may be perfect for you.
 
-This is my own repo to capture my changes to the code as found on
+NQC is free software released under the Mozilla Public License (MPL)."
+
+This is my own repo to capture my changes to the 3.1r6 code as found on
 [BricxCC](http://bricxcc.sourceforge.net/nqc/). I've been maintaining this private fork for a few years in order to keep it building and running on OS X and BSD.
 
 The original README from the NQC project follows.
