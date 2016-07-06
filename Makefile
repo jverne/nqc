@@ -38,7 +38,7 @@ YACC ?= bison -y
 # Define the FLEX processor
 # NOTE: lex will not work
 #
-FLEX ?= flex
+FLEX ?= flex -Cfe
 
 #
 # Link in any necessary C++ libraries
@@ -83,7 +83,7 @@ ifneq (,$(strip $(findstring $(OSTYPE), Darwin)))
 	LIBS += -framework IOKit -framework CoreFoundation
   	USBOBJ = RCX_USBTowerPipe_osx
   	CXX = c++
-  	CFLAGS += -O3 -std=c++11
+  	CFLAGS += -O3 -std=c++11 -Wno-deprecated-register
 else
 ifneq (,$(strip $(findstring $(OSTYPE), Linux)))
 	# Linux
