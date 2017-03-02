@@ -544,8 +544,8 @@ void calculateInstructionLengths()
             // This is [1] for improved real time performance and [2] because no simple formula
             // to calculate length for many of the new opcodes.
             //
-            register ubyte nBytesInOpcode;
-            register pUbyte ptr;
+            ubyte nBytesInOpcode;
+            pUbyte ptr;
 
             nBytesInOpcode = (ubyte) (index & 0x07); // actually one less than the value
             if (nBytesInOpcode > 5)
@@ -674,10 +674,10 @@ void calculateInstructionLengths()
             {(ubyte) 0,                           0}
         };
 
-        register ubyte index;
+        ubyte index;
 
         for (index = 0; ; ++index) {
-            register TRCXop theOpcode;
+            TRCXop theOpcode;
 
         theOpcode = (TRCXop) OpcodeLengths[index].theOpcode;
         if (theOpcode == (TRCXop) 0)
@@ -705,12 +705,12 @@ void calculateInstructionLengths()
             {(ubyte) 0,                         0}
         };
 
-        register ubyte index;
+        ubyte index;
 
         for (index = 0;  ; ++index) {
-            register TRCXop theOpcode;
-            register ubyte  theLength;
-            register ubyte idx;
+            TRCXop theOpcode;
+            ubyte  theLength;
+            ubyte idx;
 
             theOpcode = (TRCXop) ArithLengths[index].theOpcode;
             if (theOpcode == (TRCXop) 0)

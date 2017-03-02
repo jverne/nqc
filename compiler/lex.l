@@ -63,6 +63,7 @@ static int FillBuffer(char *ptr, int max);
 
 %option nounput
 %option outfile="lexer.cpp"
+%option warn
 
 id0         [a-zA-Z_]
 idn         [a-zA-Z_0-9]
