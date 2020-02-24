@@ -5,7 +5,11 @@ NQC
 This is my own repo to capture my changes to the 3.1r6 code as found on
 [BricxCC](http://bricxcc.sourceforge.net/nqc/). I've been maintaining this private fork for a few years in order to keep it building and running on OS X and BSD.
 
+For bug reports about _this_ fork of NQC, please [file a GitHub Issue](https://github.com/jverne/nqc/issues) for this project.
+
 The original README from the NQC project follows.
+
+---
 
 NQC Readme
 ----------
