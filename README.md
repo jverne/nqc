@@ -1,11 +1,11 @@
 NQC
 ---
-> Not Quite C is a simple language with a C-like syntax that can be used to program Lego's RCX programmable brick (from the Mindstorms set). If you are just getting started with programming, then graphical environments such as the Mindstorms RIS software or Robolab are probably better choices. If, however, you're a C programmer and prefer typing a few lines to drag and drop icon programming, then NQC may be perfect for you.
+> Not Quite C is a simple language with a C-like syntax that can be used to program Lego's RCX programmable brick (from the MindStorms set). If you are just getting started with programming, then graphical environments such as the MindStorms RIS software or Robolab are probably better choices. If, however, you're a C programmer and prefer typing a few lines to drag and drop icon programming, then NQC might be perfect for you.
 
-This is my own repo to capture my changes to the 3.1r6 code as found on
-[BricxCC](http://bricxcc.sourceforge.net/nqc/). I've been maintaining this private fork for a few years in order to keep it building and running on OS X and BSD.
+This BrickBot/nqc repo captures changes to the 3.1r6 code as found on
+[BricxCC](http://bricxcc.sourceforge.net/nqc/), including [patches that were posted to the original SourceForge project site following the release of nqc 3.1r6 but never incorporated](https://sourceforge.net/p/bricxcc/patches/). This release also builds on the jverne/nqc private fork, which was maintain to keep NQC building and running on OS X and BSD.
 
-For bug reports about _this_ fork of NQC, please [file a GitHub Issue](https://github.com/jverne/nqc/issues) for this project.
+For bug reports about _this_ fork of NQC, please [file a GitHub Issue](https://github.com/BrickBot/nqc/issues) for this project.
 
 The original README from the NQC project follows.
 
