@@ -8,7 +8,7 @@ This BrickBot/nqc repo captures changes to the 3.1r6 code as found on
 2. [Added additional capabilities for specifying the default USB port, including at both compile time using a Make variable and via enhanced command-line argument support](https://sourceforge.net/p/bricxcc/patches/2/)
 3. [Support Makefile variables DESTDIR and TOOLPREFIX](https://sourceforge.net/p/bricxcc/patches/3/)
 4. [Enable specifying the default IR tower name in a configuration file](https://sourceforge.net/p/bricxcc/patches/4/)
-5. [Support using a Make variable to specify the default compile-time port name, instead of having to change source code files](https://sourceforge.net/p/bricxcc/patches/5/)
+5. [Support using a Make variable to specify the default compile-time port name, instead of having to modify source code files](https://sourceforge.net/p/bricxcc/patches/5/)
 
 This release also builds on the jverne/nqc private fork, which was maintained to keep NQC building and running on OS X and BSD.
 
