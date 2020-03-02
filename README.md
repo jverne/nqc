@@ -3,7 +3,14 @@ NQC
 > Not Quite C is a simple language with a C-like syntax that can be used to program Lego's RCX programmable brick (from the MindStorms set). If you are just getting started with programming, then graphical environments such as the MindStorms RIS software or Robolab are probably better choices. If, however, you're a C programmer and prefer typing a few lines to drag and drop icon programming, then NQC might be perfect for you.
 
 This BrickBot/nqc repo captures changes to the 3.1r6 code as found on
-[BricxCC](http://bricxcc.sourceforge.net/nqc/), including [patches that were posted to the original SourceForge project site following the release of nqc 3.1r6 but never incorporated](https://sourceforge.net/p/bricxcc/patches/). This release also builds on the jverne/nqc private fork, which was maintain to keep NQC building and running on OS X and BSD.
+[BricxCC](http://bricxcc.sourceforge.net/nqc/), including the following [patches that were posted to the original SourceForge project site following the release of nqc 3.1r6 but never incorporated](https://sourceforge.net/p/bricxcc/patches/):
+1. [Added TCP support, facilitating use of NQC with programs such as BrickEmu (an RCX emulator)](https://sourceforge.net/p/bricxcc/patches/2/)
+2. [Added additional capabilities for specifying the default USB port, including at both compile time using a Make variable and via enhanced command-line argument support](https://sourceforge.net/p/bricxcc/patches/2/)
+3. [Support Makefile variables DESTDIR and TOOLPREFIX](https://sourceforge.net/p/bricxcc/patches/3/)
+4. [Enable specifying the default IR tower name in a configuration file](https://sourceforge.net/p/bricxcc/patches/4/)
+5. [Support using a Make variable to specify the default compile-time port name, instead of having to change source code files](https://sourceforge.net/p/bricxcc/patches/5/)
+
+This release also builds on the jverne/nqc private fork, which was maintained to keep NQC building and running on OS X and BSD.
 
 For bug reports about _this_ fork of NQC, please [file a GitHub Issue](https://github.com/BrickBot/nqc/issues) for this project.
 
