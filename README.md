@@ -3,14 +3,14 @@ NQC
 > Not Quite C is a simple language with a C-like syntax that can be used to program Lego's RCX programmable brick (from the MindStorms set). If you are just getting started with programming, then graphical environments such as the MindStorms RIS software or Robolab are probably better choices. If, however, you're a C programmer and prefer typing a few lines to drag and drop icon programming, then NQC might be perfect for you.
 
 This BrickBot/nqc repo captures changes to the 3.1r6 code as found on
-[BricxCC](http://bricxcc.sourceforge.net/nqc/), including the following [patches that were posted to the original SourceForge project site following the release of nqc 3.1r6 but never incorporated](https://sourceforge.net/p/bricxcc/patches/):
+[BricxCC](http://bricxcc.sourceforge.net/nqc/), including the following [patches that were posted by Matthew Sheets to the original SourceForge project site following the release of nqc 3.1r6 but never incorporated](https://sourceforge.net/p/bricxcc/patches/):
 1. [Added TCP support, facilitating use of NQC with programs such as BrickEmu (an RCX emulator)](https://sourceforge.net/p/bricxcc/patches/2/)
 2. [Added additional capabilities for specifying the default USB port, including at both compile time using a Make variable and via enhanced command-line argument support](https://sourceforge.net/p/bricxcc/patches/2/)
 3. [Support Makefile variables DESTDIR and TOOLPREFIX](https://sourceforge.net/p/bricxcc/patches/3/)
 4. [Enable specifying the default IR tower name in a configuration file](https://sourceforge.net/p/bricxcc/patches/4/)
 5. [Support using a Make variable to specify the default compile-time port name, instead of having to modify source code files](https://sourceforge.net/p/bricxcc/patches/5/)
 
-This release also builds on the jverne/nqc private fork, which was maintained to keep NQC building and running on OS X and BSD.
+This release also attempts to build on the jverne/nqc private fork, which was maintained to keep NQC building and running on OS X and BSD.
 
 For bug reports about _this_ fork of NQC, please [file a GitHub Issue](https://github.com/BrickBot/nqc/issues) for this project.
 
@@ -18,18 +18,17 @@ The original README from the NQC project follows.
 
 ---
 
-NQC Readme
+NQC ReadMe
 ----------
 
 If you have a problem, PLEASE CHECK THE FAQ:
-  <http://bricxcc.sourceforge.net/nqc/doc/faq.html>
+* http://bricxcc.sourceforge.net/nqc/doc/faq.html
   
 Send bug reports to bricxcc@comcast.net.  Be sure to include details about what
 platform you are running nqc on and a sample file that demonstrates the bug if
 possible.
 
-For updates and additional documentation, visit the NQC Web Site:
-<http://bricxcc.sourceforge.net/nqc>
+For updates and additional documentation, visit the [NQC Web Site](http://bricxcc.sourceforge.net/nqc)
 
 
 Note to Windows Users
@@ -46,10 +45,10 @@ use the text editor of your choice, etc. It also makes for identical
 behavior under Windows, Mac, and Linux. In order to use the command line
 version of NQC you'll need to do two things:
 
-1) Use some sort of text editor (such as Notepad) to edit and save a
+1. Use some sort of text editor (such as Notepad) to edit and save a
 source file for NQC to compile.
 
-2) From an MS-DOS window type the appropriate NQC command. Its usually
+2. From an MS-DOS window type the appropriate NQC command. Its usually
 best to either put all of your programs and nqc.exe in the same
 directory, or make sure the directory containing NQC is in your command
 path. 
@@ -74,7 +73,7 @@ already be downloaded.
 
 Compile and download the test file using the following command line:
 
-nqc -d test.nqc
+`nqc -d test.nqc
 
 The test program assumes there's a motor on output A and a touch sensor
 on input 1.  It turns on the motor and waits for the switch to be
@@ -102,4 +101,3 @@ Linux:
     should work.  Other device drivers may or may not work depending on if
     they implement the expected ioctl's to setup the baud rate, parity,
     etc.
-

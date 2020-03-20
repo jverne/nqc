@@ -15,6 +15,11 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <limits.h>
+
 #include "RCX_Link.h"
 #include "RCX_Cmd.h"
 #include "rcxnub.h"
@@ -32,6 +37,7 @@
 using std::printf;
 using std::getenv;
 using std::tolower;
+using std::ifstream;
 
 #define kSerialPortEnv "RCX_PORT"
 
@@ -45,6 +51,9 @@ using std::tolower;
 #define kMaxOnes 90           ///< Max number of sparse bytes when downloading fast @see AdjustChunkSize 
 
 #define kNubStart 0x8000
+
+#define kDeviceUserConfFile "/.rcx/device.conf"
+#define kDeviceEtcConfFile "/etc/rcx/device.conf"
 
 extern bool gQuiet;
 
@@ -80,9 +89,42 @@ RCX_Result RCX_Link::Open(RCX_TargetType target, const char *portName, ULong opt
     // see if an environment variable is set, otherwise use default serial device
     if (!portName) portName = getenv(kSerialPortEnv);
 
+#ifndef WIN32
+    string portName_buf;
+
+    // Check for a user configuration file specifying the port name
+    if (!portName)
+    {
+        ifstream userCfgFile;
+        char *homePath = getenv("HOME");
+        char userConfPath[PATH_MAX];
+        strcpy(userConfPath, homePath);
+        strcat(userConfPath, kDeviceUserConfFile);
+
+        userCfgFile.open(userConfPath);
+        if (userCfgFile) userCfgFile >> portName_buf;
+        userCfgFile.close();
+        if (portName_buf.length() > 0) portName = portName_buf.c_str();
+    }
+
+    // Check for a system configuration file specifying the port name
+    if (!portName)
+    {
+        ifstream etcCfgFile;
+        etcCfgFile.open(kDeviceEtcConfFile);
+        if (etcCfgFile) etcCfgFile >> portName_buf;
+        etcCfgFile.close();
+        if (portName_buf.length() > 0) portName = portName_buf.c_str();
+    }
+#endif
+
+    // if a default device has not yet been found, use the compiled default
+    if (!portName) portName = DEFAULT_DEVICE_NAME;
+
     const char *devName;
 
-    if (portName && ((devName=CheckPrefix(portName, "usb")) != 0)) {
+    if (portName && ((devName=CheckPrefix(portName, "usb")) != 0))
+    {
         // USB Tower
         gUSB = true;
 #ifdef GHOST
@@ -92,7 +134,18 @@ RCX_Result RCX_Link::Open(RCX_TargetType target, const char *portName, ULong opt
         if (!pipe) return kRCX_USBUnsupportedError;
         fTransport = new RCX_PipeTransport(pipe);
 #endif
-    } else {
+    }
+    else if (portName && ((devName=CheckPrefix(portName, "tcp")) != 0))
+    {
+        // TCP
+        gUSB = false;
+
+        RCX_Pipe *pipe = RCX_NewTcpPipe();
+        if (!pipe) return kRCX_TcpUnsupportedError;
+        fTransport = new RCX_PipeTransport(pipe);
+    }
+    else
+    {
         // Serial Tower
         gUSB = false;
         if (portName) {

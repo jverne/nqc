@@ -66,12 +66,9 @@ INCLUDES = $(addprefix -I, $(INCLUDE_DIRS))
 CFLAGS += $(INCLUDES) -Wall
 
 # Default to NO USB tower support. USB support can be enabled
-# via the platform specific settings, below.
+# via the platform-specific settings, below.
 USBOBJ = RCX_USBTowerPipe_none
-
-# Set this to define the serial port for serial IR towers.
-# If unset, "/dev/ttyS0" will be the default port.
-#DEFAULT_SERIAL_NAME = "/dev/ttyS0"
+TCPOBJ = RCX_TcpPipe_none
 
 #
 # Platform specific settings
@@ -87,10 +84,12 @@ ifneq (,$(strip $(findstring $(OSTYPE), Darwin)))
 else
 ifneq (,$(strip $(findstring $(OSTYPE), Linux)))
 	# Linux
-	# uncomment this next line if you have the USB tower library installed
-	#USBOBJ = RCX_USBTowerPipe_linux
-	DEFAULT_SERIAL_NAME = "/dev/ttyS0"
-  	CFLAGS += -I/usr/local/include/LegoUSB -Wno-deprecated
+	USBOBJ = RCX_USBTowerPipe_linux
+	TCPOBJ = rcxlib/RCX_TcpPipe_linux
+	DEFAULT_SERIAL_NAME ?= "/dev/ttyS0"
+	# Timeout value is 200 in kernel driver module legousbtower.c
+	LEGO_TOWER_SET_READ_TIMEOUT?= 200
+	CFLAGS += -DLEGO_TOWER_SET_READ_TIMEOUT='$(LEGO_TOWER_SET_READ_TIMEOUT)' -Wno-deprecated
 else
 ifneq (,$(findstring $(OSTYPE), SunOS))
   	# Solaris
@@ -99,12 +98,12 @@ else
 ifneq (,$(strip $(findstring $(OSTYPE), FreeBSD)))
   	# FreeBSD
   	USBOBJ = RCX_USBTowerPipe_fbsd
-  	DEFAULT_SERIAL_NAME = "/dev/cuad0"
+  	DEFAULT_SERIAL_NAME?= "/dev/cuad0"
   	CFLAGS += -Wno-deprecated
 else
 ifneq (,$(strip $(findstring $(OSTYPE), OpenBSD)))
   	# OpenBSD i386
-  	DEFAULT_SERIAL_NAME = "/dev/cua00"
+  	DEFAULT_SERIAL_NAME ?= "/dev/cua00"
   	CFLAGS += -O2 -std=gnu++98 -pipe
 else
   	# default Unix build without USB support
@@ -115,12 +114,20 @@ endif
 endif
 endif
 
+CXX:=$(TOOLPREFIX)$(CXX)
+
 #
 # If the serial port is explicitly set, use it.
 #
 ifneq ($(strip $(DEFAULT_SERIAL_NAME)),)
 	CFLAGS += -DDEFAULT_SERIAL_NAME='$(DEFAULT_SERIAL_NAME)'
 endif
+
+DEFAULT_USB_NAME ?= "/dev/usb/legousbtower0"
+CFLAGS += -DDEFAULT_USB_NAME='$(DEFAULT_USB_NAME)'
+
+DEFAULT_DEVICE_NAME ?= "usb"
+CFLAGS += -DDEFAULT_DEVICE_NAME='$(DEFAULT_DEVICE_NAME)'
 
 #
 # Debug builds for most Clang/GCC environments.
@@ -136,7 +143,7 @@ OBJ = $(NQCOBJ) $(COBJ) $(RCXOBJ) $(POBJ)
 RCXOBJS = RCX_Cmd RCX_Disasm RCX_Image RCX_Link RCX_Log \
 	RCX_Target RCX_Pipe RCX_PipeTransport RCX_Transport \
 	RCX_SpyboticsLinker RCX_SerialPipe \
-	$(USBOBJ)
+	$(USBOBJ) $(TCPOBJ)
 RCXOBJ = $(addprefix rcxlib/, $(addsuffix .o, $(RCXOBJS)))
 
 POBJS = PStream PSerial_unix PHashTable PListS PDebug
@@ -269,10 +276,10 @@ docs:
 # Installation of binary and man page
 #
 install: all
-	test -d $(BINDIR) || mkdir -p $(BINDIR)
-	cp -r bin/* $(BINDIR)
-	test -d $(MANDIR)  || mkdir -p $(MANDIR)
-	cp nqc-man-2.1r1-0.man $(MANDIR)/nqc.$(MANEXT)
+	test -d $(DESTDIR)$(BINDIR) || mkdir -p $(DESTDIR)$(BINDIR)
+	cp -r bin/* $(DESTDIR)$(BINDIR)
+	test -d $(DESTDIR)$(MANDIR)  || mkdir -p $(DESTDIR)$(MANDIR)
+	cp nqc-man-2.1r1-0.man $(DESTDIR)$(MANDIR)/nqc.$(MANEXT)
 
 #
 # Print some info about the environment

@@ -59,7 +59,9 @@ RCX_Pipe* RCX_NewUSBTowerPipe()
 	return new RCX_USBTowerPipe_win();
 }
 
-#define DEFAULT_TOWER_NAME "\\\\.\\LEGOTOWER1"
+#ifndef DEFAULT_USB_NAME
+    #define DEFAULT_USB_NAME "\\\\.\\LEGOTOWER1"
+#endif
 
 RCX_USBTowerPipe_win::RCX_USBTowerPipe_win() : fFile(INVALID_HANDLE_VALUE)
 {
@@ -67,10 +69,10 @@ RCX_USBTowerPipe_win::RCX_USBTowerPipe_win() : fFile(INVALID_HANDLE_VALUE)
 
 RCX_Result RCX_USBTowerPipe_win::Open(const char *name, int mode)
 {
-        TowerAPILoaded = LoadLEGOTowerFunctions(&TOWER);
+    TowerAPILoaded = LoadLEGOTowerFunctions(&TOWER);
 	if (name == 0 || *name==0)
 	{
-		name = DEFAULT_TOWER_NAME;
+		name = DEFAULT_USB_NAME;
 	}
 
 	fFile = CreateFile(name, GENERIC_READ | GENERIC_WRITE,

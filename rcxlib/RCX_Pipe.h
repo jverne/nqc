@@ -70,4 +70,10 @@ private:
  */
 RCX_Pipe* RCX_NewUSBTowerPipe();
 
+/*
+ * This is an operating system dependent factory method for creating
+ * a pipe for TCP.
+ */
+RCX_Pipe* RCX_NewTcpPipe();
+
 #endif

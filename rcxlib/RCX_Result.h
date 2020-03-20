@@ -36,7 +36,14 @@ typedef int RCX_Result;
 #define kRCX_USBUnsupportedError    -10 ///< USB is not yet supported (depends on the OS)
 #define kRCX_GhostNotFoundError     -11 ///< USB requires Ghost, which is not installed
 
-#define kRCX_LastError              -11 ///< Last error code so classes can hook their own codes in
+// new error codes for TCP support
+#define kRCX_TcpUnsupportedError    -12 ///< TCP is not yet supported
+#define kRCX_UnknownTcpHostError    -13 ///< unknown TCP host
+#define kRCX_OpenSocketError        -14 ///< failure opening a TCP socket
+#define kRCX_BindPortError          -15 ///< unable to bind port
+#define kRCX_TcpConnectError        -16 ///< cannot connect
+
+#define kRCX_LastError              -16 ///< Last error code so classes can hook their own codes in
 
 /// Convenience define to check if a code is an error condition.
 #define RCX_ERROR(result)   ((result) < 0)

@@ -18,8 +18,6 @@
 #include <sys/ioctl.h>
 #include "RCX_Pipe.h"
 
-#include <LegoUSB/legousbtower.h>
-
 
 class RCX_USBTowerPipe_linux : public RCX_Pipe
 {
@@ -48,26 +46,44 @@ RCX_Pipe* RCX_NewUSBTowerPipe()
 	return new RCX_USBTowerPipe_linux();
 }
 
-#define DEFAULT_TOWER_NAME "/dev/usb/lego0"
+#define USB_NAME_1 "/dev/legousbtower0"
+#define USB_NAME_2 "/dev/usb/legousbtower0"
+#ifndef DEFAULT_USB_NAME
+    #define DEFAULT_USB_NAME USB_NAME_1
+#endif
 
 RCX_Result RCX_USBTowerPipe_linux::Open(const char *name, int mode)
 {
-	// if (name == 0 || *name==0)
-	{
-		name = DEFAULT_TOWER_NAME;
+    struct stat stFileInfo;
+
+    if ((0 != name) && (0 != *name))
+    {
+        // a specific name was passed; attempt to use it
+    }
+    else if (0 == stat(DEFAULT_USB_NAME, &stFileInfo))
+    {
+        name = DEFAULT_USB_NAME;
+ 	}
+    else if (0 == stat(USB_NAME_1, &stFileInfo))
+    {
+        name = USB_NAME_1;
+    }
+    else if (0 == stat(USB_NAME_2, &stFileInfo))
+    {
+        name = USB_NAME_2;
+    }
+
+    fd = open(name, O_RDWR);
+
+    if (fd < 0) { return kRCX_OpenSerialError; }
+
+    RCX_Result err = SetMode(mode);
+    if (err != kRCX_OK)
+    {
+        Close();
+        return err;
 	}
-
-	fd = open(name, O_RDWR);
-
-	if (fd < 0) return kRCX_OpenSerialError;
-
-        RCX_Result err = SetMode(mode);
-        if (err != kRCX_OK)
-        {
-          Close();
-          return err;
-        }
-        return kRCX_OK;
+	return kRCX_OK;
 }
 
 

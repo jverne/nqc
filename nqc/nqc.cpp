@@ -1082,10 +1082,29 @@ void PrintError(RCX_Result error, const char *filename)
         case kRCX_GhostNotFoundError:
             fprintf(STDERR," Ghost libraries are not installed properly\n");
             break;
+
+        case kRCX_TcpUnsupportedError:
+            fprintf(STDERR, "TCP not supported\n");
+            break;
+        case kRCX_UnknownTcpHostError:
+            fprintf(STDERR, "Unknown TCP host\n");
+            break;
+        case kRCX_OpenSocketError:
+            fprintf(STDERR, "Could not open TCP socket\n");
+            break;
+        case kRCX_BindPortError:
+            fprintf(STDERR, "Failure binding TCP port\n");
+            break;
+        case kRCX_TcpConnectError:
+            fprintf(STDERR, "Could not create TCP connection\n");
+            break;
+
         default:
             fprintf(STDERR, "Error #%d\n", -error);
             break;
     }
+
+    fflush(STDERR);
 }
 
 void PrintVersion()

@@ -13,11 +13,11 @@ Mainfest
 	platform   - source for utility classes
 	rcx.nqh    - system include file for using nqcc
 	rcxlib     - classes implementing the rcx interface
-	readme.txt - the readme file
-	test.nqc   - a trivial nqcc test program
+	README.md - the readme file
+	test.nqc   - a trivial nqc test program
 
 
-The Mac and win32 version are built under Metrowerks CodeWarrior.
+The Mac and Win32 version are built under Metrowerks CodeWarrior.
 The included Makefile was designed for Linux, but should work on other
 Unix platforms with minor modification.
 
